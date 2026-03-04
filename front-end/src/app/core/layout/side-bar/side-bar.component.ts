@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { SidebarStateService } from '../../services/sidebar-state.service';
@@ -12,7 +12,7 @@ export interface MenuItem {
 
 @Component({
   selector: 'app-side-bar',
-  imports: [CommonModule, MatIconModule, RouterLink, RouterLinkActive],
+  imports: [MatIconModule, RouterLink, RouterLinkActive],
   templateUrl: './side-bar.component.html',
   styleUrls: ['./side-bar.component.css'],
 })

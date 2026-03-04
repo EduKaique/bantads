@@ -1,13 +1,13 @@
 import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
-import { NgIf, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 
 type InputTypes = 'text' | 'email' | 'password' | 'number';
 
 @Component({
   selector: 'app-input-primary',
-  imports: [ReactiveFormsModule, NgxMaskDirective, NgIf, NgClass],
+  imports: [ReactiveFormsModule, NgxMaskDirective, NgClass],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
