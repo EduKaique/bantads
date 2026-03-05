@@ -1,12 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-success-modal',
   templateUrl: './app-success-modal.html',
   styleUrls: ['./app-success-modal.css'],
-  imports: [CommonModule]
+  imports: []
 })
 export class AppSuccessModalComponent {
   @Input() mostrar: boolean = false;
