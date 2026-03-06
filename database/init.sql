@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS remont_db;
-GRANT ALL PRIVILEGES ON remont_db.* TO 'springuser'@'%';
+CREATE DATABASE IF NOT EXISTS bantads_db;
+GRANT ALL PRIVILEGES ON bantads_db.* TO 'springuser'@'%';
 FLUSH PRIVILEGES;
 
-USE remont_db;
+USE bantads_db;

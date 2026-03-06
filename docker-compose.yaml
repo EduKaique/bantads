@@ -10,8 +10,6 @@ services:
       - /app/node_modules
     environment:
       - NODE_OPTIONS=--max_old_space_size=4096
-    depends_on:
-      - backend
     restart: unless-stopped
 
   backend:
@@ -28,7 +26,7 @@ services:
       - ./back-end:/app
       - maven-repo:/root/.m2
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/remont_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/bantads_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8
       - SPRING_DATASOURCE_USERNAME=springuser
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
@@ -41,7 +39,7 @@ services:
     environment:
       - MYSQL_USER=springuser
       - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=remont_db
+      - MYSQL_DATABASE=bantads_db
       - MYSQL_ROOT_PASSWORD=root
     volumes:
       - "./conf.d:/etc/mysql/conf.d:ro"
@@ -51,8 +49,8 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
-      interval: 10s 
-      
+      interval: 10s
+
     restart: unless-stopped
 
 volumes:
