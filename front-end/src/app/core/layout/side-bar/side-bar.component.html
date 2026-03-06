@@ -1,7 +1,7 @@
 <aside class="sidebar-container" [class.expanded]="isExpanded()">
   <div class="sidebar-header">
     @if (isExpanded()) {
-    <img src="assets/images/logo.png" alt="Remont Logo" class="logo" />
+      <img src="assets/images/logo.png" alt="bantads Logo" class="logo" />
     }
     <button
       class="toggle-button"
@@ -14,19 +14,19 @@
 
   <ul class="menu-list">
     @for (item of menuItems; track item.label) {
-    <li
-      class="menu-item"
-      [routerLink]="item.route"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      aria-current="page"
-    >
-      <mat-icon class="icon">{{ item.icon }}</mat-icon>
+      <li
+        class="menu-item"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        aria-current="page"
+      >
+        <mat-icon class="icon">{{ item.icon }}</mat-icon>
 
-      @if (isExpanded()) {
-      <span class="label">{{ item.label }}</span>
-      }
-    </li>
+        @if (isExpanded()) {
+          <span class="label">{{ item.label }}</span>
+        }
+      </li>
     }
   </ul>
 </aside>

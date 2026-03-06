@@ -1,7 +1,7 @@
 <main>
   <section class="illustration">
     <h1 class="display_medium title-login">
-      Com a <span class="emphasis">Remont</span>, <br />
+      Com a <span class="emphasis">bantads</span>, <br />
       seus equipamentos <br />
       nunca param.
     </h1>
@@ -47,16 +47,20 @@
           >
         </app-input-primary>
         @if (loginError) {
-          <div  class="error-message">
+          <div class="error-message">
             {{ loginError }}
           </div>
         }
         <div class="row-link-btn">
-          <button class="button-primary label_large" type="submit" [disabled]="loginForm.invalid || isLoading" [style.opacity]=" !isLoading ? '1' : '0.7'">
+          <button
+            class="button-primary label_large"
+            type="submit"
+            [disabled]="loginForm.invalid || isLoading"
+            [style.opacity]="!isLoading ? '1' : '0.7'"
+          >
             @if (!isLoading) {
               Entrar
-            } @else
-            {
+            } @else {
               Aguarde...
             }
           </button>
