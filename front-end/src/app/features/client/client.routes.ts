@@ -1,11 +1,9 @@
 import {Routes} from '@angular/router';
+import { UpdateProfileComponent } from './pages/update-profile/update-profile';
 
 export const clientRoutes: Routes = [
-    /* 
-    Exemplo de rota pra cliente
-    {
-      path: 'home',
-      component: ClientHomePageComponent,
+    { 
+      path: 'updateProfile/:id',
+      component: UpdateProfileComponent,
     }
-    */
 ];
