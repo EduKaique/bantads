@@ -1,11 +1,8 @@
-import {Routes} from '@angular/router';
+import { Routes } from '@angular/router';
+import { SaquePageComponent } from './pages/saque-page/saque-page.component';
+import { SaqueSucessoPageComponent } from './pages/saque-sucesso-page/saque-sucesso-page.component';
 
 export const clientRoutes: Routes = [
-    /* 
-    Exemplo de rota pra cliente
-    {
-      path: 'home',
-      component: ClientHomePageComponent,
-    }
-    */
+  { path: 'saque',         component: SaquePageComponent },
+  { path: 'saque/sucesso', component: SaqueSucessoPageComponent },
 ];
