@@ -1,11 +1,18 @@
-import {Routes} from '@angular/router';
+import { Routes } from '@angular/router';
+import { DepositPageComponent } from './pages/deposit-page.component';
 
 export const clientRoutes: Routes = [
-    /* 
-    Exemplo de rota pra cliente
-    {
-      path: 'home',
-      component: ClientHomePageComponent,
-    }
-    */
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'dashboard',
+  },
+  {
+    path: 'dashboard',
+    component: DepositPageComponent,
+  },
+  {
+    path: 'deposit',
+    component: DepositPageComponent,
+  },
 ];
