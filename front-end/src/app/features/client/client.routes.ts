@@ -1,11 +1,9 @@
-import {Routes} from '@angular/router';
+import { Routes } from '@angular/router';
+import { ConsultaExtratoPageComponent } from './pages/008-consulta-de-extrato/008-consulta-de-extrato.component';
 
 export const clientRoutes: Routes = [
-    /* 
-    Exemplo de rota pra cliente
     {
-      path: 'home',
-      component: ClientHomePageComponent,
+      path: 'consulta-extrato',
+      component: ConsultaExtratoPageComponent,
     }
-    */
 ];
