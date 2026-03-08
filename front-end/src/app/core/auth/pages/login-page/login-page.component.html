@@ -1,20 +1,25 @@
 <main>
   <section class="illustration">
-    <h1 class="display_medium title-login">
-      Com a <span class="emphasis">bantads</span>, <br />
-      seus equipamentos <br />
-      nunca param.
-    </h1>
+    <div>
+      <h1 class="display_medium title-login">
+        Seu dinheiro, <br>
+        no seu controle.
+      </h1>
+      <p class="body_large description">
+        Gerencie suas finanças de forma simples, <br> 
+        rápida e segura, onde estiver.
+      </p>
+    </div>
     <div class="container-illustration">
       <img
-        src="assets/illustrations/login-illustration.svg"
+        src="assets/illustrations/login.svg"
         alt="Ilustração de Login"
-        width="600"
+        width="500"
       />
     </div>
   </section>
   <section class="form">
-    <img src="assets/images/logo.png" alt="Logomarca" width="200" />
+    <img src="assets/images/logo.svg" alt="Logomarca" width="200" />
     <div class="form-content">
       <div class="form-text">
         <h3 class="heading_3">Login</h3>
@@ -53,9 +58,8 @@
         }
         <div class="row-link-btn">
           <button
-            class="button-primary label_large"
+            class="button-primary label_large btn-login"
             type="submit"
-            [disabled]="loginForm.invalid || isLoading"
             [style.opacity]="!isLoading ? '1' : '0.7'"
           >
             @if (!isLoading) {
@@ -63,12 +67,13 @@
             } @else {
               Aguarde...
             }
+            <mat-icon>arrow_forward</mat-icon>
           </button>
         </div>
       </form>
 
       <p class="body_medium">
-        Ainda não possui uma conta? <a (click)="navigate()">Faça o cadastro.</a>
+        Ainda não possui uma conta? <a (click)="navigate()" class="label_large">Faça o cadastro.</a>
       </p>
     </div>
   </section>
