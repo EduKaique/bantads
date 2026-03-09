@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { ClientDashboardPageComponent } from './pages/client-dashboard-page.component';
 import { DepositPageComponent } from './pages/deposit-page.component';
 
 export const clientRoutes: Routes = [
@@ -9,10 +10,10 @@ export const clientRoutes: Routes = [
   },
   {
     path: 'dashboard',
-    component: DepositPageComponent,
+    component: ClientDashboardPageComponent,
   },
   {
-    path: 'deposit',
+    path: 'deposito',
     component: DepositPageComponent,
   },
 ];
