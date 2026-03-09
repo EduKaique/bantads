@@ -63,6 +63,7 @@ export class DepositPageComponent {
   readonly depositForm = this.formBuilder.nonNullable.group({
     amount: ['', [Validators.required, depositAmountValidator]],
   });
+  private readonly amountControl = this.depositForm.controls.amount;
 
   isConfirmationVisible = false;
   isSubmitting = false;
@@ -79,11 +80,9 @@ export class DepositPageComponent {
       input.value = sanitizedValue;
     }
 
-    this.depositForm.controls.amount.setValue(sanitizedValue, {
-      emitEvent: false,
-    });
-    this.depositForm.controls.amount.markAsDirty();
-    this.depositForm.controls.amount.updateValueAndValidity();
+    this.amountControl.setValue(sanitizedValue, { emitEvent: false });
+    this.amountControl.markAsDirty();
+    this.amountControl.updateValueAndValidity();
   }
 
   openConfirmation(): void {
@@ -93,21 +92,24 @@ export class DepositPageComponent {
     }
 
     this.pendingDeposit = {
-      amount: this.parseAmount(this.depositForm.controls.amount.value),
+      amount: this.parseAmount(this.amountControl.value),
     };
     this.submissionError = '';
     this.isConfirmationVisible = true;
   }
 
   closeConfirmation(): void {
-    if (!this.isSubmitting) {
-      this.isConfirmationVisible = false;
-      this.pendingDeposit = null;
+    if (this.isSubmitting) {
+      return;
     }
+
+    this.resetConfirmationState();
   }
 
   confirmDeposit(): void {
-    if (!this.pendingDeposit) {
+    const pendingDeposit = this.pendingDeposit;
+
+    if (!pendingDeposit) {
       return;
     }
 
@@ -115,20 +117,18 @@ export class DepositPageComponent {
     this.submissionError = '';
 
     this.clientAccountService
-      .depositIntoCurrentAccount(this.pendingDeposit)
+      .depositIntoCurrentAccount(pendingDeposit)
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
         next: (account) => {
           this.successfulDepositTimestamp =
             account.transactions[0]?.performedAt ?? new Date().toISOString();
           this.depositForm.reset({ amount: '' });
-          this.pendingDeposit = null;
-          this.isConfirmationVisible = false;
+          this.resetConfirmationState();
         },
         error: (error: Error) => {
           this.submissionError = error.message;
-          this.pendingDeposit = null;
-          this.isConfirmationVisible = false;
+          this.resetConfirmationState();
         },
       });
   }
@@ -146,33 +146,31 @@ export class DepositPageComponent {
       return this.submissionError;
     }
 
-    if (this.hasFieldError(this.depositForm.controls.amount)) {
+    if (this.hasFieldError(this.amountControl)) {
       return this.amountErrorMessage;
     }
 
-    return '* Campo de preenchimento obrigatório';
+    return '* Campo de preenchimento obrigat\u00f3rio';
   }
 
   get helperIsError(): boolean {
-    return Boolean(this.submissionError) || this.hasFieldError(this.depositForm.controls.amount);
+    return Boolean(this.submissionError) || this.hasFieldError(this.amountControl);
   }
 
   get amountErrorMessage(): string {
-    const control = this.depositForm.controls.amount;
-
-    if (control.hasError('required')) {
-      return 'Informe o valor do depósito.';
+    if (this.amountControl.hasError('required')) {
+      return 'Informe o valor do dep\u00f3sito.';
     }
 
-    if (control.hasError('currencyFormat')) {
-      return 'Use um valor válido com até duas casas decimais.';
+    if (this.amountControl.hasError('currencyFormat')) {
+      return 'Use um valor v\u00e1lido com at\u00e9 duas casas decimais.';
     }
 
-    if (control.hasError('positiveAmount')) {
+    if (this.amountControl.hasError('positiveAmount')) {
       return 'O valor deve ser maior que zero.';
     }
 
-    return 'Informe um valor válido.';
+    return 'Informe um valor v\u00e1lido.';
   }
 
   get pendingAmountLabel(): string {
@@ -183,6 +181,11 @@ export class DepositPageComponent {
 
   private parseAmount(rawValue: string): number {
     return Number(rawValue.replace(',', '.'));
+  }
+
+  private resetConfirmationState(): void {
+    this.isConfirmationVisible = false;
+    this.pendingDeposit = null;
   }
 
   private sanitizeAmountInput(rawValue: string): string {
