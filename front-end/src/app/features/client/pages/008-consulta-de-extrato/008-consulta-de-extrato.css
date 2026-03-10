@@ -1,0 +1,210 @@
+.extrato-main {
+  padding: var(--spacing-xl);
+  background-color: var(--color-neutral-10);
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 116px;
+  margin-top: 103px;
+  margin-bottom: var(--spacing-lg);
+}
+.header button {
+  width: 241px;
+}
+
+.period-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 116px;
+  margin-right: 116px;
+  margin-bottom: var(--spacing-md);
+}
+
+.period-section {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+}
+
+.period-text {
+  cursor: pointer;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.period-text:hover {
+  color: var(--color-primary-default);
+  text-decoration: underline;
+}
+
+.period-edit {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.period-input {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid var(--color-neutral-40);
+  border-radius: 4px;
+  font-family: var(--font-family-secondary);
+  min-width: 120px;
+}
+
+.period-input:focus {
+  outline: none;
+  border-color: var(--color-primary-default);
+  box-shadow: 0 0 0 2px rgba(8, 116, 72, 0.1);
+}
+
+.separator {
+  margin: 0 4px;
+  color: var(--color-neutral-60);
+}
+
+.period-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.period-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.save-btn {
+  background-color: var(--color-green-50);
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: var(--color-green-60);
+}
+
+.cancel-btn {
+  background-color: var(--color-red-40);
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: var(--color-red-50);
+}
+
+.balance-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.balance-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.balance-section .balance-label {
+  color: var(--color-primary-default);
+}
+
+.balance-section .icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.header button mat-icon {
+  font-size: 20px;
+}
+
+.table-container {
+  margin-left: 116px;
+  margin-right: 116px;
+  margin-top: var(--spacing-md);
+  overflow-x: auto;
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-neutral-20);
+  border: 1px solid var(--color-neutral-60);
+  border-radius: var(--border-25);
+  overflow: hidden;
+}
+
+.table-header {
+  background-color: var(--color-primary-default);
+  color: var(--color-neutral-white);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.table-header th {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-neutral-40);
+  font-family: var(--font-family-brand);
+}
+
+.transactions-table tbody tr.data-row {
+  background-color: var(--color-neutral-300);
+  border-top: 1px solid var(--color-neutral-40);
+}
+
+.transactions-table tbody tr.data-row:hover {
+  background-color: var(--color-neutral-20);
+}
+
+.transactions-table tbody tr.saldo-row {
+  background-color: var(--color-neutral-10);
+  border-top: 1px solid var(--color-neutral-40);
+  font-weight: 500;
+}
+
+.transactions-table td.cell {
+  padding: 10px 12px;
+  font-size: 18px;
+  font-family: var(--font-family-secondary);
+  color: var(--color-neutral-90);
+  border-right: 1px solid var(--color-neutral-40);
+}
+
+.transactions-table td.cell:last-child {
+  border-right: none;
+}
+
+.transactions-table td.saldo-cell {
+  background-color: inherit;
+}
+
+.transactions-table td.operacao-cell {
+  font-weight: 600;
+}
+
+.transactions-table td.text-blue {
+  color: #1d4fb0;
+}
+
+.transactions-table td.text-red {
+  color: #e01300;
+}
+
+.transactions-table td.valor-cell {
+  text-align: right;
+  font-weight: 500;
+}

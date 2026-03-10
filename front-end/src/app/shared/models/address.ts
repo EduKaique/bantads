@@ -33,6 +33,7 @@ export interface Address {
   cep: string;
   logradouro: string;
   complemento?: string;
+  numero: string;
   bairro: string;
   cidade: string;
   estado: Estado;
