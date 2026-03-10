@@ -1,0 +1,114 @@
+:host {
+  display: block;
+  min-height: 100vh;
+
+  --color-green-500: #16b36c;
+  --color-green-700: #087448;
+  --color-text-foreground: #242827;
+  --color-text-foreground-title: #414946;
+  --color-bg-card: #e5e8e6;
+  --color-btn-text: #edfcf3;
+}
+
+.sucesso-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px 16px;
+  background: white;
+  box-sizing: border-box;
+}
+
+.sucesso-card {
+  width: 100%;
+  max-width: 432px;
+  padding: 32px 40px;
+  background: var(--color-bg-card);
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.sucesso-icone {
+  width: 100px;
+  height: 100px;
+  background: var(--color-green-500);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sucesso-conteudo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.sucesso-titulo {
+  color: var(--color-text-foreground-title);
+  font-size: 28px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 500;
+  line-height: 32px;
+  margin: 0;
+}
+
+.sucesso-valor {
+  color: var(--color-green-700);
+  font-size: 32px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  line-height: 36px;
+}
+
+.sucesso-detalhe {
+  color: var(--color-text-foreground);
+  font-size: 18px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  line-height: 28px;
+  margin: 0;
+}
+
+.sucesso-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.btn-dashboard,
+.btn-novo-saque {
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.btn-dashboard {
+  background: var(--color-green-700);
+  color: var(--color-btn-text);
+  border: none;
+}
+
+.btn-novo-saque {
+  background: transparent;
+  border: 2px solid var(--color-green-700);
+  color: var(--color-green-700);
+}
+
+.btn-dashboard:hover,
+.btn-novo-saque:hover {
+  filter: brightness(0.9);
+}

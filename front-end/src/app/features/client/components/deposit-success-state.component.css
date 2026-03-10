@@ -1,0 +1,70 @@
+:host {
+  display: block;
+}
+
+.deposit-success-card {
+  width: 432px;
+  max-width: 100%;
+  min-height: 364px;
+  padding: 32px 40px;
+  border-radius: 24px;
+  background: #fafafa;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.deposit-success-card__indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #16b36c;
+}
+
+.deposit-success-card__indicator svg {
+  width: 48px;
+  height: 48px;
+  stroke: #edfcf3;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.deposit-success-card__content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.deposit-success-card__title {
+  margin: 0;
+  color: #414946;
+  text-align: center;
+  font-family: 'Sora', sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 32px;
+  letter-spacing: -0.4px;
+}
+
+.deposit-success-card__details {
+  color: #242827;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 28px;
+  letter-spacing: -0.1px;
+}
+
+.deposit-success-card__details p {
+  margin: 0;
+}

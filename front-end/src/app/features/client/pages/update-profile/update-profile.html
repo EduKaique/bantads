@@ -1,0 +1,216 @@
+<main>
+  <img
+    class="img-logo"
+    src="assets/images/logo.png"
+    alt="Logomarca"
+    width="200"
+  />
+
+  <section class="update-container">
+    <div class="update-text">
+      <h1 class="heading_3">Altere seu perfil</h1>
+      <p class="body_medium">Preencha suas informações atualizadas.</p>
+    </div>
+
+    <mat-stepper linear #stepper>
+
+      <!-- Informações pessoais -->
+      <mat-step [stepControl]="firstFormGroup">
+
+        <form class="form-content" [formGroup]="firstFormGroup">
+
+          <ng-template matStepLabel>
+            Informações Pessoais
+          </ng-template>
+
+          <app-input-primary
+            label="Nome Completo"
+            type="text"
+            formControlName="nameUser"
+            placeholder="Digite seu Nome Completo"
+            style="width: inherit">
+          </app-input-primary>
+
+          <div class="row-form-cpf-phone">
+
+            <app-input-primary
+              label="CPF"
+              type="text"
+              formControlName="cpfUser"
+              placeholder="___.___.___-__"
+              mask="000.000.000-00"
+              style="width: inherit">
+            </app-input-primary>
+
+            <app-input-primary
+              label="Celular"
+              type="text"
+              formControlName="phoneUser"
+              placeholder="(__) _ ____-____"
+              mask="(00) 0 0000-0000"
+              style="width: inherit">
+            </app-input-primary>
+
+          </div>
+
+          <app-input-primary
+            label="Email"
+            type="email"
+            formControlName="email"
+            placeholder="exemplo@email.com"
+            style="width: inherit"
+            required>
+          </app-input-primary>
+
+          <app-input-primary
+            label="Salário"
+            type="text"
+            formControlName="salary"
+            placeholder="R$"
+            style="width: inherit"
+            required>
+          </app-input-primary>
+
+          <div class="first-button">
+            <button
+              type="button"
+              class="button-primary label_large"
+              matStepperNext>
+              Próximo
+            </button>
+          </div>
+
+        </form>
+
+      </mat-step>
+
+      <!-- Endereço completo -->
+      <mat-step [stepControl]="secondFormGroup">
+
+        <form class="form-content" [formGroup]="secondFormGroup">
+
+          <ng-template matStepLabel>
+            Endereço Completo
+          </ng-template>
+
+          <div class="div-row">
+
+            <app-input-primary
+              formControlName="cep"
+              type="text"
+              inputName="cep"
+              label="CEP"
+              placeholder="_____-___"
+              mask="00000-000">
+            </app-input-primary>
+
+            <span
+              class="button-search-cep label_large"
+              [class.disabled]="!isCepValid"
+              (click)="isCepValid && searchCep()">
+
+              <mat-icon
+                aria-hidden="false"
+                aria-label="Pesquisar"
+                fontIcon="search">
+              </mat-icon>
+
+              Pesquisar
+            </span>
+
+          </div>
+
+          <div class="div-row">
+
+            <app-input-primary
+              formControlName="address"
+              type="text"
+              inputName="address"
+              label="Endereço"
+              placeholder="Digite seu Endereço"
+              style="width: inherit">
+            </app-input-primary>
+
+            <app-input-primary
+              formControlName="number"
+              type="text"
+              inputName="input-numero"
+              label="Número"
+              placeholder="Digite seu número">
+            </app-input-primary>
+
+          </div>
+
+          <div class="div-row">
+
+            <app-input-primary
+              formControlName="complement"
+              label="Complemento"
+              type="text"
+              placeholder="Ex: Bloco, Apto..."
+              style="width: inherit">
+            </app-input-primary>
+
+            <app-input-primary
+              label="Bairro"
+              type="text"
+              formControlName="neighborhood"
+              style="width: inherit">
+            </app-input-primary>
+
+          </div>
+
+          <div class="div-row">
+
+            <app-input-primary
+              label="Cidade"
+              type="text"
+              formControlName="city"
+              style="width: inherit">
+            </app-input-primary>
+
+            <app-input-primary
+              label="Estado"
+              type="text"
+              formControlName="state"
+              placeholder="Selecione seu Estado"
+              style="width: inherit">
+            </app-input-primary>
+
+          </div>
+
+          <div class="div-row row-button">
+
+            <button
+              type="button"
+              class="button-secondary label_large"
+              matStepperPrevious>
+              Voltar
+            </button>
+
+            <button
+              type="button"
+              class="button-primary label_large"
+              (click)="onSubmit()">
+              Atualizar
+            </button>
+
+          </div>
+
+        </form>
+
+      </mat-step>
+
+    </mat-stepper>
+
+  </section>
+
+  <!-- MODAL SUCESSO -->
+  <app-success-modal
+    [(mostrar)]="showModal"
+    titulo="Sua conta foi atualizada com sucesso!"
+    textoBotao="Voltar para Página inicial"
+    rotaDestino="/home">
+  </app-success-modal>
+
+</main>
