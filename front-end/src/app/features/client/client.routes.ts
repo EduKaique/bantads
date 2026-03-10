@@ -1,4 +1,3 @@
-import {Routes} from '@angular/router';
 import { Routes } from '@angular/router';
 import { DepositPageComponent } from './pages/deposit-page.component';
 import { SaquePageComponent } from './pages/saque-page/saque-page.component';
