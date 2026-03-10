@@ -69,8 +69,8 @@ export class AuthService {
 
         const user: UserState = {
           name: response.userName,
-          userAccess: accessType, 
-          token: response.token,
+          userAccess: accessType || "CLIENT", 
+          token: "fake-jwt-token",
         };
         
         return user;
