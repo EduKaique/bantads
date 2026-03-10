@@ -1,0 +1,50 @@
+<div class="bg-main">
+  <div class="card-transfer">
+    <div class="header-content">
+      <h1 class="text-title h2">Transferência</h1>
+      <p class="text-description">Preencha as informações para realizar a transferência.</p>
+    </div>
+
+    <form [formGroup]="transferForm" (ngSubmit)="onSubmit()" class="form-grid-layout">
+
+      <div class="form-row account-search-group full-width">
+        <div class="form-group flex-grow">
+          <label class="form-label">*Número da Conta de Destino</label>
+          <input type="text" class="form-control" formControlName="accountNumber" placeholder="Ex: 1291" maxlength="4">
+        </div>
+        <button type="button" class="btn-search" (click)="searchAccount()">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16.6 18L10.3 11.7C9.8 12.1 9.225 12.4167 8.575 12.65C7.925 12.8833 7.23333 13 6.5 13C4.68333 13 3.14583 12.3708 1.8875 11.1125C0.629167 9.85417 0 8.31667 0 6.5C0 4.68333 0.629167 3.14583 1.8875 1.8875C3.14583 0.629167 4.68333 0 6.5 0C8.31667 0 9.85417 0.629167 11.1125 1.8875C12.3708 3.14583 13 4.68333 13 6.5C13 7.23333 12.8833 7.925 12.65 8.575C12.4167 9.225 12.1 9.8 11.7 10.3L18 16.6L16.6 18ZM6.5 11C7.75 11 8.8125 10.5625 9.6875 9.6875C10.5625 8.8125 11 7.75 11 6.5C11 5.25 10.5625 4.1875 9.6875 3.3125C8.8125 2.4375 7.75 2 6.5 2C5.25 2 4.1875 2.4375 3.3125 3.3125C2.4375 4.1875 2 5.25 2 6.5C2 7.75 2.4375 8.8125 3.3125 9.6875C4.1875 10.5625 5.25 11 6.5 11Z" fill="currentColor"/>
+          </svg>
+          <span>Pesquisar</span>
+        </button>
+      </div>
+
+      <div class="form-row full-width form-group">
+        <label class="form-label">Nome</label>
+        <input type="text" class="form-control disabled-field" formControlName="name" readonly>
+      </div>
+
+      <div class="form-row full-width form-group">
+        <label class="form-label">CPF</label>
+        <input type="text" class="form-control disabled-field" formControlName="cpf" placeholder="___.___.___-__" readonly (input)="onCpfInput($event)">
+      </div>
+
+      <div class="form-row split-group full-width">
+        <div class="form-group half-width">
+          <label class="form-label">*Valor</label>
+          <input type="text" class="form-control" formControlName="amount" placeholder="R$ 0,00" (input)="onAmountInput($event)">
+        </div>
+        <div class="form-group half-width">
+          <label class="form-label">Saldo Disponível</label>
+          <input type="text" class="form-control disabled-field" formControlName="balance" readonly>
+        </div>
+      </div>
+
+      <div class="form-row full-width footer-actions mt-5">
+        <p class="footer-note">* Campo de preenchimento obrigatório</p>
+        <button type="submit" class="btn-submit">Enviar</button>
+      </div>
+    </form>
+  </div>
+</div>
