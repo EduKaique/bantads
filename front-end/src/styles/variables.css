@@ -285,12 +285,6 @@
     --radius-xl: var(--size-900);
     --radius-pill: 1000px;
   
-    /* Mapped */
-    --layout-drawer-background: var(--color-success-lightest);
-    --layout-table-header: var(--color-success-light);
-    --layout-table-row-light: var(--color-neutral-25);
-    --layout-table-row-default: var(--color-neutral-75);
-    --page-background: var(--color-surface-default);
   
     /* TYPESCALE */
   
