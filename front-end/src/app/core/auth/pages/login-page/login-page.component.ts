@@ -70,12 +70,12 @@ export class LoginPageComponent implements OnInit {
 
     this.authService.login(email, password).subscribe({
       next: (user) => {
-        this.isLoading = false; 
+        this.isLoading = true; 
 
         if (user) {
-          if (user.userAccess === 'employee') {
+          if (user.tipo === 'GERENTE') {
             this.router.navigate(['/employee/dashboard']); 
-          } else if (user.userAccess === 'client') {
+          } else if (user.tipo === 'CLIENTE') {
             this.router.navigate(['/client/dashboard']); 
           }
         } else {
@@ -89,6 +89,10 @@ export class LoginPageComponent implements OnInit {
         this.loginError =
           'Ocorreu um erro inesperado. Tente novamente mais tarde.';
       },
+      complete: () => {
+        this.isLoading = false;
+      }
+
     });
     
   }

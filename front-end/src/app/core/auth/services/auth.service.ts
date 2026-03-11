@@ -5,18 +5,25 @@ import { Router } from '@angular/router';
 import { API_URL } from '../../configs/api.token';
 import { RegisterRequest } from '../../../shared/models/register-request';
 
-interface LoginResponseApi {
-  token: string;
-  userName: string;
-  userRole: string;
+interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  tipo: string;
+  usuario: {
+    id: number;
+    nome: string;
+    email: string;
+    cpf: string;
+  };
 }
 
 export type UserState = {
   id?: number;
   name: string;
   email?: string;
-  userAccess: 'employee' | 'client'; 
-  token: string;
+  cpf?: string;
+  tipo: 'CLIENTE' | 'GERENTE' | 'ADMINISTRADOR'; 
+  access_token: string;
 } | null;
 
 @Injectable({
@@ -30,8 +37,8 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<UserState>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  public isEmployee$: Observable<boolean> = this.currentUser$.pipe(
-    map(user => user?.userAccess === 'employee')
+  public isManager$: Observable<boolean> = this.currentUser$.pipe(
+    map(user => user?.tipo === 'GERENTE')
   );
   
   public isLoggedIn$: Observable<boolean> = this.currentUser$.pipe(
@@ -60,24 +67,25 @@ export class AuthService {
   }
 
   public login(email: string, password: string): Observable<UserState> {
-    return this.http.post<LoginResponseApi>(`${this.apiBaseUrl}/auth/login`, {
+    return this.http.post<LoginResponse>(`${this.apiBaseUrl}/auth/login`, {
       email,     
       password
     }).pipe(
       map(response => {
-        const accessType = this.mapRoleToUserAccess(response.userRole);
-
         const user: UserState = {
-          name: response.userName,
-          userAccess: accessType || "CLIENT", 
-          token: "fake-jwt-token",
+          id: response.usuario.id,
+          name: response.usuario.nome,
+          email: response.usuario.email,
+          cpf: response.usuario.cpf,
+          tipo: response.tipo as 'CLIENTE' | 'GERENTE' | 'ADMINISTRADOR',
+          access_token: response.access_token,
         };
         
         return user;
       }),
       tap((user) => {
         localStorage.setItem('currentUser', JSON.stringify(user));
-        localStorage.setItem('token', user!.token);
+        localStorage.setItem('token', user!.access_token);
         this.currentUserSubject.next(user);
       })
     );

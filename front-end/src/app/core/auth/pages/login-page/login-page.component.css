@@ -24,12 +24,12 @@ section{
 }
 
 .title-login {
-   color: var(--color-primary-primary-foreground, #EDFCF3);
+   color: var(--color-primary-foreground, #EDFCF3);
    line-height: 56px;
 }
 
 .description {
-    color: var(--color-primary-primary-foreground, #EDFCF3);
+    color: var(--color-primary-foreground, #EDFCF3);
 }
 
 .container-illustration {
@@ -47,7 +47,7 @@ section{
     align-items: start;
     gap: var(--spacing-xl, 40px);
     flex-shrink: 0;
-    background: var(--color-background-card, #FAFAFA);
+    background: var(--color-card, #FAFAFA);
 }
 
 .form-text {
