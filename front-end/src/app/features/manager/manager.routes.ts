@@ -1,4 +1,5 @@
 import {Routes} from '@angular/router';
+import { ConsultarClientesComponent } from './pages/consultar-clientes/consultar-clientes';
 
 export const managerRoutes: Routes = [
     /* 
@@ -8,4 +9,8 @@ export const managerRoutes: Routes = [
       component: ManagerHomePageComponent,
     }
     */
+     { 
+       path: 'consultar-clientes',
+       component: ConsultarClientesComponent,
+     },
 ];
