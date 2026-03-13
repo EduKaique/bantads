@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
 
 @Component({
   selector: 'app-transfer-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, AppSuccessModalComponent],
   templateUrl: './transfer-page.html',
   styleUrls: ['./transfer-page.css']
 })
@@ -14,8 +15,22 @@ export class TransferPage implements OnInit {
 
   // Saldo mockado (obter depois via banco)
   availableBalance: number = 10125.49;
+  isModalOpen: boolean = false;
+  toastMessage: string = '';
+  showToast: boolean = false;
+  exibirModalSucesso: boolean = false; 
+  valorEnviado: string = '';
 
   constructor(private fb: FormBuilder) {}
+
+  exibirToast(mensagem: string): void {
+    this.toastMessage = mensagem;
+    this.showToast = true;
+
+    setTimeout(() => {
+      this.showToast = false;
+    }, 3000);
+  }
 
   ngOnInit(): void {
     // Inicializa o formulário e suas validações
@@ -59,7 +74,7 @@ export class TransferPage implements OnInit {
         cpf: '857.338.540-57'
       });
     } else {
-      alert('Por favor, insira um valor válido.');
+      this.exibirToast('Por favor, insira um valor válido.');
     }
   }
 
@@ -77,22 +92,44 @@ export class TransferPage implements OnInit {
     const transferAmount = parseFloat(cleanAmountStr);
 
     if (transferAmount > this.availableBalance) {
-      alert('Saldo insuficiente! Confira o seu limite.');
+      this.exibirToast('Saldo insuficiente! Confira o seu limite.');
       return;
     }
+
+    this.isModalOpen = true;
+  }
+
+  closeModal(): void {
+    this.isModalOpen = false;
+  }
+
+  confirmTransfer(): void {
+    const rawAmount = this.transferForm.get('amount')?.value;
+    
+    // Converte a string formatada de volta para número decimal para o payload
+    const cleanAmountStr = rawAmount.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
+    const transferAmount = parseFloat(cleanAmountStr);
 
     // Monta o payload que será enviado para a API Gateway via Service
     const payload = {
       destinationAccount: this.transferForm.get('accountNumber')?.value,
       amount: transferAmount
-    };
+  };
 
     console.log('Dados do envio:', payload);
-    alert('Transferência concluída com sucesso!');
 
-    // Limpa o formulário após o sucesso
-    this.transferForm.reset({
-      balance: 'R$ 10.125,49'
+    this.availableBalance -= transferAmount;
+
+    const newBalanceFormatted = 'R$ ' + this.availableBalance.toLocaleString('pt-BR', { 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
     });
+
+    this.closeModal();
+    this.transferForm.reset({
+      balance: newBalanceFormatted
+    });
+    this.valorEnviado = transferAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    this.exibirModalSucesso = true;
   }
 }
