@@ -111,4 +111,10 @@
   .modal-subtitle {
     font-size: 16px;
   }
+  .modal-datetime {
+  color: #555;
+  font-size: 16px; 
+  margin-bottom: 55px;
+  line-height: 1.4;
+}
 }

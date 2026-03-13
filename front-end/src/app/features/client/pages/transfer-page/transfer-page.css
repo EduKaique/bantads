@@ -159,3 +159,123 @@
 .btn-submit:hover {
   background-color: #065e3a;
 }
+
+/* --- Estilos do Modal de Confirmação --- */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  padding: 32px;
+  box-sizing: border-box;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  color: #414946;
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.btn-close-modal {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: #56645F;
+  cursor: pointer;
+}
+
+.mb-modal {
+  margin-bottom: 16px;
+}
+
+.flex-buttons {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.btn-modal-cancel, .btn-modal-confirm {
+  flex: 1; 
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Sora', sans-serif;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-modal-cancel {
+  background-color: #ff5a5f;
+  color: white;
+}
+
+.btn-modal-confirm {
+  background-color: #1ea362;
+  color: white;
+}
+
+.btn-modal-cancel:hover, .btn-modal-confirm:hover {
+  opacity: 0.85;
+}
+
+
+/* Quando o campo for tocado e for inválido, a borda fica vermelha */
+.form-control.ng-invalid.ng-touched {
+  border: 2px solid #dc3545; 
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Estilos do Toast */
+.toast-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #dc3545;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999; 
+  animation: slideInAndOut 3s ease-in-out forwards; 
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+@keyframes slideInAndOut {
+  0% { transform: translateY(100px); opacity: 0; }
+  10% { transform: translateY(0); opacity: 1; }
+  90% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(100px); opacity: 0; }
+}
