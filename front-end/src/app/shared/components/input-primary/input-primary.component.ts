@@ -30,6 +30,8 @@ export class InputPrimaryComponent implements ControlValueAccessor, OnInit {
   onChange: any = () => {};
   onTouched: any = () => {};
 
+  generatedId = `input-${Math.random().toString(36).substring(2, 9)}`;
+
   constructor() {
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
@@ -37,6 +39,10 @@ export class InputPrimaryComponent implements ControlValueAccessor, OnInit {
   }
 
   ngOnInit(): void {}
+
+  get finalId(): string {
+    return this.inputName() || this.generatedId;
+  }
 
   get hasError(): boolean {
     return !!(this.ngControl?.invalid && this.ngControl?.touched);

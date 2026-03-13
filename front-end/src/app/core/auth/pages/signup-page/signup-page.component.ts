@@ -101,7 +101,7 @@ export class SignupPageComponent {
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.registerErrorMessage = `Erro. Cadastro falhou: ${err.error?.message || 'Tente novamente mais tarde.'}`;
+          this.registerErrorMessage = `Cadastro falhou: ${err.error?.message || 'Tente novamente mais tarde.'}`;
           console.log("Erro:" + err);
         },
       });
