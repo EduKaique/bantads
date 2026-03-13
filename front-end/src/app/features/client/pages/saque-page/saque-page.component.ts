@@ -83,15 +83,19 @@ export class SaquePageComponent implements OnInit {
     dialogRef.afterClosed().subscribe((confirmado: boolean) => {
       if (!confirmado) return;
 
-      this.saqueService.realizarSaque(valorNumerico).subscribe((sucesso) => {
-        if (sucesso) {
+      this.saqueService.realizarSaque(valorNumerico).subscribe({
+        next: () => {
           this.router.navigate(['/client/saque/sucesso'], {
             state: {
               valor: valorNumerico,
               dataHora: new Date().toISOString(),
             },
           });
-        }
+        },
+        error: (err: Error) => {
+          this.valorControl?.setErrors({ saldoInsuficiente: true });
+          console.error(err.message);
+        },
       });
     });
   }
