@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { API_URL } from '../../configs/api.token';
-import { RegisterRequest } from '../../../shared/models/register-request';
+import { RegisterRequest } from '../models/register-request';
 
 interface LoginResponse {
   access_token: string;
@@ -22,7 +22,7 @@ export type UserState = {
   name: string;
   email?: string;
   cpf?: string;
-  tipo: 'CLIENTE' | 'GERENTE' | 'ADMINISTRADOR'; 
+  tipo: 'cliente' | 'gerente' | 'administrador';
   access_token: string;
 } | null;
 
@@ -31,18 +31,18 @@ export type UserState = {
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private apiBaseUrl = inject(API_URL); 
+  private apiBaseUrl = inject(API_URL);
   private router = inject(Router);
-  
+
   private currentUserSubject = new BehaviorSubject<UserState>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   public isManager$: Observable<boolean> = this.currentUser$.pipe(
-    map(user => user?.tipo === 'GERENTE')
+    map((user) => user?.tipo === 'gerente'),
   );
-  
+
   public isLoggedIn$: Observable<boolean> = this.currentUser$.pipe(
-    map(user => user !== null)
+    map((user) => user !== null),
   );
 
   constructor() {
@@ -67,28 +67,30 @@ export class AuthService {
   }
 
   public login(email: string, password: string): Observable<UserState> {
-    return this.http.post<LoginResponse>(`${this.apiBaseUrl}/auth/login`, {
-      email,     
-      password
-    }).pipe(
-      map(response => {
-        const user: UserState = {
-          id: response.usuario.id,
-          name: response.usuario.nome,
-          email: response.usuario.email,
-          cpf: response.usuario.cpf,
-          tipo: response.tipo as 'CLIENTE' | 'GERENTE' | 'ADMINISTRADOR',
-          access_token: response.access_token,
-        };
-        
-        return user;
-      }),
-      tap((user) => {
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        localStorage.setItem('token', user!.access_token);
-        this.currentUserSubject.next(user);
+    return this.http
+      .post<LoginResponse>(`${this.apiBaseUrl}/auth/login`, {
+        email,
+        password,
       })
-    );
+      .pipe(
+        map((response) => {
+          const user: UserState = {
+            id: response.usuario.id,
+            name: response.usuario.nome,
+            email: response.usuario.email,
+            cpf: response.usuario.cpf,
+            tipo: response.tipo.toLowerCase() as 'cliente' | 'gerente' | 'administrador',
+            access_token: response.access_token,
+          };
+
+          return user;
+        }),
+        tap((user) => {
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          localStorage.setItem('token', user!.access_token);
+          this.currentUserSubject.next(user);
+        }),
+      );
   }
 
   public logout(): void {
@@ -103,12 +105,13 @@ export class AuthService {
    * @param data Objeto com dados pessoais e endereço
    */
   public signup(data: RegisterRequest): Observable<void> {
+    console.log('Dados enviados para cadastro:', data);
     return this.http.post<void>(`${this.apiBaseUrl}/auth/register`, data);
   }
 
   private mapRoleToUserAccess(role: string): 'employee' | 'client' {
     if (role === 'ROLE_EMPLOYEE') return 'employee';
     if (role === 'ROLE_CLIENT') return 'client';
-    return 'client'; 
+    return 'client';
   }
 }

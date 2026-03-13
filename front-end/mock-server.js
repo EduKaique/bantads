@@ -9,26 +9,23 @@ const PORT = 3000;
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-// Caminhos dos arquivos 
 const PATHS = {
   auth: path.join(__dirname, "mock/auth.json"),
   clientes: path.join(__dirname, "mock/clientes.json"),
   solicitacoes: path.join(__dirname, "mock/solicitacoes.json")
 };
 
-// Funções utilitárias para leitura e escrita
 const getData = (file) => JSON.parse(fs.readFileSync(PATHS[file]));
 const saveData = (file, data) => fs.writeFileSync(PATHS[file], JSON.stringify(data, null, 2));
 
 // Autocadastro
 app.post("/auth/register", (req, res) => {
-  const { cpf, nome, email, salario, endereco, telefone } = req.body;
+  const { cpf, nome, email, salario, celular, cep, logradouro, numero, complemento, bairro, cidade, uf } = req.body;
   
   const solicitacoes = getData('solicitacoes');
   const clientesAtuais = getData('clientes');
   const auths = getData('auth');
 
-  // verifição (requisito)
   const jaCadastrado = clientesAtuais.some(c => c.cpf === cpf) || auths.some(a => a.cpf === cpf);
   const jaEmAprovacao = solicitacoes.some(s => s.cpf === cpf);
 
@@ -42,9 +39,17 @@ app.post("/auth/register", (req, res) => {
     cpf,
     nome,
     email,
-    telefone,
+    celular,
     salario,
-    endereco, 
+    endereco: {
+      cep,
+      logradouro,
+      numero,
+      complemento,
+      bairro,
+      cidade,
+      uf
+    },
     dataSolicitacao: new Date().toISOString()
   };
 
@@ -54,6 +59,7 @@ app.post("/auth/register", (req, res) => {
   res.status(202).json({ 
     message: "Solicitação de autocadastro enviada com sucesso! Aguarde a aprovação de um gerente." 
   });
+  console.log(`Nova solicitação de cadastro: ${cpf} - ${nome}`);
 });
 
 // Login 
@@ -77,7 +83,7 @@ app.post("/auth/login", (req, res) => {
       "cpf": authUser.cpf 
     }
   });
-
+  console.log(`Login bem-sucedido: ${email}`);
 });
 
 app.listen(PORT, () => {
