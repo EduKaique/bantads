@@ -1,20 +1,18 @@
 :host {
-  --color-green-50: #25a46b;
-  --color-error-light: #ff5e5b;
-  --color-heading-default: #3e4b4b;
-  --color-text-label: #475656;
-  --color-text-placeholder: #7c9393;
-  --color-border-dark: #a8b7b7;
-  --color-bg-card: #e5e8e6;
-  --color-bg-input: #f9f9f9;
-  --color-btn-text: #f3fafa;
+  display: block;
+}
+
+.modal-overlay {
+  display: contents;
 }
 
 .modal-card {
   width: 565px;
+  max-width: 100%;
   padding: 24px;
-  background: var(--color-bg-card);
   border-radius: 16px;
+  background: #fafafa;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -22,32 +20,32 @@
 
 .modal-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .modal-titulo {
-  color: var(--color-heading-default);
+  margin: 0;
+  color: #3e4c4b;
+  font-family: 'Inter', sans-serif;
   font-size: 24px;
-  font-family: 'Inter', 'Roboto', sans-serif;
   font-weight: 500;
   line-height: 28px;
-  margin: 0;
+  letter-spacing: -0.2px;
 }
 
 .btn-fechar {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-text-placeholder);
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   padding: 0;
-  transition: color 0.2s;
-}
-
-.btn-fechar:hover {
-  color: var(--color-heading-default);
+  border: 0;
+  background: transparent;
+  color: #56645f;
+  cursor: pointer;
 }
 
 .modal-body {
@@ -57,69 +55,63 @@
 }
 
 .modal-pergunta {
-  color: var(--color-text-label);
+  margin: 0;
+  color: #475756;
+  font-family: 'Inter', sans-serif;
   font-size: 16px;
-  font-family: 'Inter', 'Roboto', sans-serif;
   font-weight: 600;
   line-height: 20px;
 }
 
 .modal-valor {
-  height: 48px;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
   padding: 8px 16px;
-  background: var(--color-bg-input);
+  border: 1px solid #a8b8b7;
   border-radius: 8px;
-  border: 1px solid var(--color-border-dark);
-  color: var(--color-text-placeholder);
-  font-size: 18px;
+  color: #7c9493;
+  background: #fafafa;
   font-family: 'Roboto', sans-serif;
+  font-size: 18px;
   font-weight: 400;
   line-height: 24px;
-  display: flex;
-  align-items: center;
-}
-
-.modal-overlay {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh; 
-  background: rgba(0, 0, 0, 0.45);
+  letter-spacing: -0.1px;
+  box-sizing: border-box;
 }
 
 .modal-acoes {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 40px;
 }
 
 .btn-cancelar,
 .btn-confirmar {
-  flex: 1;
-  height: 48px;
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 0;
   border-radius: 8px;
+  color: #f3fafa;
+  font-family: 'Inter', sans-serif;
   font-size: 18px;
-  font-family: 'Inter', 'Roboto', sans-serif;
   font-weight: 600;
-  color: var(--color-btn-text);
+  line-height: 24px;
   cursor: pointer;
-  transition: filter 0.2s ease;
 }
 
-.btn-cancelar {
-  background: var(--color-error-light);
+.btn-cancelar { background: #ff5e5b; }
+.btn-confirmar { background: #25a46b; }
+
+.btn-cancelar:disabled,
+.btn-confirmar:disabled,
+.btn-fechar:disabled {
+  cursor: default;
+  opacity: 0.7;
 }
 
-.btn-confirmar {
-  background: var(--color-green-50);
-}
-
-.btn-cancelar:hover,
-.btn-confirmar:hover {
-  filter: brightness(0.9);
-}
-
-.btn-cancelar:active,
-.btn-confirmar:active {
-  filter: brightness(0.8);
+@media (max-width: 640px) {
+  .modal-acoes { gap: 16px; }
 }

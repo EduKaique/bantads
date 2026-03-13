@@ -3,7 +3,9 @@
 
     <div class="modal-header">
       <h2 class="modal-titulo">Confirmar o valor do Saque</h2>
-      <button class="btn-fechar">✕</button>
+      <button class="btn-fechar" (click)="onCancelar()" aria-label="Fechar">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
 
     <div class="modal-body">

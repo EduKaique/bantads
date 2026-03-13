@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
 export interface ContaResumo {
   saldo: number;
@@ -11,7 +11,6 @@ export interface ContaResumo {
 })
 export class SaqueService {
 
-  //vai ser substituido no trabalho final para http.get por enquanto deixei um saldo mockado para teste
   private contaMock: ContaResumo = {
     saldo: 5125.49,
     limite: 5000.00,
@@ -22,10 +21,17 @@ export class SaqueService {
   }
 
   realizarSaque(valor: number): Observable<boolean> {
-    if (valor <= this.contaMock.saldo + this.contaMock.limite) {
-      this.contaMock.saldo -= valor;
-      return of(true);
+    if (valor <= 0) {
+      return throwError(() => new Error('Valor do saque deve ser maior que zero.'));
     }
-    return of(false);
+
+    const saldoTotal = this.contaMock.saldo + this.contaMock.limite;
+
+    if (valor > saldoTotal) {
+      return throwError(() => new Error('Saldo insuficiente para este saque.'));
+    }
+
+    this.contaMock.saldo -= valor;
+    return of(true);
   }
 }
