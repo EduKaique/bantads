@@ -34,7 +34,7 @@ export class ClientAccountService {
   depositIntoCurrentAccount(request: DepositRequest): Observable<BankAccount> {
     const currentUser = this.authService.currentUserValue;
 
-    if (currentUser && currentUser.tipo !== 'CLIENTE') {
+    if (currentUser && currentUser.tipo !== 'cliente') {
       return throwError(
         () => new Error('Apenas clientes podem realizar depositos.')
       );
@@ -101,9 +101,9 @@ export class ClientAccountService {
   private buildStorageKey(): string {
     const currentUser = this.authService.currentUserValue;
     const sessionKey =
-      currentUser?.tipo === 'CLIENTE'
+      currentUser?.tipo === 'cliente'
         ? this.normalizeStorageKeySegment(
-            currentUser.email || currentUser.name || 'client'
+            currentUser.email || currentUser.name || 'cliente'
           )
         : 'local-demo';
 
@@ -113,7 +113,7 @@ export class ClientAccountService {
   private resolveHolderName(): string {
     const currentUser = this.authService.currentUserValue;
 
-    if (currentUser?.tipo === 'CLIENTE' && currentUser.name.trim()) {
+    if (currentUser?.tipo === 'cliente' && currentUser.name.trim()) {
       return currentUser.name.trim();
     }
 

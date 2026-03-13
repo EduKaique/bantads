@@ -217,8 +217,8 @@
     --color-primary-foreground: var(--color-green-50);
 
     /* Secondary */
-    --color-secondary: var(--color-purple-70);
-    --color-secondary-foreground: var(--color-purple-5);
+    --color-secondary: var(--color-purple-700);
+    --color-secondary-foreground: var(--color-purple-50);
 
     /* Text */
     --color-foreground: var(--color-neutral-950);
@@ -236,8 +236,8 @@
     --color-ring: var(--color-primary);
 
     /* Error */
-    --color-destructive: var(--color-red-30);
-    --color-destructive-foreground: var(--color-red-10);
+    --color-destructive: var(--color-red-400);
+    --color-destructive-foreground: var(--color-red-100);
 
     /* Warning */
     --color-warning: var(--color-orange-600);
@@ -516,3 +516,4 @@
     font-weight: var(--label-small-font-weight);
     letter-spacing: var(--label-small-letter-spacing)
 }
+

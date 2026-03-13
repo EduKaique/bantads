@@ -47,17 +47,21 @@ input:focus-visible{
     cursor: pointer;
 }
 
-input.error-state .input-content {
-  border-color: var(--color-destructive); 
+.input-wrapper.error-state input {
+  border-color: var(--color-destructive) !important;
 }
 
-input.error-state .label_medium {
-  color: var(--color-destructive);
+.input-wrapper.error-state label {
+  color: var(--color-destructive) !important;
+}
+
+.input-wrapper.error-state input:focus-visible {
+  border-color: var(--color-destructive) !important;
+  box-shadow: 0 0 0 1px var(--color-destructive); 
 }
 
 .error-message {
   color: var(--color-destructive);
-  font-size: 0.75rem; 
   margin-top: 4px;
   display: block;
 }
