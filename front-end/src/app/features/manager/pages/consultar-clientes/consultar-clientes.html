@@ -1,0 +1,89 @@
+<main>
+  <div class="secao-cabecalho">
+    <h1 class="heading_2 cor-titulo">Consulta de Clientes</h1>
+    
+    <div class="container-filtro">
+      <label class="label_large cor-subtitulo">Filtrar por:</label>
+      
+      <div class="controles-filtro">
+        <select class="body_medium entrada-selecao" [(ngModel)]="tipoFiltro" (change)="onTipoFiltroChange()">
+          <option value="nome">Nome</option>
+          <option value="cpf">CPF</option>
+        </select>
+
+        <div class="envoltorio-busca">
+          <input 
+            type="text" 
+            class="body_medium entrada-busca" 
+            [placeholder]="tipoFiltro === 'nome' ? 'Pesquisar por nome...' : 'Pesquisar por CPF...'"
+            [(ngModel)]="termoBusca"
+            (input)="onBuscaInput($event)"
+            [maxlength]="tipoFiltro === 'cpf' ? 14 : 100"
+          >
+          <svg class="icone-busca" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-tabela">
+    <table class="tabela-clientes">
+      <thead>
+        <tr class="label_large">
+          <th>CPF</th>
+          <th>Nome</th>
+          <th>Cidade</th>
+          <th>Estado</th>
+          <th>Saldo da Conta</th>
+          <th>Limite da Conta</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (cliente of clientesPaginados; track cliente.id) {
+          <tr 
+            class="body_small linha-tabela"
+            [routerLink]="['/gerente/cliente', cliente.id]"
+          >
+            <td>{{ cliente.cpf }}</td>
+            <td>{{ cliente.nome }}</td>
+            <td>{{ cliente.cidade }}</td>
+            <td>{{ cliente.estado }}</td>
+            <td>{{ cliente.saldo | currency:'BRL' }}</td>
+            <td>{{ cliente.limite | currency:'BRL' }}</td>
+          </tr>
+        }
+
+        @if (clientesExibidos.length === 0) {
+          <tr>
+            <td colspan="6" class="body_medium estado-vazio">Nenhum cliente encontrado.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    @if (clientesExibidos.length > 0) {
+      <div class="controles-paginacao">
+        <button 
+          class="botao-paginacao label_medium" 
+          (click)="paginaAnterior()" 
+          [disabled]="paginaAtual === 1">
+          Anterior
+        </button>
+        
+        <span class="texto-paginacao body_small">
+          Página {{ paginaAtual }} de {{ totalPaginas }}
+        </span>
+        
+        <button 
+          class="botao-paginacao label_medium" 
+          (click)="proximaPagina()" 
+          [disabled]="paginaAtual === totalPaginas">
+          Próxima
+        </button>
+      </div>
+    }
+  </div>
+</main>
