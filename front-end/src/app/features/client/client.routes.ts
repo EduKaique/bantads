@@ -1,3 +1,4 @@
+import {Routes} from '@angular/router';
 import { Routes } from '@angular/router';
 import { DepositPageComponent } from './pages/deposit-page.component';
 import { SaquePageComponent } from './pages/saque-page/saque-page.component';
@@ -18,7 +19,7 @@ export const clientRoutes: Routes = [
   { path: 'saque',         component: SaquePageComponent },
   { path: 'saque/sucesso', component: SaqueSucessoPageComponent },
   {
-    path: 'transfer',
+    path: 'transferencia',
     component: TransferPage,
   },
   { 
