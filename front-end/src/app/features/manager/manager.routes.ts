@@ -1,11 +1,9 @@
-import {Routes} from '@angular/router';
+import { Routes } from '@angular/router';
+import { TelaInicialGerenteComponent } from './pages/tela-inicial-gerente/tela-inicial-gerente';
 
 export const managerRoutes: Routes = [
-    /* 
-    Exemplo de rota pra manager
-    {
-      path: 'home',
-      component: ManagerHomePageComponent,
-    }
-    */
+  {
+    path: 'pedidos-autocadastro',
+    component: TelaInicialGerenteComponent,
+  },
 ];

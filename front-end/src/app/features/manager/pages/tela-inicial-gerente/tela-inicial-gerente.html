@@ -1,0 +1,37 @@
+<main class="tela-inicial-gerente">
+  <section class="painel-pedidos">
+    <header class="painel-pedidos__cabecalho">
+      <h1 class="heading_3">Pedidos de Autocadastro</h1>
+    </header>
+
+    <div class="painel-pedidos__filtros">
+      <form class="painel-pedidos__pesquisa" [formGroup]="formularioFiltro">
+        <app-input-primary
+          formControlName="cpf"
+          inputName="cpf"
+          label="Pesquisar"
+          placeholder="Digite o CPF..."
+          mask="000.000.000-00"
+        ></app-input-primary>
+      </form>
+    </div>
+
+    @if (mensagemErro()) {
+      <p class="mensagem-status mensagem-status--erro body_medium">
+        {{ mensagemErro() }}
+      </p>
+    } @else if (carregando()) {
+      <p class="mensagem-status body_medium">Carregando pedidos de autocadastro...</p>
+    } @else if (pedidosFiltrados.length === 0) {
+      <p class="mensagem-status body_medium">Nenhum pedido de autocadastro encontrado.</p>
+    } @else {
+      <div class="lista-pedidos">
+        @for (pedido of pedidosFiltrados; track rastrearPorCpf($index, pedido)) {
+          <app-card-pedido-autocadastro
+            [pedidoAutocadastro]="pedido"
+          ></app-card-pedido-autocadastro>
+        }
+      </div>
+    }
+  </section>
+</main>
