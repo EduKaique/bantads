@@ -13,10 +13,30 @@ app.use(cors({
 app.use(express.json());
 
 const usersPath = path.join(__dirname, "mock/users.json");
+const solicitacoesPath = path.join(__dirname, "mock/solicitacoes.json");
 
 function getUsers() {
-  const data = JSON.parse(fs.readFileSync(usersPath));
+  const data = JSON.parse(fs.readFileSync(usersPath, "utf-8"));
   return data;
+}
+
+function getSolicitacoes() {
+  const data = JSON.parse(fs.readFileSync(solicitacoesPath, "utf-8"));
+  return data;
+}
+
+function getPedidosAutocadastro() {
+  return getSolicitacoes()
+    .map(({ cpf, nome, salario, dataSolicitacao }) => ({
+      cpf,
+      nome,
+      salario,
+      dataSolicitacao
+    }))
+    .sort((solicitacaoAtual, proximaSolicitacao) =>
+      new Date(proximaSolicitacao.dataSolicitacao).getTime() -
+      new Date(solicitacaoAtual.dataSolicitacao).getTime()
+    );
 }
 
 app.post("/auth/login", (req, res) => {
@@ -42,6 +62,10 @@ app.post("/auth/login", (req, res) => {
       email: user.email
     }
   });
+});
+
+app.get("/manager/pedidos-autocadastro", (_req, res) => {
+  res.json(getPedidosAutocadastro());
 });
 
 app.listen(PORT, () => {
