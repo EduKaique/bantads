@@ -1,8 +1,23 @@
 [
   {
     "id": 1,
-    "name": "Cliente",
-    "email": "cli1@bantads.com.br",
-    "password": "tads"
+    "name": "Maria",
+    "cpf": "123.456.789-00",
+    "email": "maria@email.com",
+    "phoneNumber": "13996762377",
+    "password": "123",
+    "salary": 2,
+    "limit": 5000,
+    "availableBalance": -5000,
+    "managerName": "João",
+    "address": {
+      "cep": "80210136",
+      "logradouro": "Rua Doutor Salvador de Maio",
+      "numero": "81",
+      "bairro": "Jardim Botânico",
+      "cidade": "Curitiba",
+      "estado": "PR",
+      "complemento": ""
+    }
   }
 ]

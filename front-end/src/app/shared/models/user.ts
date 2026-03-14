@@ -5,6 +5,6 @@ export interface User {
   cpf: string;
   phoneNumber: string;
   password: string;
-  salary: string,
+  salary: number,
   userAccess: 'employee' | 'client'; 
 }

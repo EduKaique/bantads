@@ -71,7 +71,7 @@
 }
 
 .modal-button {
-  background-color: #3f51b5;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
@@ -85,7 +85,7 @@
 }
 
 .modal-button:hover {
-  background-color: #303f9f;
+  background-color: var(--color-green-400);
 }
 
 @media (max-width: 480px) {

@@ -1,11 +1,4 @@
 <main>
-  <img
-    class="img-logo"
-    src="assets/images/logo.png"
-    alt="Logomarca"
-    width="200"
-  />
-
   <section class="update-container">
     <div class="update-text">
       <h1 class="heading_3">Altere seu perfil</h1>
@@ -28,7 +21,8 @@
             type="text"
             formControlName="nameUser"
             placeholder="Digite seu Nome Completo"
-            style="width: inherit">
+            class="input-inherit"
+            errorMessage="Nome completo é obrigatório">
           </app-input-primary>
 
           <div class="row-form-cpf-phone">
@@ -39,7 +33,9 @@
               formControlName="cpfUser"
               placeholder="___.___.___-__"
               mask="000.000.000-00"
-              style="width: inherit">
+              class="input-inherit"
+              [readonly]="true"
+              errorMessage="CPF é obrigatório">
             </app-input-primary>
 
             <app-input-primary
@@ -47,8 +43,9 @@
               type="text"
               formControlName="phoneUser"
               placeholder="(__) _ ____-____"
-              mask="(00) 0 0000-0000"
-              style="width: inherit">
+              mask="(00) 00000-0000"
+              class="input-inherit"
+              errorMessage="Telefone é obrigatório">
             </app-input-primary>
 
           </div>
@@ -58,17 +55,21 @@
             type="email"
             formControlName="email"
             placeholder="exemplo@email.com"
-            style="width: inherit"
-            required>
+            class="input-inherit"
+            required
+            errorMessage="Email é obrigatório">
           </app-input-primary>
 
           <app-input-primary
             label="Salário"
-            type="text"
             formControlName="salary"
-            placeholder="R$"
-            style="width: inherit"
-            required>
+            placeholder="R$ 0.00"
+            class="input-inherit"
+            mask="separator.2"
+            thousandSeparator="."
+            decimalMarker=","
+            required
+            errorMessage="Salário é obrigatório">
           </app-input-primary>
 
           <div class="first-button">
@@ -101,7 +102,8 @@
               inputName="cep"
               label="CEP"
               placeholder="_____-___"
-              mask="00000-000">
+              mask="00000-000"
+              errorMessage="CEP é obrigatório">
             </app-input-primary>
 
             <span
@@ -118,6 +120,8 @@
               Pesquisar
             </span>
 
+            
+
           </div>
 
           <div class="div-row">
@@ -128,7 +132,8 @@
               inputName="address"
               label="Endereço"
               placeholder="Digite seu Endereço"
-              style="width: inherit">
+              class="input-inherit"
+              errorMessage="Endereço é obrigatório">
             </app-input-primary>
 
             <app-input-primary
@@ -136,7 +141,8 @@
               type="text"
               inputName="input-numero"
               label="Número"
-              placeholder="Digite seu número">
+              placeholder="Digite seu número"
+              errorMessage="Número é obrigatório">
             </app-input-primary>
 
           </div>
@@ -148,14 +154,15 @@
               label="Complemento"
               type="text"
               placeholder="Ex: Bloco, Apto..."
-              style="width: inherit">
+              class="input-inherit">
             </app-input-primary>
 
             <app-input-primary
               label="Bairro"
               type="text"
               formControlName="neighborhood"
-              style="width: inherit">
+              class="input-inherit"
+              errorMessage="Bairro é obrigatório">
             </app-input-primary>
 
           </div>
@@ -166,7 +173,8 @@
               label="Cidade"
               type="text"
               formControlName="city"
-              style="width: inherit">
+              class="input-inherit"
+              errorMessage="Cidade é obrigatória">
             </app-input-primary>
 
             <app-input-primary
@@ -174,10 +182,10 @@
               type="text"
               formControlName="state"
               placeholder="Selecione seu Estado"
-              style="width: inherit">
+              class="input-inherit"
+              errorMessage="Estado é obrigatório">
             </app-input-primary>
-
-          </div>
+          </div>       
 
           <div class="div-row row-button">
 
@@ -194,23 +202,20 @@
               (click)="onSubmit()">
               Atualizar
             </button>
-
           </div>
-
         </form>
-
       </mat-step>
-
     </mat-stepper>
-
   </section>
 
-  <!-- MODAL SUCESSO -->
   <app-success-modal
     [(mostrar)]="showModal"
     titulo="Sua conta foi atualizada com sucesso!"
+    [dadosAdicionais]="[
+      'Saldo: ' + balance,
+      'Gerente: ' + managerName
+    ]"
     textoBotao="Voltar para Página inicial"
     rotaDestino="/home">
   </app-success-modal>
-
 </main>

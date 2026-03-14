@@ -186,7 +186,7 @@ export class DepositPageComponent {
   private resetConfirmationState(): void {
     this.isConfirmationVisible = false;
     this.pendingDeposit = null;
-  }
+  } 
 
   private sanitizeAmountInput(rawValue: string): string {
     const normalizedValue = rawValue.replace(/\./g, ',').replace(/[^\d,]/g, '');

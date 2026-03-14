@@ -18,7 +18,7 @@ export class AppSuccessModalComponent {
   @Input() textoBotao: string = 'Voltar para Página Inicial';
   @Input() rotaDestino: string | any[] = '/';
   
-  @Input() dadosAdicionais: string = '';
+  @Input() dadosAdicionais: string[] = [];
 
   constructor(private router: Router) {}
 
