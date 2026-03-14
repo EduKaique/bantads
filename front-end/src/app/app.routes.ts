@@ -3,6 +3,8 @@ import { LoginPageComponent } from './core/auth/pages/login-page/login-page.comp
 import { SignupPageComponent } from './core/auth/pages/signup-page/signup-page.component';
 import { PageNotFoundComponent } from './core/layout/page-not-found/page-not-found.component';
 import { UnauthorizedPageComponent } from './core/layout/unauthorized-page/unauthorized-page.component';
+import { ConsultaExtratoPageComponent } from './features/client/pages/008-consulta-de-extrato/008-consulta-de-extrato.component';
+import { ConsultarClienteComponent } from './features/manager/pages/013-consultar-cliente/013-consultar-cliente.component';
 
 export const routes: Routes = [
   {
@@ -28,18 +30,28 @@ export const routes: Routes = [
     // canActivate: [AuthGuard, RoleGuard],
     // data: { expectedRole: ['admin'] },
   },
+
   {
     path: 'client',
-    loadChildren: () => import('./features/client/client.routes').then((m) => m.clientRoutes),
-    // canActivate: [AuthGuard, RoleGuard],
-    // data: { expectedRole: ['client'] },
+    children: [
+      {
+        path: 'consulta-extrato',
+        component: ConsultaExtratoPageComponent,
+      }
+    ],
+
   },
+
   {
     path: 'manager',
-    loadChildren: () => import('./features/manager/manager.routes').then((m) => m.managerRoutes),
-    // canActivate: [AuthGuard, RoleGuard],
-    // data: { expectedRole: ['manager'] },
+    children: [
+      {
+        path: 'consultar-cliente',
+        component: ConsultarClienteComponent,
+      }
+    ],
   },
+
   {
     path: '**',
     component: PageNotFoundComponent,
