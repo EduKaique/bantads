@@ -1,70 +1,33 @@
-import { Component, HostListener, ElementRef, OnInit, Input } from '@angular/core';
-import { MatToolbar } from '@angular/material/toolbar';
+import { Component, signal, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../auth/services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService, UserState } from '../../auth/services/auth.service';
-import { SidebarStateService } from '../../services/sidebar-state.service';
-import { map, Observable } from 'rxjs';
-import { CommonModule, AsyncPipe } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatBadgeModule } from '@angular/material/badge';
+
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, MatToolbar, MatIconModule, AsyncPipe, MatButtonModule, MatBadgeModule],
+  standalone: true,
+  imports: [RouterLink, RouterLinkActive, MatIconModule],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css',
+  styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
-  nomeDeUsuario: string = 'Nilson Nativas';
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  public isEmployee$: Observable<boolean>;
-
-  painelVisivel = false;
+  user = this.authService.currentUserValue; 
   
-  notificacoes = [
-    { id: 1, titulo: 'Novo funcionário cadastrado', descricao: 'Brenda foi adicionada à equipe.', lida: false },
-    { id: 2, titulo: 'Atualização do Sistema', descricao: 'O sistema será atualizado hoje às 23h.', lida: false },
-    { id: 3, titulo: 'Pagamento Confirmado', descricao: 'Seu último pagamento foi processado.', lida: true }
-  ];
+  isMenuOpen = signal(false);
 
-  constructor(
-    private authService: AuthService,
-    private sidebarState: SidebarStateService,
-    private elementRef: ElementRef
-  ) {
-    this.isEmployee$ = this.authService.isEmployee$;
-    this.authService.currentUser$.subscribe(user => {
-      if (user) {
-        this.nomeDeUsuario = user.name;
-      }
-    });
-  }
-
-
-    @HostListener('document:click', ['$event'])
-    onClickOutside(event: Event) {
-    if (this.painelVisivel && !this.elementRef.nativeElement.contains(event.target)) {
-      this.painelVisivel = false;
-    }
+  toggleMenu() {
+    this.isMenuOpen.update(v => !v);
   }
 
   logout() {
-    this.authService.logout();
+    this.authService.logout(); 
   }
 
-  isSidebarExpanded(): boolean {
-    return this.sidebarState.isExpandedValue();
+  editProfile() {
+    this.isMenuOpen.set(false);
+    this.router.navigate([`/cliente/perfil/${this.user?.id}`]); 
   }
-
-  togglePainelNotificacoes(): void {
-    this.painelVisivel = !this.painelVisivel;
-  }
-
-  get unreadCount(): number {
-    return this.notificacoes.filter(n => !n.lida).length;
-  }
-
-  marcarComoLida(notificacao: any): void {
-    notificacao.lida = true;
-  }
-
 }

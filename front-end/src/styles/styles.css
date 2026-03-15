@@ -98,3 +98,69 @@ button:disabled, .button-primary:disabled {
   display: none !important;
 }
 
+
+/* Estilo para o stepper */
+mat-stepper {
+  width: 100%;
+}
+
+.mat-stepper-horizontal {
+  background-color: inherit !important;
+}
+
+.mat-horizontal-stepper-wrapper {
+    gap: 24px;
+}
+
+.mat-horizontal-content-container {
+  width: 100%;
+  padding: 0 !important;
+}
+
+.mat-step-icon-selected,
+.mat-step-icon-state-edit {
+    background-color: var(--color-primary) !important;
+    color: var(--color-primary-foreground) !important;
+}
+
+.mat-step-label {
+    color: var(--color-muted-foreground) !important;
+    font-family: var(--label-large-font-family) !important;
+    font-size: var(--label-large-font-size) !important;
+    font-weight: var(--label-large-font-weight) !important;
+    letter-spacing: var(--label-large-letter-spacing) !important;
+}
+
+.mat-step-label-active {
+    color: var(--color-primary) !important;
+}
+/* ------------------------------------------ */
+
+.input-inherit {
+    width: inherit;
+}
+
+
+/* CLASSES UTEIS TAILWIND */
+
+.flex {
+    display: flex;
+}
+
+.w-full {
+    width: 100%;
+}
+
+
+.color-primary {
+    color: var(--color-primary)
+}
+
+.color-primary-foreground {
+    color: var(--color-primary-foreground);
+}
+
+.color-foreground-title {
+    color: var(--color-foreground-title);
+}
+

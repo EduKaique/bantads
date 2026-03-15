@@ -1,27 +1,34 @@
-<mat-toolbar class="app-header">
-  <div class="header-left">
-    @if (!isSidebarExpanded() || !(isEmployee$ | async)) {
-    <img src="assets/images/logo.png" alt="Logo" class="logo" />
-    }
-  </div>
-
-  <div class="header-right">
-    <span class="body_medium">Olá {{ nomeDeUsuario }}</span>
-
-    <div class="user-avatar">
-      <mat-icon>account_circle</mat-icon>
+<header class="header-container">
+  <div class="header-content">
+    <div class="logo-section" routerLink="/cliente/home">
+      <img src="assets/images/logo-white.svg" alt="Bantads Logo" width="150">
     </div>
-    <div class="notification-container">
-  
- 
 
-  
-</div>
-    <div style="display: flex; align-items: center; gap: 8px;" (click)="logout()">
-      <span class="body_medium">Sair</span>
-      <button class="icon-button">
-        <mat-icon>exit_to_app</mat-icon>
-      </button>
+    <nav class="nav-links">
+      <a routerLink="/cliente/home" routerLinkActive="active-link">Home</a>
+      <a routerLink="/cliente/deposito" routerLinkActive="active-link">Depósito</a>
+      <a routerLink="/cliente/saque" routerLinkActive="active-link">Saque</a>
+      <a routerLink="/cliente/transferencia" routerLinkActive="active-link">Transferência</a>
+      <a routerLink="/cliente/extrato" routerLinkActive="active-link">Extrato</a>
+    </nav>
+
+    <div class="profile-section">
+      <div class="user-info" (click)="toggleMenu()">
+        <span class="user-name label_large">{{ user?.nome }}</span>
+        <img src="assets/images/diddy-4k.png" class="avatar" alt="User Avatar">
+        <mat-icon [class.rotate]="isMenuOpen()">expand_more</mat-icon>
+      </div>
+
+      @if (isMenuOpen()) {
+        <div class="profile-dropdown">
+          <button (click)="editProfile()">
+            <mat-icon>person_edit</mat-icon> Editar Perfil
+          </button>
+          <button (click)="logout()" class="logout-btn">
+            <mat-icon>logout</mat-icon> Sair do sistema
+          </button>
+        </div>
+      }
     </div>
   </div>
-</mat-toolbar>
+</header>
