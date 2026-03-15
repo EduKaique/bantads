@@ -89,7 +89,10 @@ export class AlteracaoPerfilComponent implements OnInit {
           cpfUser: cliente.cpf,
           phoneUser: cliente.phoneNumber,
           email: cliente.email,
-          salary: cliente.salary
+          salary: new Intl.NumberFormat('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }).format(cliente.salary)
         });
 
         this.secondFormGroup.patchValue({
