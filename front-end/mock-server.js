@@ -6,10 +6,7 @@ const path = require("path");
 const app = express();
 const PORT = 3000;
 
-app.use(cors({
-  origin: "*"
-}));
-
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 const usersPath = path.join(__dirname, "mock/users.json");
@@ -42,26 +39,72 @@ function getPedidosAutocadastro() {
 app.post("/auth/login", (req, res) => {
   const { email, password } = req.body;
 
-  const users = getUsers();
+  const solicitacoes = getData("solicitacoes");
+  const clientesAtuais = getData("clientes");
+  const auths = getData("auth");
 
-    const user = users.find(
-    (u) => u.email === email && u.password === password
-    );
+  const jaCadastrado = clientesAtuais.some((cliente) => cliente.cpf === cpf) || auths.some((auth) => auth.cpf === cpf);
+  const jaEmAprovacao = solicitacoes.some((solicitacao) => solicitacao.cpf === cpf);
 
-  if (!user) {
-    return res.status(401).json({
-      message: "Email ou senha inválidos"
+  if (jaCadastrado || jaEmAprovacao) {
+    return res.status(400).json({
+      message: "Erro: Cliente já cadastrado ou aguardando aprovação."
     });
   }
 
+  const novaSolicitacao = {
+    cpf,
+    nome,
+    email,
+    celular,
+    salario,
+    endereco: {
+      cep,
+      logradouro,
+      numero,
+      complemento,
+      bairro,
+      cidade,
+      uf
+    },
+    dataSolicitacao: new Date().toISOString()
+  };
+
+  solicitacoes.push(novaSolicitacao);
+  saveData("solicitacoes", solicitacoes);
+
+  res.status(202).json({
+    message: "Solicitação de autocadastro enviada com sucesso! Aguarde a aprovação de um gerente."
+  });
+  console.log(`Nova solicitação de cadastro: ${cpf} - ${nome}`);
+});
+
+// Login
+app.post("/auth/login", (req, res) => {
+  const { email, password } = req.body;
+  const auths = getData("auth");
+
+  const authUser = auths.find((user) => user.email === email && user.senha === password);
+
+  if (!authUser) {
+    return res.status(401).json({ message: "Email ou senha inválidos" });
+  }
+
   res.json({
-    token: "fake-jwt-token",
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email
+    access_token: "fake-jwt-token",
+    token_type: "bearer",
+    tipo: authUser.tipo.toUpperCase(),
+    usuario: {
+      nome: authUser.nome || "Usuário",
+      email: authUser.email,
+      cpf: authUser.cpf
     }
   });
+  console.log(`Login bem-sucedido: ${email}`);
+});
+
+app.get("/manager/pedidos-autocadastro", (_req, res) => {
+  res.json(getPedidosAutocadastro());
 });
 
 app.get("/manager/pedidos-autocadastro", (_req, res) => {
