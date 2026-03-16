@@ -13,12 +13,12 @@ describe('CardPedidoAutocadastroComponent', () => {
 
     fixture = TestBed.createComponent(CardPedidoAutocadastroComponent);
     component = fixture.componentInstance;
-    component.pedidoAutocadastro = {
+    fixture.componentRef.setInput('pedidoAutocadastro', {
       cpf: '12912861012',
       nome: 'Catharyna',
       salario: 10000,
       dataSolicitacao: '2026-03-14T10:00:00.000Z',
-    };
+    });
     fixture.detectChanges();
   });
 
@@ -41,7 +41,7 @@ describe('CardPedidoAutocadastroComponent', () => {
     const botaoAprovar = fixture.debugElement.queryAll(By.css('button'))[1];
     botaoAprovar.triggerEventHandler('click');
 
-    expect(component.aprovar.emit).toHaveBeenCalledWith(component.pedidoAutocadastro);
+    expect(component.aprovar.emit).toHaveBeenCalledWith(component.pedidoAutocadastro());
   });
 
   it('deve emitir evento ao clicar em rejeitar', () => {
@@ -50,6 +50,6 @@ describe('CardPedidoAutocadastroComponent', () => {
     const botaoRejeitar = fixture.debugElement.queryAll(By.css('button'))[0];
     botaoRejeitar.triggerEventHandler('click');
 
-    expect(component.rejeitar.emit).toHaveBeenCalledWith(component.pedidoAutocadastro);
+    expect(component.rejeitar.emit).toHaveBeenCalledWith(component.pedidoAutocadastro());
   });
 });

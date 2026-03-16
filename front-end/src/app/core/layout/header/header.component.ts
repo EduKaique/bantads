@@ -1,22 +1,20 @@
 import { Component, HostListener, ElementRef, OnInit, Input } from '@angular/core';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService, UserState } from '../../auth/services/auth.service';
+import { AuthService } from '../../auth/services/auth.service';
 import { SidebarStateService } from '../../services/sidebar-state.service';
-import { map, Observable } from 'rxjs';
-import { CommonModule, AsyncPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, MatToolbar, MatIconModule, AsyncPipe, MatButtonModule, MatBadgeModule],
+  imports: [CommonModule, MatToolbar, MatIconModule, MatButtonModule, MatBadgeModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
 })
 export class HeaderComponent {
   nomeDeUsuario: string = 'Nilson Nativas';
 
-  public isEmployee$: Observable<boolean>;
 
   painelVisivel = false;
   
@@ -31,7 +29,6 @@ export class HeaderComponent {
     private sidebarState: SidebarStateService,
     private elementRef: ElementRef
   ) {
-    this.isEmployee$ = this.authService.isEmployee$;
     this.authService.currentUser$.subscribe(user => {
       if (user) {
         this.nomeDeUsuario = user.name;

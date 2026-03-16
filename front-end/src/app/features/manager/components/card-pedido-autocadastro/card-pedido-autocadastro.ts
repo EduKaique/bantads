@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { PedidoAutocadastro } from '../../../../shared/models/pedido-autocadastro';
 
 @Component({
@@ -10,10 +10,10 @@ import { PedidoAutocadastro } from '../../../../shared/models/pedido-autocadastr
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CardPedidoAutocadastroComponent {
-  @Input({ required: true }) pedidoAutocadastro!: PedidoAutocadastro;
+  readonly pedidoAutocadastro = input.required<PedidoAutocadastro>();
 
-  @Output() aprovar = new EventEmitter<PedidoAutocadastro>();
-  @Output() rejeitar = new EventEmitter<PedidoAutocadastro>();
+  readonly aprovar = output<PedidoAutocadastro>();
+  readonly rejeitar = output<PedidoAutocadastro>();
 
   private readonly formatadorData = new Intl.DateTimeFormat('pt-BR');
 
@@ -32,10 +32,10 @@ export class CardPedidoAutocadastroComponent {
   }
 
   emitirAprovacao(): void {
-    this.aprovar.emit(this.pedidoAutocadastro);
+    this.aprovar.emit(this.pedidoAutocadastro());
   }
 
   emitirRejeicao(): void {
-    this.rejeitar.emit(this.pedidoAutocadastro);
+    this.rejeitar.emit(this.pedidoAutocadastro());
   }
 }

@@ -38,8 +38,8 @@ input::placeholder {
 
 input:focus-visible{
     outline: none;
-    box-shadow: 0 0 0 0;
-    border: 1px solid var(--color-primary, #087448);
+    box-shadow: 0 0 0 1px var(--color-ring, #087448);
+    border: 1px solid var(--color-ring, #087448);
 }
 
 .icon {
@@ -54,16 +54,21 @@ input:focus-visible{
     cursor: pointer;
 }
 
-.input-wrapper.error-state label {
-  color: var(--color-red-400, #e01300);
+.input-wrapper.error-state input {
+  border-color: var(--color-destructive, #e01300) !important;
 }
 
-.input-wrapper.error-state input {
-  border-color: var(--color-red-300, #ff5e5b);
+.input-wrapper.error-state label {
+  color: var(--color-destructive, #e01300) !important;
+}
+
+.input-wrapper.error-state input:focus-visible {
+  border-color: var(--color-destructive, #e01300) !important;
+  box-shadow: 0 0 0 1px var(--color-destructive, #e01300);
 }
 
 .error-message {
-  color: var(--color-red-400, #e01300);
+  color: var(--color-destructive, #e01300);
   font-size: 0.75rem;
   margin-top: 4px;
   display: block;

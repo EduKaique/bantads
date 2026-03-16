@@ -1,29 +1,29 @@
-<article class="card-pedido-autocadastro">
+<div class="card-pedido-autocadastro">
   <div class="card-pedido-autocadastro__informacao">
     <span class="body_small card-pedido-autocadastro__rotulo">Nome</span>
-    <span class="label_medium card-pedido-autocadastro__valor" [title]="pedidoAutocadastro.nome">
-      {{ pedidoAutocadastro.nome }}
+    <span class="label_medium card-pedido-autocadastro__valor" [title]="pedidoAutocadastro().nome">
+      {{ pedidoAutocadastro().nome }}
     </span>
   </div>
 
   <div class="card-pedido-autocadastro__informacao">
     <span class="body_small card-pedido-autocadastro__rotulo">CPF</span>
     <span class="label_medium card-pedido-autocadastro__valor">
-      {{ formatarCpf(pedidoAutocadastro.cpf) }}
+      {{ formatarCpf(pedidoAutocadastro().cpf) }}
     </span>
   </div>
 
   <div class="card-pedido-autocadastro__informacao">
     <span class="body_small card-pedido-autocadastro__rotulo">Salário</span>
     <span class="label_medium card-pedido-autocadastro__valor">
-      {{ pedidoAutocadastro.salario | currency: 'BRL' : 'symbol' : '1.2-2' }}
+      {{ pedidoAutocadastro().salario | currency: 'BRL' : 'symbol' : '1.2-2' }}
     </span>
   </div>
 
   <div class="card-pedido-autocadastro__informacao">
     <span class="body_small card-pedido-autocadastro__rotulo">Data</span>
     <span class="label_medium card-pedido-autocadastro__valor">
-      {{ formatarData(pedidoAutocadastro.dataSolicitacao) }}
+      {{ formatarData(pedidoAutocadastro().dataSolicitacao) }}
     </span>
   </div>
 
@@ -43,4 +43,4 @@
       Aprovar
     </button>
   </div>
-</article>
+</div>

@@ -1,25 +1,30 @@
 <div class="input-wrapper" [ngClass]="{'error-state': hasError}">
-  <label [for]="inputName" class="label_medium">{{ label }}</label>
-
+  @if (label()) {
+    <label [for]="finalId" class="label_medium">{{ label() }}</label>
+  }
   <div class="input-content">
     <input
-      [id]="inputName"
-      [type]="type"
-      [placeholder]="placeholder"
-      [value]="value"
-      (input)="onInput($event)"
-      (blur)="onBlur()"
-      [mask]="mask"
-      class="body_medium"
-      />
+    [id]="finalId"
+    [type]="type()"
+    [placeholder]="placeholder()"
+    [value]="value()"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+    [mask]="mask()"
+    [prefix]="prefix()"
+    [thousandSeparator]="thousandSeparator()"
+    [decimalMarker]="decimalMarker()"
+    [dropSpecialCharacters]="dropSpecialCharacters()"
+    class="body_medium"
+  />
     <div class="icon">
       <ng-content></ng-content>
     </div>
   </div>
 
-  @if (hasError && errorMessage) {
-    <span class="error-message">
-      {{ errorMessage }}
+  @if (hasError && errorMessage()) {
+    <span class="error-message body_small">
+      {{ errorMessage() }}
     </span>
   }
 </div>
