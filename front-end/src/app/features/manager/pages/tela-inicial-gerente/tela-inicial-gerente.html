@@ -30,6 +30,7 @@
           <app-card-pedido-autocadastro
             [pedidoAutocadastro]="pedido"
             (rejeitar)="abrirModalRejeicao($event)" 
+            (aprovar)="abrirModalAprovacao($event)" 
           ></app-card-pedido-autocadastro>
         }
       </div>
@@ -43,4 +44,12 @@
       (confirmar)="processarRejeicao($event)"
     ></app-modal-rejeitar-pedido>
   }
+
+    <app-modal-aprovar-pedido
+      *ngIf="pedidoSelecionadoParaAprovacao() as pedidoSelecionado"
+      [pedido]="pedidoSelecionado"      
+      (fechar)="fecharModal()"
+      (confirmar)="processarAprovacao($event)"
+    ></app-modal-aprovar-pedido>
+  
 </main>

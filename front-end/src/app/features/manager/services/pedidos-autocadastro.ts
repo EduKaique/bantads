@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
 import { API_URL } from '../../../core/configs/api.token';
 import { PedidoAutocadastro } from '../../../shared/models/pedido-autocadastro';
+import { Client } from '../../../shared/models/client';
 
 interface PedidoAutocadastroResposta {
   cpf: string;
@@ -54,5 +55,9 @@ export class PedidosAutocadastroService {
   rejeitar(cpf: string, motivo: string): Observable<boolean> {
     console.log(`Rejeitando CPF: ${cpf} pelo motivo: ${motivo}`);
     return of(true).pipe(delay(500));
+  }
+
+  aprovar(cpf: string) {
+    return this.http.post<Client>(`${this.apiUrl}/manager/aprovar-cliente/${cpf}`, {});
   }
 }
