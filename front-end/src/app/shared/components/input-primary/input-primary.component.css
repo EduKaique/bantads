@@ -14,12 +14,11 @@
 }
 
 label {
-    color: var(--color-muted-foreground);
+    color: var(--color-foreground-title, #414946);
     text-align: start;
 }
 
 input {
-    
     display: flex;
     height: 48px;
     width: inherit;
@@ -28,40 +27,49 @@ input {
     gap: var(--spacing-3xs);
     align-self: stretch;
     border-radius: var(--border-sm);
-    border: 1px solid var(--color-border);
-    color: var(--color-foreground);
+    border: 1px solid var(--color-border, #cdd4d1);
+    background: var(--color-input, #f5f6f5);
+    color: var(--color-foreground, #242827);
+}
+
+input::placeholder {
+    color: var(--color-border-alternative, #aab6b1);
 }
 
 input:focus-visible{
     outline: none;
-    box-shadow: 0 0 0 0;
-    border: 1px solid var(--color-ring);
+    box-shadow: 0 0 0 1px var(--color-ring, #087448);
+    border: 1px solid var(--color-ring, #087448);
 }
 
 .icon {
     position: absolute;
     right: 0;
-    top: 4px;
+    top: 0;
+    display: flex;
+    align-items: center;
+    height: 48px;
     padding: var(--spacing-3xs) var(--spacing-xs);
-    color: var(--color-muted-foreground);
+    color: var(--color-muted-foreground, #56645f);
     cursor: pointer;
 }
 
 .input-wrapper.error-state input {
-  border-color: var(--color-destructive) !important;
+  border-color: var(--color-destructive, #e01300) !important;
 }
 
 .input-wrapper.error-state label {
-  color: var(--color-destructive) !important;
+  color: var(--color-destructive, #e01300) !important;
 }
 
 .input-wrapper.error-state input:focus-visible {
-  border-color: var(--color-destructive) !important;
-  box-shadow: 0 0 0 1px var(--color-destructive); 
+  border-color: var(--color-destructive, #e01300) !important;
+  box-shadow: 0 0 0 1px var(--color-destructive, #e01300);
 }
 
 .error-message {
-  color: var(--color-destructive);
+  color: var(--color-destructive, #e01300);
+  font-size: 0.75rem;
   margin-top: 4px;
   display: block;
 }
