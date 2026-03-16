@@ -10,7 +10,7 @@
 html, body {
     height: 100%;
     font-family: Arial, Helvetica, sans-serif;
-    background: var(--color-background-page);
+    background: var(--color-background);
 }
 
 .main-layout {
@@ -32,9 +32,13 @@ main {
 }
 
 a {
-    text-decoration: underline;
-    color: var(--color-primary-default);
+    text-decoration: none;
+    color: var(--color-green-700, #087448);
     cursor: pointer;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 .back-link {
@@ -43,7 +47,7 @@ a {
     align-items: center;
     justify-content: center;
     gap: 4px;
-    color: var(--color-primary-default);
+    color: var(--color-green-700, #087448);
     cursor: pointer;
     background-color: transparent;
     border: none;
@@ -53,36 +57,99 @@ a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 12px;
     width: 200px;
     height: 48px;
     padding: var(--spacing-2xs);
-    border-radius: var(--radius-sm);
-    background: var(--color-primary-default);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-green-700, #087448);
     border: 0;
-    color: var(--color-primary-lightest);
+    color: var(--color-primary-foreground);
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 button:disabled, .button-primary:disabled {
-    background: var(--color-primary-dark);
+    background-color: var(--color-green-700, #087448);
     cursor: not-allowed;
     opacity: 0.6;
 }
 
 .button-primary:hover {
-    background: var(--color-primary-dark);
+    background: var(--color-green-800, #076B41);
 }
 
 .button-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 200px;
     height: 48px;
     padding: var(--spacing-2xs);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-pill);
     background: none;
-    border: 2.5px solid var(--color-primary-default);
-    color: var(--color-primary-default);
+    border: 2.5px solid var(--color-green-700, #087448);
+    color: var(--color-green-700, #087448);
     cursor: pointer;
 }
 
+.saque-backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.saque-modal-panel .cdk-visually-hidden {
+  display: none !important;
+}
+
+
+/* Estilo para o stepper */
+mat-stepper {
+  width: 100%;
+}
+
+.mat-stepper-horizontal {
+  background-color: inherit !important;
+}
+
+.mat-horizontal-stepper-wrapper {
+    gap: 24px;
+}
+
+.mat-horizontal-content-container {
+  width: 100%;
+  padding: 0 !important;
+}
+
+.mat-step-icon-selected,
+.mat-step-icon-state-edit {
+    background-color: var(--color-primary) !important;
+    color: var(--color-primary-foreground) !important;
+}
+
+.mat-step-label {
+    color: var(--color-muted-foreground) !important;
+    font-family: var(--label-large-font-family) !important;
+    font-size: var(--label-large-font-size) !important;
+    font-weight: var(--label-large-font-weight) !important;
+    letter-spacing: var(--label-large-letter-spacing) !important;
+}
+
+.mat-step-label-active {
+    color: var(--color-primary) !important;
+}
+/* ------------------------------------------ */
+
+.input-inherit {
+    width: inherit;
+}
+
+
+/* CLASSES UTEIS TAILWIND */
+
+.flex {
+    display: flex;
+}
+
+.w-full {
+    width: 100%;
+}

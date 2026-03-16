@@ -1,0 +1,124 @@
+:host {
+  display: block;
+}
+
+.sucesso-wrapper {
+  min-height: 100vh;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e5e8e6;
+  box-sizing: border-box;
+}
+
+.sucesso-card {
+  width: 432px;
+  max-width: 100%;
+  min-height: 364px;
+  padding: 32px 40px;
+  border-radius: 24px;
+  background: #fafafa;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.sucesso-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #16b36c;        /* ← verde do depósito, não ciano */
+}
+
+.sucesso-icone svg {
+  width: 48px;
+  height: 48px;
+  stroke: #edfcf3;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.sucesso-conteudo {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.sucesso-titulo {
+  margin: 0;
+  color: #414946;             /* ← escuro igual ao depósito */
+  text-align: center;
+  font-family: 'Sora', sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 32px;
+  letter-spacing: -0.4px;
+}
+
+.sucesso-valor {
+  color: #16b36c;             /* ← verde do depósito */
+  text-align: center;
+  font-family: 'Sora', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 36px;
+  margin: 0;
+}
+
+.sucesso-detalhe {
+  color: #242827;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 28px;
+  letter-spacing: -0.1px;
+}
+
+.sucesso-detalhe p {
+  margin: 0;
+}
+
+.sucesso-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.btn-dashboard,
+.btn-novo-saque {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  border-radius: 8px;
+  font-family: 'Sora', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-dashboard {
+  background: #087448;    
+  color: #edfcf3;
+  border: 0;
+}
+
+.btn-novo-saque {
+  background: transparent;
+  border: 2px solid #087448;
+  color: #087448;
+}

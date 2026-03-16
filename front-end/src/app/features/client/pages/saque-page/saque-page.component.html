@@ -1,0 +1,49 @@
+<main class="saque-wrapper">
+  <article class="saque-card">
+
+    <header class="saque-header">
+      <h1 class="saque-titulo">Saque</h1>
+      <p class="saque-subtitulo">Preencha o valor que deseja sacar da sua conta.</p>
+    </header>
+
+    <form class="saque-form" [formGroup]="saqueForm" (ngSubmit)="onEnviar()">
+
+      <div class="saque-campos">
+
+        <div class="campo-wrapper">
+          <label class="campo-label" for="valor">*Valor</label>
+          <div class="campo-shell" [class.campo-shell--erro]="!!erroValor">
+            <span class="campo-prefix">R$</span>
+            <input
+              id="valor"
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+              formControlName="valor"
+              placeholder="________________"
+            />
+          </div>
+        </div>
+
+        <div class="campo-wrapper">
+          <label class="campo-label" for="disponivel">Disponível</label>
+          <div id="disponivel" class="campo-shell campo-shell--readonly">
+            <span class="campo-readonly-valor">{{ saldoFormatado }}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="campo-obrigatorio" [class.campo-obrigatorio--erro]="!!erroValor">
+        {{ erroValor ?? '* Campo de preenchimento obrigatório' }}
+      </p>
+
+      <div class="saque-acoes">
+        <button type="submit" class="btn-enviar" [disabled]="saqueForm.invalid && saqueForm.touched">
+          Enviar
+        </button>
+      </div>
+
+    </form>
+  </article>
+</main>

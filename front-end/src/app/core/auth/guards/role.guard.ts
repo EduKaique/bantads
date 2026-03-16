@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-
+import { ToastService } from '../../services/toast.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -10,7 +10,8 @@ export class RoleGuard implements CanActivate {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toast: ToastService,
   ) {}
 
   canActivate(
@@ -26,11 +27,13 @@ export class RoleGuard implements CanActivate {
       return false;
     }
 
-    if (currentUser.userAccess === expectedRole) {
+    console.log(currentUser.tipo === expectedRole)
+    if (currentUser.tipo === expectedRole) {
       return true;
     }
 
-    console.error(`Acesso negado. Rota exige role '${expectedRole}', mas o usuário tem role '${currentUser.userAccess}'.`);
+    this.toast.error('Erro', 'Acesso negado');
+    console.error(`Acesso negado. Rota exige role '${expectedRole}', mas o usuário tem role '${currentUser.tipo}'.`);
     this.router.navigate(['/error-unauthorized']); 
     return false;
   }

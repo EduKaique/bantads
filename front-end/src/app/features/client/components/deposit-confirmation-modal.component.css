@@ -1,0 +1,136 @@
+:host {
+  display: block;
+}
+
+.confirmation-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(229, 232, 230, 0.84);
+  backdrop-filter: blur(2px);
+}
+
+.confirmation-modal {
+  width: 565px;
+  max-width: 100%;
+  padding: 24px;
+  border-radius: 16px;
+  background: #fafafa;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.confirmation-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.confirmation-modal__title {
+  margin: 0;
+  color: #3e4c4b;
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 28px;
+  letter-spacing: -0.2px;
+}
+
+.confirmation-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #56645f;
+  cursor: pointer;
+}
+
+.confirmation-modal__close svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.confirmation-modal__content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.confirmation-modal__question {
+  margin: 0;
+  color: #475756;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.confirmation-modal__amount {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 8px 16px;
+  border: 1px solid #a8b8b7;
+  border-radius: 8px;
+  color: #7c9493;
+  background: #fafafa;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.1px;
+  box-sizing: border-box;
+}
+
+.confirmation-modal__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px;
+}
+
+.confirmation-modal__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 0;
+  border-radius: 8px;
+  color: #f3fafa;
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+  cursor: pointer;
+}
+
+.confirmation-modal__action:disabled,
+.confirmation-modal__close:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.confirmation-modal__action--cancel {
+  background: #ff5e5b;
+}
+
+.confirmation-modal__action--confirm {
+  background: #25a46b;
+}
+
+@media (max-width: 640px) {
+  .confirmation-modal__actions {
+    gap: 16px;
+  }
+}

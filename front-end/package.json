@@ -20,6 +20,8 @@
     "@angular/platform-browser": "^20.3.17",
     "@angular/platform-browser-dynamic": "^20.3.17",
     "@angular/router": "^20.3.17",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
     "ngx-mask": "^20.0.3",
     "ngx-spinner": "^19.0.0",
     "ngx-toastr": "^19.1.0",
@@ -39,5 +41,10 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "^5.8.2"
-  }
+  },
+  "description": "Esse projeto é o front-end de um sistema de manuntenção de equipamentos e foi gerado pelo [Angular CLI](https://github.com/angular/angular-cli) na versão 19+.",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
