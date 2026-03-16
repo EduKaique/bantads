@@ -25,13 +25,61 @@ export class ConsultarClienteComponent implements OnInit {
   clienteAtual: ClienteInfo | null = null;
   carregando: boolean = false;
   erro: string = '';
+  foiBuscado: boolean = false;
 
   ngOnInit(): void {
-    // Página começa vazia por padrão
+
+  }
+
+  apenasNumeros(): void {
+    this.cpfPesquisa = this.cpfPesquisa.replace(/\D/g, '');
+  }
+
+  validarCPF(cpf: string): boolean {
+    const cpfLimpo = cpf.replace(/\D/g, '');
+
+    // Verifica se tem 11 dígitos
+    if (cpfLimpo.length !== 11) {
+      return false;
+    }
+
+    // Verifica se não é uma sequência repetida
+    if (/^(\d)\1{10}$/.test(cpfLimpo)) {
+      return false;
+    }
+
+    // Valida primeiro dígito verificador
+    let soma = 0;
+    let resto;
+    for (let i = 1; i <= 9; i++) {
+      soma += parseInt(cpfLimpo.substring(i - 1, i)) * (11 - i);
+    }
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) {
+      resto = 0;
+    }
+    if (resto !== parseInt(cpfLimpo.substring(9, 10))) {
+      return false;
+    }
+
+    // Valida segundo dígito verificador
+    soma = 0;
+    for (let i = 1; i <= 10; i++) {
+      soma += parseInt(cpfLimpo.substring(i - 1, i)) * (12 - i);
+    }
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) {
+      resto = 0;
+    }
+    if (resto !== parseInt(cpfLimpo.substring(10, 11))) {
+      return false;
+    }
+
+    return true;
   }
 
   private carregarClienteExemplo(): void {
-    // Dados mocados para desenvolvimento
+
     this.clienteAtual = {
       nome: 'Diddy, o Peixe',
       cpf: '11044108980',
@@ -45,28 +93,22 @@ export class ConsultarClienteComponent implements OnInit {
   }
 
   pesquisarCliente(): void {
+    this.foiBuscado = true;
+
     if (!this.cpfPesquisa.trim()) {
       this.erro = 'Por favor, digite um CPF válido';
+      return;
+    }
+
+    if (!this.validarCPF(this.cpfPesquisa)) {
+      this.erro = 'CPF inválido';
       return;
     }
 
     this.carregando = true;
     this.erro = '';
 
-    // TODO: Integrar com serviço de cliente futuramente
-    // this.clienteService.obterClientePorCpf(this.cpfPesquisa).subscribe({
-    //   next: (cliente) => {
-    //     this.clienteAtual = cliente;
-    //     this.carregando = false;
-    //   },
-    //   error: (erro) => {
-    //     this.erro = 'Cliente não encontrado';
-    //     this.clienteAtual = null;
-    //     this.carregando = false;
-    //   }
-    // });
 
-    // Simulação apenas para dev - remover quando integrar com API
     setTimeout(() => {
       this.carregarClienteExemplo();
       this.carregando = false;
@@ -77,5 +119,6 @@ export class ConsultarClienteComponent implements OnInit {
     this.cpfPesquisa = '';
     this.clienteAtual = null;
     this.erro = '';
+    this.foiBuscado = false;
   }
 }

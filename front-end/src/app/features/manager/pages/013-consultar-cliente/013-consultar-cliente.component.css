@@ -16,6 +16,7 @@
   display: flex;
   flex-direction: column;
   gap: 40px;
+  overflow-x: hidden;
 }
 
 /* Header */
@@ -37,7 +38,7 @@
   white-space: nowrap;
 }
 
-/* Search Section */
+
 .search-section {
   display: flex;
   flex-direction: column;
@@ -109,11 +110,16 @@
   cursor: not-allowed;
 }
 
-/* Info Sections */
+
 .info-section {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  margin-bottom: 24px;
+}
+
+.info-section:last-of-type {
+  margin-bottom: 0;
 }
 
 .section-title {
@@ -180,7 +186,7 @@
   padding: 12px 16px;
 }
 
-/* Error Message */
+
 .erro-message {
   background-color: #fee;
   border: 1px solid #fcc;
@@ -192,7 +198,7 @@
   margin: 0;
 }
 
-/* Action Buttons */
+
 .action-buttons {
   display: flex;
   gap: 16px;
@@ -220,7 +226,7 @@
   background-color: #efefef;
 }
 
-/* Empty State */
+
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -239,11 +245,25 @@
   margin: 0;
 }
 
-/* Responsive */
+
 @media (max-width: 1024px) {
+  .container {
+    padding: 32px;
+    gap: 32px;
+  }
+
   .header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 24px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .search-section {
+    min-width: auto;
   }
 
   .row {
@@ -253,5 +273,130 @@
 
   .field-group {
     min-width: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .consultar-cliente-main {
+    padding: 20px;
+  }
+
+  .container {
+    padding: 24px;
+    gap: 24px;
+    border-radius: 16px;
+  }
+
+  .title {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .search-input-wrapper {
+    flex-wrap: wrap;
+    height: auto;
+    gap: 12px;
+  }
+
+  .search-input {
+    flex: 0 1 100%;
+    min-width: 0;
+  }
+
+  .search-btn {
+    flex: 0 1 auto;
+  }
+
+  .info-section {
+    gap: 16px;
+  }
+
+  .info-rows {
+    gap: 16px;
+  }
+
+  .row {
+    gap: 0;
+  }
+
+  .field-group {
+    gap: 6px;
+    min-width: auto;
+  }
+
+  .field-label {
+    font-size: 12px;
+  }
+
+  .field-value {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .section-title {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .consultar-cliente-main {
+    padding: 12px;
+  }
+
+  .container {
+    padding: 16px;
+    gap: 16px;
+    border-radius: 12px;
+  }
+
+  .header {
+    gap: 16px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .search-label {
+    font-size: 14px;
+  }
+
+  .search-input-wrapper {
+    gap: 8px;
+    padding: 6px;
+  }
+
+  .search-input {
+    font-size: 14px;
+    padding: 0 8px;
+  }
+
+  .search-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .info-rows {
+    gap: 12px;
+  }
+
+  .field-label {
+    font-size: 11px;
+  }
+
+  .field-value {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  .field-value.address-value {
+    min-height: auto;
+    padding: 6px 10px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 12px;
+    flex: 1;
   }
 }

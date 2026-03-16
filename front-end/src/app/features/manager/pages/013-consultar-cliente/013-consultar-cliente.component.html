@@ -1,6 +1,6 @@
 <main class="consultar-cliente-main">
   <div class="container">
-    <!-- Header com título e pesquisa -->
+
     <div class="header">
       <h1 class="title">Clientes</h1>
       <div class="search-section">
@@ -9,30 +9,32 @@
           <input
             type="text"
             [(ngModel)]="cpfPesquisa"
+            (keyup)="apenasNumeros()"
+            (keyup.enter)="pesquisarCliente()"
             placeholder="Digite o CPF..."
             class="search-input"
-            (keyup.enter)="pesquisarCliente()"
+            maxlength="11"
           />
-          <button class="search-btn" (click)="pesquisarCliente()" [disabled]="carregando">
+          <button class="search-btn" (click)="pesquisarCliente()" [disabled]="carregando || !validarCPF(cpfPesquisa)">
             {{ carregando ? 'Buscando...' : 'Buscar' }}
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Mensagem de erro -->
+
     <div *ngIf="erro" class="erro-message">
       {{ erro }}
     </div>
 
-    <!-- Cliente Info -->
+
     <div *ngIf="clienteAtual" class="cliente-info">
-      <!-- Informações Pessoais -->
+
       <div class="info-section">
         <h2 class="section-title">Informações Pessoais</h2>
         
         <div class="info-rows">
-          <!-- Linha 1: Nome + CPF -->
+
           <div class="row">
             <div class="field-group">
               <label class="field-label">Nome</label>
@@ -44,7 +46,7 @@
             </div>
           </div>
 
-          <!-- Linha 2: Email + Telefone -->
+
           <div class="row">
             <div class="field-group">
               <label class="field-label">Email</label>
@@ -56,7 +58,7 @@
             </div>
           </div>
 
-          <!-- Linha 3: Endereço + Salário -->
+
           <div class="row">
             <div class="field-group address-field">
               <label class="field-label">Endereço</label>
@@ -70,7 +72,7 @@
         </div>
       </div>
 
-      <!-- Informações da Conta -->
+
       <div class="info-section">
         <h2 class="section-title">Informações da Conta</h2>
         
@@ -88,7 +90,6 @@
         </div>
       </div>
 
-      <!-- Botões de ação -->
       <div class="action-buttons">
         <button class="btn btn-secondary" (click)="limparPesquisa()">
           Nova Busca
@@ -96,8 +97,8 @@
       </div>
     </div>
 
-    <!-- Estados vazios/sem resultado -->
-    <div *ngIf="!clienteAtual && !erro && cpfPesquisa" class="empty-state">
+
+    <div *ngIf="!clienteAtual && !erro && cpfPesquisa && foiBuscado" class="empty-state">
       <p>Nenhum cliente encontrado com este CPF</p>
     </div>
 
