@@ -1,0 +1,109 @@
+<main class="consultar-cliente-main">
+  <div class="container">
+
+    <div class="header">
+      <h1 class="title">Clientes</h1>
+      <div class="search-section">
+        <label class="search-label">Pesquisar</label>
+        <div class="search-input-wrapper">
+          <input
+            type="text"
+            [(ngModel)]="cpfPesquisa"
+            (keyup)="apenasNumeros()"
+            (keyup.enter)="pesquisarCliente()"
+            placeholder="Digite o CPF..."
+            class="search-input"
+            maxlength="11"
+          />
+          <button class="search-btn" (click)="pesquisarCliente()" [disabled]="carregando || !validarCPF(cpfPesquisa)">
+            {{ carregando ? 'Buscando...' : 'Buscar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <div *ngIf="erro" class="erro-message">
+      {{ erro }}
+    </div>
+
+
+    <div *ngIf="clienteAtual" class="cliente-info">
+
+      <div class="info-section">
+        <h2 class="section-title">Informações Pessoais</h2>
+        
+        <div class="info-rows">
+
+          <div class="row">
+            <div class="field-group">
+              <label class="field-label">Nome</label>
+              <div class="field-value">{{ clienteAtual.nome }}</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">CPF</label>
+              <div class="field-value">{{ clienteAtual.cpf }}</div>
+            </div>
+          </div>
+
+
+          <div class="row">
+            <div class="field-group">
+              <label class="field-label">Email</label>
+              <div class="field-value">{{ clienteAtual.email }}</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Telefone</label>
+              <div class="field-value">{{ clienteAtual.telefone }}</div>
+            </div>
+          </div>
+
+
+          <div class="row">
+            <div class="field-group address-field">
+              <label class="field-label">Endereço</label>
+              <div class="field-value address-value" [innerHTML]="clienteAtual.endereco.split('\n').join('<br>')"></div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Salário</label>
+              <div class="field-value">{{ clienteAtual.salario }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="info-section">
+        <h2 class="section-title">Informações da Conta</h2>
+        
+        <div class="info-rows">
+          <div class="row">
+            <div class="field-group">
+              <label class="field-label">Saldo</label>
+              <div class="field-value">{{ clienteAtual.saldo }}</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Limite</label>
+              <div class="field-value">{{ clienteAtual.limite }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-secondary" (click)="limparPesquisa()">
+          Nova Busca
+        </button>
+      </div>
+    </div>
+
+
+    <div *ngIf="!clienteAtual && !erro && cpfPesquisa && foiBuscado" class="empty-state">
+      <p>Nenhum cliente encontrado com este CPF</p>
+    </div>
+
+    <div *ngIf="!clienteAtual && !erro && !cpfPesquisa" class="empty-state">
+      <p>Digite um CPF para buscar informações do cliente</p>
+    </div>
+  </div>
+</main>
