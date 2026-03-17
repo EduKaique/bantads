@@ -14,6 +14,8 @@ import { PedidoAutocadastro } from '../../../../shared/models/pedido-autocadastr
 import { CardPedidoAutocadastroComponent } from '../../components/card-pedido-autocadastro/card-pedido-autocadastro';
 import { PedidosAutocadastroService } from '../../services/pedidos-autocadastro';
 import { ModalRejeitarPedidoComponent } from '../../components/card-pedido-autocadastro/modal-rejeitar-pedido/modal-rejeitar-pedido.component';
+import { ModalAprovarPedidoComponent } from '../../components/card-pedido-autocadastro/modal-aprovar-pedido/modal-aprovar-pedido';
+
 @Component({
   selector: 'app-tela-inicial-gerente',
   imports: [
@@ -22,6 +24,7 @@ import { ModalRejeitarPedidoComponent } from '../../components/card-pedido-autoc
     InputPrimaryComponent,
     CardPedidoAutocadastroComponent,
     ModalRejeitarPedidoComponent,
+    ModalAprovarPedidoComponent
   ],
   templateUrl: './tela-inicial-gerente.html',
   styleUrl: './tela-inicial-gerente.css',
@@ -40,6 +43,7 @@ export class TelaInicialGerenteComponent implements OnInit {
   readonly carregando = signal(true);
   readonly mensagemErro = signal('');
   readonly pedidoSelecionadoParaRejeicao = signal<PedidoAutocadastro | null>(null);
+  readonly pedidoSelecionadoParaAprovacao = signal<PedidoAutocadastro | null>(null);
 
   ngOnInit(): void {
     this.carregarPedidosAutocadastro();
@@ -88,8 +92,13 @@ export class TelaInicialGerenteComponent implements OnInit {
     this.pedidoSelecionadoParaRejeicao.set(pedido);
   }
 
+  abrirModalAprovacao(pedido: PedidoAutocadastro): void {
+    this.pedidoSelecionadoParaAprovacao.set(pedido);
+  }
+
   fecharModal(): void {
     this.pedidoSelecionadoParaRejeicao.set(null);
+    this.pedidoSelecionadoParaAprovacao.set(null);
   }
 
   processarRejeicao(evento: { pedido: PedidoAutocadastro; motivo: string }): void {
@@ -109,5 +118,24 @@ export class TelaInicialGerenteComponent implements OnInit {
           this.carregando.set(false);
         }
       });
+  }
+
+  processarAprovacao(evento: { pedido: PedidoAutocadastro }): void {
+    this.carregando.set(true);
+    this.pedidosAutocadastroService
+      .aprovar(evento.pedido.cpf)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (clienteCriado) => {
+          const listaAtualizada = this.pedidosAutocadastro().filter(p => p.cpf !== evento.pedido.cpf);
+          this.pedidosAutocadastro.set(listaAtualizada);
+          this.fecharModal();
+          this.carregando.set(false);
+        },
+        error: () => {
+          this.mensagemErro.set('Erro ao aprovar.');
+          this.carregando.set(false);
+        }
+    });
   }
 }
