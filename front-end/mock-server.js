@@ -154,8 +154,7 @@ app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
   }
 
   const novoCliente = {
-    ...pedido,
-    approved: true
+    ...pedido
   };
 
   clientes.push(novoCliente);
