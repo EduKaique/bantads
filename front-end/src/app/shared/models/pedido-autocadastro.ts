@@ -3,5 +3,4 @@ export interface PedidoAutocadastro {
   nome: string;
   salario: number;
   dataSolicitacao: string;
-  dataAprovacao?: string;
 }

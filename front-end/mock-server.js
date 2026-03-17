@@ -17,30 +17,108 @@ const PATHS = {
   users: path.join(__dirname, "mock/users.json")
 };
 
-const getData = (file) => JSON.parse(fs.readFileSync(PATHS[file]));
-const saveData = (file, data) => fs.writeFileSync(PATHS[file], JSON.stringify(data, null, 2));
-const getUsers = () => JSON.parse(fs.readFileSync(PATHS.users, "utf-8"));
-const getSolicitacoes = () => JSON.parse(fs.readFileSync(PATHS.solicitacoes, "utf-8"));
+const getData = (file) => JSON.parse(fs.readFileSync(PATHS[file], "utf-8"));
+const saveData = (file, data) =>
+  fs.writeFileSync(PATHS[file], JSON.stringify(data, null, 2));
 
-// Login
+//Login ------------------------------
 app.post("/auth/login", (req, res) => {
   const { email, password } = req.body;
-  const users = getUsers();
 
-  const user = users.find(u => u.email === email && u.password === password);
+  const auths = getData("auth");
+
+  const user = auths.find(
+    (u) => u.email === email && u.senha === password
+  );
 
   if (!user) {
-    return res.status(401).json({ message: "Email ou senha inválidos" });
+    return res.status(401).json({
+      message: "Email ou senha inválidos"
+    });
   }
 
   res.json({
-    token: "fake-jwt-token",
-    user: { id: user.id, name: user.name, email: user.email }
+    access_token: "fake-jwt-token",
+    token_type: "bearer",
+    tipo: user.tipo.toUpperCase(),
+    usuario: {
+      nome: user.nome || "Usuário",
+      email: user.email,
+      cpf: user.cpf
+    }
+  });
+
+  console.log(`Login realizado: ${email}`);
+});
+
+//Autocadastro --------------------------
+app.post("/auth/register", (req, res) => {
+  const {
+    cpf,
+    nome,
+    email,
+    salario,
+    celular,
+    cep,
+    logradouro,
+    numero,
+    complemento,
+    bairro,
+    cidade,
+    uf
+  } = req.body;
+
+  const solicitacoes = getData("solicitacoes");
+  const clientes = getData("clientes");
+  const auths = getData("auth");
+
+  const jaCadastrado =
+    clientes.some((c) => c.cpf === cpf) ||
+    auths.some((a) => a.cpf === cpf);
+
+  const jaEmAprovacao =
+    solicitacoes.some((s) => s.cpf === cpf);
+
+  if (jaCadastrado || jaEmAprovacao) {
+    return res.status(400).json({
+      message:
+        "Erro: Cliente já cadastrado ou aguardando aprovação."
+    });
+  }
+
+  const novaSolicitacao = {
+    cpf,
+    nome,
+    email,
+    celular,
+    salario,
+    endereco: {
+      cep,
+      logradouro,
+      numero,
+      complemento,
+      bairro,
+      cidade,
+      uf
+    },
+    dataSolicitacao: new Date().toISOString()
+  };
+
+  solicitacoes.push(novaSolicitacao);
+  saveData("solicitacoes", solicitacoes);
+
+  console.log(`Novo pedido de cadastro: ${cpf} - ${nome}`);
+
+  res.status(202).json({
+    message:
+      "Solicitação de autocadastro enviada com sucesso!"
   });
 });
 
+//Listar pedidos ---------------------------------------
 app.get("/manager/pedidos-autocadastro", (_req, res) => {
-  const pedidos = getSolicitacoes()
+
+  const pedidos = getData("solicitacoes")
     .map(({ cpf, nome, salario, dataSolicitacao, endereco }) => ({
       cpf,
       nome,
@@ -48,33 +126,49 @@ app.get("/manager/pedidos-autocadastro", (_req, res) => {
       dataSolicitacao,
       endereco
     }))
-    .sort((a, b) => new Date(b.dataSolicitacao) - new Date(a.dataSolicitacao));
+    .sort(
+      (a, b) =>
+        new Date(b.dataSolicitacao) -
+        new Date(a.dataSolicitacao)
+    );
 
   res.json(pedidos);
 });
 
-//Aprovação do cliente
+
+//Aprovação de clientes ---------------------------------
 app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
+
   const cpf = req.params.cpf;
 
-  const solicitacoes = getData('solicitacoes');
-  const pedido = solicitacoes.find(s => s.cpf === cpf);
-  if (!pedido) return res.status(404).json({ message: "Pedido não encontrado" });
+  const solicitacoes = getData("solicitacoes");
+  const clientes = getData("clientes");
+  const contas = getData("contas");
 
-  const clientes = getData('clientes');
+  const pedido = solicitacoes.find((s) => s.cpf === cpf);
 
-  const novoCliente = { 
-    ...pedido, 
+  if (!pedido) {
+    return res
+      .status(404)
+      .json({ message: "Pedido não encontrado" });
+  }
+
+  const novoCliente = {
+    ...pedido,
     approved: true
   };
 
   clientes.push(novoCliente);
-  saveData('clientes', clientes);
+  saveData("clientes", clientes);
 
-  const contas = getData('contas') || [];
   const numeroConta = Math.floor(Math.random() * 9000 + 1000).toString();
   const senha = Math.random().toString(36).slice(-8);
-  const limite = pedido.salario >= 2000 ? pedido.salario / 2 : 0;
+
+  const limite =
+    pedido.salario >= 2000
+      ? pedido.salario / 2
+      : 0;
+
   contas.push({
     accountId: Math.random().toString(36).substring(2, 10),
     branch: "0001",
@@ -85,15 +179,22 @@ app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
     limit: limite,
     transactions: []
   });
-  saveData('contas', contas);
 
-  const novasSolicitacoes = solicitacoes.filter(s => s.cpf !== cpf);
-  saveData('solicitacoes', novasSolicitacoes);
+  saveData("contas", contas);
 
-  //Simulação de e-mail 
-  console.log(`E-mail enviado para ${pedido.email} com a senha: ${senha}`);
+  const novasSolicitacoes =
+    solicitacoes.filter((s) => s.cpf !== cpf);
 
-  res.json(novoCliente);
+  saveData("solicitacoes", novasSolicitacoes);
+
+  console.log(
+    `E-mail enviado para ${pedido.email} com senha: ${senha}`
+  );
+
+  res.json({
+    message: "Cliente aprovado com sucesso",
+    cliente: novoCliente
+  });
 });
 
 app.listen(PORT, () => {
