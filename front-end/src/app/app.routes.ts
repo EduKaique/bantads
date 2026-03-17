@@ -5,6 +5,8 @@ import { PageNotFoundComponent } from './core/layout/page-not-found/page-not-fou
 import { UnauthorizedPageComponent } from './core/layout/unauthorized-page/unauthorized-page.component';
 import { AuthGuard } from './core/auth/guards/auth.guard';
 import { RoleGuard } from './core/auth/guards/role.guard';
+import { TelaInicialGerenteComponent } from './features/manager/pages/tela-inicial-gerente/tela-inicial-gerente';
+import { ConsultarClienteComponent } from './features/manager/pages/013-consultar-cliente/013-consultar-cliente.component';
 
 export const routes: Routes = [
   {
@@ -40,9 +42,18 @@ export const routes: Routes = [
 
   {
     path: 'gerente',
-    loadChildren: () => import('./features/manager/manager.routes').then((m) => m.managerRoutes),
     canActivate: [AuthGuard, RoleGuard],
     data: { expectedRole: 'gerente' },
+    children: [
+      {
+        path: '',
+        component: TelaInicialGerenteComponent,
+      },
+      {
+        path: 'consultar-cliente',
+        component: ConsultarClienteComponent,
+      },
+    ],
   },
 
   {
