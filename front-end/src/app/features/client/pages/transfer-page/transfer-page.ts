@@ -21,6 +21,9 @@ export class TransferPage implements OnInit {
   exibirModalSucesso: boolean = false; 
   valorEnviado: string = '';
 
+  buscandoConta: boolean = false;
+  contaEncontrada: boolean = false;
+
   constructor(private fb: FormBuilder) {}
 
   exibirToast(mensagem: string): void {
@@ -40,6 +43,12 @@ export class TransferPage implements OnInit {
       cpf: [{ value: '', disabled: true }],
       amount: ['', [Validators.required]],
       balance: [{ value: 'R$ 10.125,49', disabled: true }]
+    });
+
+    // Escuta alterações no campo da conta. Se o usuário digitar outro número, reseta a busca.
+    this.transferForm.get('accountNumber')?.valueChanges.subscribe(() => {
+      this.contaEncontrada = false;
+      this.transferForm.patchValue({ name: '', cpf: '' }, { emitEvent: false });
     });
   }
 
@@ -67,18 +76,32 @@ export class TransferPage implements OnInit {
   searchAccount(): void {
     const accountControl = this.transferForm.get('accountNumber');
 
-    // Verifica se a conta é válida antes de preencher
+    // Verifica se a conta é válida antes de tentar buscar
     if (accountControl?.valid) {
-      this.transferForm.patchValue({
-        name: 'Catianna Silva',
-        cpf: '857.338.540-57'
-      });
+      this.buscandoConta = true;
+
+      // Simula a requisição para o Mock Server / API
+      setTimeout(() => {
+        this.buscandoConta = false;
+        this.contaEncontrada = true;
+
+        this.transferForm.patchValue({
+          name: 'Catianna Silva',
+          cpf: '857.338.540-57'
+        });
+      }, 800);
     } else {
-      this.exibirToast('Por favor, insira um valor válido.');
+      this.exibirToast('Por favor, insira um valor válido com 4 dígitos.');
     }
   }
 
   onSubmit(): void {
+    // Trava de segurança: impede o avanço se a conta não foi buscada/validada
+    if (!this.contaEncontrada) {
+      this.exibirToast('Busque e valide a conta de destino antes de transferir.');
+      return;
+    }
+
     if (this.transferForm.invalid) {
       this.transferForm.markAllAsTouched();
       return;
@@ -114,7 +137,7 @@ export class TransferPage implements OnInit {
     const payload = {
       destinationAccount: this.transferForm.get('accountNumber')?.value,
       amount: transferAmount
-  };
+    };
 
     console.log('Dados do envio:', payload);
 
@@ -129,6 +152,10 @@ export class TransferPage implements OnInit {
     this.transferForm.reset({
       balance: newBalanceFormatted
     });
+    
+    // Zera o estado da busca para a próxima transferência
+    this.contaEncontrada = false;
+    
     this.valorEnviado = transferAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     this.exibirModalSucesso = true;
   }
