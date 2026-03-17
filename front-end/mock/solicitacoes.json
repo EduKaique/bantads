@@ -4,7 +4,7 @@
     "nome": "Catharyna",
     "email": "cli1@bantads.com.br",
     "celular": "41999990001",
-    "salario": 10000,
+    "salario": 10000.0,
     "endereco": {
       "cep": "80020000",
       "logradouro": "Rua XV de Novembro",
@@ -21,7 +21,7 @@
     "nome": "Cleuddônio",
     "email": "cli2@bantads.com.br",
     "celular": "41999990002",
-    "salario": 20000,
+    "salario": 20000.0,
     "endereco": {
       "cep": "80230010",
       "logradouro": "Avenida Sete de Setembro",
@@ -38,7 +38,7 @@
     "nome": "Catianna",
     "email": "cli3@bantads.com.br",
     "celular": "41999990003",
-    "salario": 3000,
+    "salario": 3000.0,
     "endereco": {
       "cep": "80020100",
       "logradouro": "Rua das Flores",
@@ -55,7 +55,7 @@
     "nome": "Cutardo",
     "email": "cli4@bantads.com.br",
     "celular": "41999990004",
-    "salario": 500,
+    "salario": 500.0,
     "endereco": {
       "cep": "80020110",
       "logradouro": "Rua Riachuelo",
@@ -72,7 +72,7 @@
     "nome": "Coândrya",
     "email": "cli5@bantads.com.br",
     "celular": "41999990005",
-    "salario": 1500,
+    "salario": 1500.0,
     "endereco": {
       "cep": "80420000",
       "logradouro": "Avenida Batel",

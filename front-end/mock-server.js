@@ -9,33 +9,35 @@ const PORT = 3000;
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-const PATHS = {
-  auth: path.join(__dirname, "mock/auth.json"),
-  clientes: path.join(__dirname, "mock/clientes.json"),
-  solicitacoes: path.join(__dirname, "mock/solicitacoes.json")
-};
+const usersPath = path.join(__dirname, "mock/users.json");
+const solicitacoesPath = path.join(__dirname, "mock/solicitacoes.json");
 
-const getData = (file) => JSON.parse(fs.readFileSync(PATHS[file], "utf-8"));
-const saveData = (file, data) => fs.writeFileSync(PATHS[file], JSON.stringify(data, null, 2));
+function getUsers() {
+  const data = JSON.parse(fs.readFileSync(usersPath, "utf-8"));
+  return data;
+}
+
+function getSolicitacoes() {
+  const data = JSON.parse(fs.readFileSync(solicitacoesPath, "utf-8"));
+  return data;
+}
 
 function getPedidosAutocadastro() {
-  return getData("solicitacoes")
+  return getSolicitacoes()
     .map(({ cpf, nome, salario, dataSolicitacao }) => ({
       cpf,
       nome,
       salario,
       dataSolicitacao
     }))
-    .sort(
-      (solicitacaoAtual, proximaSolicitacao) =>
-        new Date(proximaSolicitacao.dataSolicitacao).getTime() -
-        new Date(solicitacaoAtual.dataSolicitacao).getTime()
+    .sort((solicitacaoAtual, proximaSolicitacao) =>
+      new Date(proximaSolicitacao.dataSolicitacao).getTime() -
+      new Date(solicitacaoAtual.dataSolicitacao).getTime()
     );
 }
 
-// Autocadastro
-app.post("/auth/register", (req, res) => {
-  const { cpf, nome, email, salario, celular, cep, logradouro, numero, complemento, bairro, cidade, uf } = req.body;
+app.post("/auth/login", (req, res) => {
+  const { email, password } = req.body;
 
   const solicitacoes = getData("solicitacoes");
   const clientesAtuais = getData("clientes");
@@ -105,6 +107,10 @@ app.get("/manager/pedidos-autocadastro", (_req, res) => {
   res.json(getPedidosAutocadastro());
 });
 
+app.get("/manager/pedidos-autocadastro", (_req, res) => {
+  res.json(getPedidosAutocadastro());
+});
+
 app.listen(PORT, () => {
-  console.log(`BANTADS Mock Server rodando em http://localhost:${PORT}`);
+  console.log(`Mock login rodando em http://localhost:${PORT}`);
 });

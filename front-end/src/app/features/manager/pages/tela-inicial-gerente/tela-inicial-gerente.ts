@@ -13,7 +13,7 @@ import { InputPrimaryComponent } from '../../../../shared/components/input-prima
 import { PedidoAutocadastro } from '../../../../shared/models/pedido-autocadastro';
 import { CardPedidoAutocadastroComponent } from '../../components/card-pedido-autocadastro/card-pedido-autocadastro';
 import { PedidosAutocadastroService } from '../../services/pedidos-autocadastro';
-
+import { ModalRejeitarPedidoComponent } from '../../components/card-pedido-autocadastro/modal-rejeitar-pedido/modal-rejeitar-pedido.component';
 @Component({
   selector: 'app-tela-inicial-gerente',
   imports: [
@@ -21,6 +21,7 @@ import { PedidosAutocadastroService } from '../../services/pedidos-autocadastro'
     ReactiveFormsModule,
     InputPrimaryComponent,
     CardPedidoAutocadastroComponent,
+    ModalRejeitarPedidoComponent,
   ],
   templateUrl: './tela-inicial-gerente.html',
   styleUrl: './tela-inicial-gerente.css',
@@ -38,6 +39,7 @@ export class TelaInicialGerenteComponent implements OnInit {
   readonly pedidosAutocadastro = signal<PedidoAutocadastro[]>([]);
   readonly carregando = signal(true);
   readonly mensagemErro = signal('');
+  readonly pedidoSelecionadoParaRejeicao = signal<PedidoAutocadastro | null>(null);
 
   ngOnInit(): void {
     this.carregarPedidosAutocadastro();
@@ -80,5 +82,32 @@ export class TelaInicialGerenteComponent implements OnInit {
 
   private normalizarCpf(valor: string): string {
     return valor.replace(/\D/g, '');
+  }
+
+  abrirModalRejeicao(pedido: PedidoAutocadastro): void {
+    this.pedidoSelecionadoParaRejeicao.set(pedido);
+  }
+
+  fecharModal(): void {
+    this.pedidoSelecionadoParaRejeicao.set(null);
+  }
+
+  processarRejeicao(evento: { pedido: PedidoAutocadastro; motivo: string }): void {
+    this.carregando.set(true);
+    this.pedidosAutocadastroService
+      .rejeitar(evento.pedido.cpf, evento.motivo)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          const listaAtualizada = this.pedidosAutocadastro().filter(p => p.cpf !== evento.pedido.cpf);
+          this.pedidosAutocadastro.set(listaAtualizada);
+          this.fecharModal();
+          this.carregando.set(false);
+        },
+        error: () => {
+          this.mensagemErro.set('Erro ao rejeitar.');
+          this.carregando.set(false);
+        }
+      });
   }
 }

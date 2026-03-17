@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, delay, map, of } from 'rxjs';
 import { API_URL } from '../../../core/configs/api.token';
 import { PedidoAutocadastro } from '../../../shared/models/pedido-autocadastro';
 
@@ -49,5 +49,10 @@ export class PedidosAutocadastroService {
       new Date(proximoPedido.dataSolicitacao).getTime() -
       new Date(pedidoAtual.dataSolicitacao).getTime()
     );
+  }
+
+  rejeitar(cpf: string, motivo: string): Observable<boolean> {
+    console.log(`Rejeitando CPF: ${cpf} pelo motivo: ${motivo}`);
+    return of(true).pipe(delay(500));
   }
 }
