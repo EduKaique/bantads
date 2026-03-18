@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { API_URL } from '../../configs/api.token';
-import { RegisterRequest } from '../../../shared/models/register-request';
+import { RegisterRequest } from '../models/register-request';
 
 interface LoginResponse {
   access_token: string;
@@ -31,7 +31,7 @@ export type UserState = {
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private apiBaseUrl = inject(API_URL); 
+  private apiBaseUrl = inject(API_URL);
   private router = inject(Router);
 
   private userSignal = signal<UserState | null>(this.getUserFromStorage());
@@ -109,6 +109,7 @@ export class AuthService {
    * @param data Objeto com dados pessoais e endereço
    */
   public signup(data: RegisterRequest): Observable<void> {
+    console.log('Dados enviados para cadastro:', data);
     return this.http.post<void>(`${this.apiBaseUrl}/auth/register`, data);
   }
 

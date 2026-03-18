@@ -7,14 +7,15 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 
 @Component({
   selector: 'app-root',
+  imports: [RouterOutlet, NgxSpinnerModule],
   imports: [RouterOutlet, NgxSpinnerModule, HeaderComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  title = 'Bantads';
   private authService = inject(AuthService)
   isLoggedIn = this.authService.isLoggedIn;
-  title = 'Bantads';
 
 }

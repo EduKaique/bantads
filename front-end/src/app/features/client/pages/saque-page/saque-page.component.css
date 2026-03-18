@@ -1,29 +1,25 @@
 :host {
-  --color-green-700: #087448;
-  --color-text-foreground: #242827;
-  --color-text-foreground-title: #414946;
-  --color-text-muted: #56645f;
-  --color-border: #cdd4d1;
-  --color-bg-card: #e5e8e6;
-  --color-bg-input: #f5f5f5;
-  --color-btn-text: #edfcf3;
+  display: block;
 }
 
 .saque-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
-  padding: 40px 16px;
-  background: white;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e5e8e6;
+  box-sizing: border-box;
 }
 
 .saque-card {
-  width: 100%;
-  max-width: 660px;
+  width: 660px;
+  max-width: 100%;
+  min-height: 356px;
   padding: 32px 40px;
-  background: var(--color-bg-card);
   border-radius: 24px;
+  background: #fafafa;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -36,21 +32,23 @@
 }
 
 .saque-titulo {
-  color: var(--color-text-foreground-title);
-  font-size: 32px;
+  margin: 0;
+  color: #414946;
   font-family: 'Sora', sans-serif;
+  font-size: 32px;
   font-weight: 500;
   line-height: 36px;
-  margin: 0;
+  letter-spacing: -0.4px;
 }
 
 .saque-subtitulo {
-  color: var(--color-text-foreground);
-  font-size: 18px;
+  margin: 0;
+  color: #242827;
   font-family: 'Roboto', sans-serif;
+  font-size: 18px;
   font-weight: 400;
   line-height: 24px;
-  margin: 0;
+  letter-spacing: -0.1px;
 }
 
 .saque-form {
@@ -60,92 +58,117 @@
 }
 
 .saque-campos {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 278px));
   gap: 24px;
-  align-items: flex-start;
 }
 
 .campo-wrapper {
-  flex: 1 1 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-height: 80px;
 }
 
 .campo-label {
-  color: var(--color-text-muted);
-  font-size: 16px;
+  color: #56645f;
   font-family: 'Sora', sans-serif;
+  font-size: 16px;
   font-weight: 600;
   line-height: 20px;
 }
 
-.campo-input {
-  height: 48px;
-  padding: 8px 16px;
-  background: var(--color-bg-input);
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-muted);
-  font-size: 18px;
-  font-family: 'Roboto', sans-serif;
-  font-weight: 400;
-  line-height: 24px;
-  box-sizing: border-box;
-  width: 100%;
-}
-
-input.campo-input:focus {
-  outline: none;
-  border-color: var(--color-green-700);
-}
-
-.campo-readonly {
+.campo-shell {
   display: flex;
   align-items: center;
-  cursor: default;
-  user-select: none;
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px 16px;
+  border: 1px solid #cdd4d1;
+  border-radius: 8px;
+  background: #f5f5f5;
+  box-sizing: border-box;
+}
+
+.campo-shell--erro {
+  border-color: #ff5e5b;
+}
+
+.campo-shell--readonly {
+  justify-content: flex-start;
+}
+
+.campo-prefix,
+.campo-readonly-valor,
+.campo-shell input {
+  color: #56645f;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.1px;
+}
+
+.campo-shell input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+}
+
+.campo-shell input::placeholder {
+  color: #56645f;
+  opacity: 1;
 }
 
 .campo-obrigatorio {
-  color: var(--color-text-muted);
-  font-size: 16px;
-  font-family: 'Roboto', sans-serif;
-  font-weight: 400;
-  text-align: center;
   margin: 0;
+  color: #56645f;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.campo-obrigatorio--erro {
+  color: #ff5e5b;
 }
 
 .saque-acoes {
   display: flex;
+  justify-content: center;
 }
 
 .btn-enviar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 200px;
-  height: 48px;
-  background: var(--color-green-700);
-  color: var(--color-btn-text);
-  border: none;
+  min-height: 48px;
+  border: 0;
   border-radius: 8px;
-  font-size: 18px;
+  background: #087448;
+  color: #edfcf3;
   font-family: 'Sora', sans-serif;
+  font-size: 18px;
   font-weight: 600;
+  line-height: 16px;
   cursor: pointer;
-  transition: background 0.2s ease;
 }
 
-.btn-enviar:hover { background: #065c38; }
-.btn-enviar:active { background: #054d2f; }
-
-
-.campo-erro {
-  border-color: #e74c3c !important;
+.btn-enviar:disabled {
+  cursor: default;
+  opacity: 0.8;
 }
 
-.mensagem-erro {
-  color: #e74c3c;
-  font-size: 13px;
-  font-family: 'Roboto', sans-serif;
-  margin-top: 2px;
+@media (max-width: 720px) {
+  .saque-card {
+    padding: 24px;
+    gap: 32px;
+  }
+
+  .saque-campos {
+    grid-template-columns: 1fr;
+  }
 }

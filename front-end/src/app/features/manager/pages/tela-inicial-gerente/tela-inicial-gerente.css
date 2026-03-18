@@ -1,0 +1,78 @@
+:host {
+  display: block;
+}
+
+.tela-inicial-gerente {
+  width: 100%;
+  min-height: 100vh;
+  padding: 52px 0 48px;
+  background: var(--color-background, #e5e8e6);
+}
+
+.painel-pedidos {
+  width: min(1116px, calc(100% - 80px));
+  min-height: 717px;
+  margin: 0 auto;
+  padding: 48px 28px;
+  border-radius: var(--border-lg, 24px);
+  background: var(--color-card, #fafafa);
+  display: flex;
+  flex-direction: column;
+  gap: 52px;
+}
+
+.painel-pedidos__cabecalho h1 {
+  color: var(--color-foreground-title, #414946);
+  line-height: 36px;
+}
+
+.painel-pedidos__filtros {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.painel-pedidos__pesquisa {
+  width: 278px;
+}
+
+.mensagem-status {
+  padding: 20px 24px;
+  border: 1px solid var(--color-border, #cdd4d1);
+  border-radius: var(--border-md, 16px);
+  background: var(--color-card, #fafafa);
+  color: var(--color-foreground-title, #414946);
+}
+
+.mensagem-status--erro {
+  border-color: var(--color-red-200, #ffa2a1);
+  color: var(--color-red-400, #e01300);
+}
+
+.lista-pedidos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+@media (max-width: 1200px) {
+  .painel-pedidos {
+    width: calc(100% - 48px);
+  }
+}
+
+@media (max-width: 768px) {
+  .tela-inicial-gerente {
+    padding: 24px 0 32px;
+  }
+
+  .painel-pedidos {
+    width: calc(100% - 32px);
+    padding: 32px 20px;
+    gap: 32px;
+  }
+
+  .painel-pedidos__pesquisa {
+    width: 100%;
+  }
+}
