@@ -1,0 +1,53 @@
+[
+  {
+    "cpf": "09506382000",
+    "nome": "Cleuddônio",
+    "email": "cli2@bantads.com.br",
+    "celular": "41999990002",
+    "salario": 20000,
+    "endereco": {
+      "cep": "80230010",
+      "logradouro": "Avenida Sete de Setembro",
+      "numero": "950",
+      "complemento": "",
+      "bairro": "Rebouças",
+      "cidade": "Curitiba",
+      "estado": "PR"
+    },
+    "dataSolicitacao": "2026-03-14T10:05:00.000Z"
+  },
+  {
+    "cpf": "58872160006",
+    "nome": "Cutardo",
+    "email": "cli4@bantads.com.br",
+    "celular": "41999990004",
+    "salario": 500,
+    "endereco": {
+      "cep": "80020110",
+      "logradouro": "Rua Riachuelo",
+      "numero": "5887",
+      "complemento": "",
+      "bairro": "São Francisco",
+      "cidade": "Curitiba",
+      "estado": "PR"
+    },
+    "dataSolicitacao": "2026-03-14T10:15:00.000Z"
+  },
+  {
+    "cpf": "76179646090",
+    "nome": "Coândrya",
+    "email": "cli5@bantads.com.br",
+    "celular": "41999990005",
+    "salario": 1500,
+    "endereco": {
+      "cep": "80420000",
+      "logradouro": "Avenida Batel",
+      "numero": "7617",
+      "complemento": "Sala 02",
+      "bairro": "Batel",
+      "cidade": "Curitiba",
+      "estado": "PR"
+    },
+    "dataSolicitacao": "2026-03-14T10:20:00.000Z"
+  }
+]

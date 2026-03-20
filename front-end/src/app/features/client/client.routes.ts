@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 import { DepositPageComponent } from './pages/deposit-page.component';
 import { SaquePageComponent } from './pages/saque-page/saque-page.component';
 import { SaqueSucessoPageComponent } from './pages/saque-sucesso-page/saque-sucesso-page.component';
@@ -22,7 +22,7 @@ export const clientRoutes: Routes = [
     component: TransferPage,
   },
   { 
-    path: 'atualizaPerfil/:id',
+    path: 'atualizaPerfil/:cpf',
     component: AlteracaoPerfilComponent,
   },
 ];

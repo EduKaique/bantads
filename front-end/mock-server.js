@@ -6,28 +6,29 @@ const path = require("path");
 const app = express();
 const PORT = 3000;
 
-app.use(cors({
-  origin: "*"
-}));
-
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-const usersPath = path.join(__dirname, "mock/users.json");
+const PATHS = {
+  auth: path.join(__dirname, "mock/auth.json"),
+  clientes: path.join(__dirname, "mock/clientes.json"),
+  solicitacoes: path.join(__dirname, "mock/solicitacoes.json"),
+  contas: path.join(__dirname, "mock/conta-banco.json")
+};
 
-function getUsers() {
-  const data = JSON.parse(fs.readFileSync(usersPath));
-  return data;
-}
+const getData = (file) => JSON.parse(fs.readFileSync(PATHS[file], "utf-8"));
+const saveData = (file, data) =>
+  fs.writeFileSync(PATHS[file], JSON.stringify(data, null, 2));
 
-//POST - LOGIN
+//Login ------------------------------
 app.post("/auth/login", (req, res) => {
   const { email, password } = req.body;
 
-  const users = getUsers();
+  const auths = getData("auth");
 
-    const user = users.find(
-    (u) => u.email === email && u.password === password
-    );
+  const user = auths.find(
+    (u) => u.email === email && u.senha === password
+  );
 
   if (!user) {
     return res.status(401).json({
@@ -36,81 +37,254 @@ app.post("/auth/login", (req, res) => {
   }
 
   res.json({
-    token: "fake-jwt-token",
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email
+    access_token: "fake-jwt-token",
+    token_type: "bearer",
+    tipo: user.tipo.toUpperCase(),
+    usuario: {
+      nome: user.nome || "Usuário",
+      email: user.email,
+      cpf: user.cpf
     }
+  });
+
+  console.log(`Login realizado: ${email}`);
+});
+
+//Autocadastro --------------------------
+app.post("/auth/register", (req, res) => {
+  const {
+    cpf,
+    nome,
+    email,
+    salario,
+    celular,
+    cep,
+    logradouro,
+    numero,
+    complemento,
+    bairro,
+    cidade,
+    uf
+  } = req.body;
+
+  const solicitacoes = getData("solicitacoes");
+  const clientes = getData("clientes");
+  const auths = getData("auth");
+
+  const jaCadastrado =
+    clientes.some((c) => c.cpf === cpf) ||
+    auths.some((a) => a.cpf === cpf);
+
+  const jaEmAprovacao =
+    solicitacoes.some((s) => s.cpf === cpf);
+
+  if (jaCadastrado || jaEmAprovacao) {
+    return res.status(400).json({
+      message:
+        "Erro: Cliente já cadastrado ou aguardando aprovação."
+    });
+  }
+
+  const novaSolicitacao = {
+    cpf,
+    nome,
+    email,
+    celular,
+    salario,
+    endereco: {
+      cep,
+      logradouro,
+      numero,
+      complemento,
+      bairro,
+      cidade,
+      uf
+    },
+    dataSolicitacao: new Date().toISOString()
+  };
+
+  solicitacoes.push(novaSolicitacao);
+  saveData("solicitacoes", solicitacoes);
+
+  console.log(`Novo pedido de cadastro: ${cpf} - ${nome}`);
+
+  res.status(202).json({
+    message:
+      "Solicitação de autocadastro enviada com sucesso!"
   });
 });
 
-//GET - BUSCAR PERFIL
-app.get("/client/perfil/:id", (req, res) => {
+//Listar pedidos ---------------------------------------
+app.get("/manager/pedidos-autocadastro", (_req, res) => {
 
-  const id = parseInt(req.params.id);
-  const users = getUsers();
+  const pedidos = getData("solicitacoes")
+    .map(({ cpf, nome, salario, dataSolicitacao, endereco }) => ({
+      cpf,
+      nome,
+      salario,
+      dataSolicitacao,
+      endereco
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.dataSolicitacao) -
+        new Date(a.dataSolicitacao)
+    );
 
-  const user = users.find(u => u.id === id);
-
-  if (!user) {
-    return res.status(404).json({
-      message: "Usuário não encontrado"
-    });
-  }
-
-  res.json(user);
-
+  res.json(pedidos);
 });
 
-//PUT - ALTERAÇÃO DE PERFIL
-app.put("/client/atualizaPerfil/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const atualizaDados = req.body;
 
-  const users = getUsers();
-  const userIndex = users.findIndex((u) => u.id === id);
+//Aprovação de clientes ---------------------------------
+app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
 
-  if (userIndex === -1) {
+  const cpf = req.params.cpf;
+
+  const solicitacoes = getData("solicitacoes");
+  const clientes = getData("clientes");
+  const contas = getData("contas");
+  const pedido = solicitacoes.find((s) => s.cpf === cpf);
+
+  if (!pedido) {
+    return res
+      .status(404)
+      .json({ message: "Pedido não encontrado" });
+  }
+
+  const novoId =
+  clientes.length > 0
+    ? Math.max(...clientes.map(c => c.id)) + 1
+    : 1;
+
+  const novoCliente = {
+    ...pedido,
+    novoId
+  };
+
+  clientes.push(novoCliente);
+  saveData("clientes", clientes);
+
+  const numeroConta = Math.floor(Math.random() * 9000 + 1000).toString();
+  const senha = Math.random().toString(36).slice(-8);
+
+  const limite =
+    pedido.salario >= 2000
+      ? pedido.salario / 2
+      : 0;
+
+  contas.push({
+    accountId: Math.random().toString(36).substring(2, 10),
+    branch: "0001",
+    accountNumber: numeroConta,
+    holderName: pedido.nome,
+    holderDocument: pedido.cpf,
+    availableBalance: 0,
+    limit: limite,
+    transactions: []
+  });
+
+  saveData("contas", contas);
+
+  const novasSolicitacoes =
+    solicitacoes.filter((s) => s.cpf !== cpf);
+
+  saveData("solicitacoes", novasSolicitacoes);
+
+  console.log(
+    `E-mail enviado para ${pedido.email} com senha: ${senha}`
+  );
+
+  res.json({
+    message: "Cliente aprovado com sucesso",
+    cliente: novoCliente
+  });
+});
+
+//Busca perfil clientes----------------------
+app.get("/cliente/perfil/:cpf", (req, res) => {
+  const cpf = req.params.cpf;
+  const clientes = getData("clientes");
+
+  const cliente = clientes.find(c => c.cpf === cpf);
+  
+  if (!cliente) {
     return res.status(404).json({
-      message: "Usuário não encontrado"
+      message: "Cliente não encontrado"
     });
   }
 
-  const user = users[userIndex];
+  res.json({
+    name: cliente.nome,
+    cpf: cliente.cpf,
+    email: cliente.email,
+    phoneNumber: cliente.celular,
+    salary: cliente.salario,
+    address: cliente.endereco
+  });
+});
 
-  const atualizaCliente = {
-    ...user,
-    ...req.body,
-    cpf: user.cpf
-  };
+//Alteração de perfil clientes ----------------------
+app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
+  const cpf = req.params.cpf;
+  const dadosAtualizados = req.body;
 
-  const salary = Number(atualizaCliente.salary);
-  let novoLimite = salary * 0.5;
+  const clientes = getData("clientes");
+  const contas = getData("contas");
 
-  const saldo = atualizaCliente.availableBalance || 0;
+  const clienteIndex = clientes.findIndex(c => c.cpf === cpf);
 
-  if (saldo < 0) {
-    const saldoNegativo = Math.abs(saldo);
-
-    if (novoLimite < saldoNegativo) {
-      novoLimite = saldoNegativo;
-    }
+  if (clienteIndex === -1) {
+    return res.status(404).json({
+      message: "Cliente não encontrado"
+    });
   }
 
-  atualizaCliente.limit = novoLimite;
+  const clienteAntigo = clientes[clienteIndex];
 
-  users[userIndex] = atualizaCliente;
+  const clienteAtualizado = {
+    ...clienteAntigo,
+    nome: dadosAtualizados.name || clienteAntigo.nome,
+    email: dadosAtualizados.email || clienteAntigo.email,
+    celular: dadosAtualizados.phoneNumber || clienteAntigo.celular,
+    salario: Number(dadosAtualizados.salary || clienteAntigo.salario),
+    endereco: {
+      ...clienteAntigo.endereco,
+      cep: dadosAtualizados.address?.cep || clienteAntigo.endereco.cep,
+      logradouro: dadosAtualizados.address?.logradouro || clienteAntigo.endereco.logradouro,
+      numero: dadosAtualizados.address?.numero || clienteAntigo.endereco.numero,
+      complemento: dadosAtualizados.address?.complemento || clienteAntigo.endereco.complemento,
+      bairro: dadosAtualizados.address?.bairro || clienteAntigo.endereco.bairro,
+      cidade: dadosAtualizados.address?.cidade || clienteAntigo.endereco.cidade,
+      uf: dadosAtualizados.address?.uf || clienteAntigo.endereco.uf
+    }
+  };
 
-  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+  clientes[clienteIndex] = clienteAtualizado;
+  saveData("clientes", clientes);
+
+  const contaIndex = contas.findIndex(c => c.holderDocument === cpf);
+  if (contaIndex !== -1) {
+    const conta = contas[contaIndex];
+    const salario = clienteAtualizado.salario;
+    let novoLimite = salario >= 2000 ? salario * 0.5 : 0;
+    
+    if (conta.availableBalance < 0) {
+      const divida = Math.abs(conta.availableBalance);
+      novoLimite = Math.max(novoLimite, divida);
+    }
+    
+    conta.limit = novoLimite;
+    contas[contaIndex] = conta;
+    saveData("contas", contas);
+  }
 
   res.json({
-    user: atualizaCliente,
-    balance: atualizaCliente.availableBalance,
-    managerName: atualizaCliente.managerName
-  })
-})
+    balance: contas[contaIndex]?.availableBalance || 0,
+    managerName: contas[contaIndex]?.manager,
+    cliente: clienteAtualizado
+  });
+});
 
 app.listen(PORT, () => {
-  console.log(`Mock rodando em http://localhost:${PORT}`);
+  console.log(`Mock server rodando em http://localhost:${PORT}`);
 });

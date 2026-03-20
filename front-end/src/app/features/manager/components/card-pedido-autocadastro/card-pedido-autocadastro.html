@@ -1,0 +1,46 @@
+<article class="card-pedido-autocadastro">
+  <div class="card-pedido-autocadastro__informacao">
+    <span class="body_small card-pedido-autocadastro__rotulo">Nome</span>
+    <span class="label_medium card-pedido-autocadastro__valor" [title]="pedidoAutocadastro.nome">
+      {{ pedidoAutocadastro.nome }}
+    </span>
+  </div>
+
+  <div class="card-pedido-autocadastro__informacao">
+    <span class="body_small card-pedido-autocadastro__rotulo">CPF</span>
+    <span class="label_medium card-pedido-autocadastro__valor">
+      {{ formatCpf(pedidoAutocadastro.cpf) }}
+    </span>
+  </div>
+
+  <div class="card-pedido-autocadastro__informacao">
+    <span class="body_small card-pedido-autocadastro__rotulo">Salário</span>
+    <span class="label_medium card-pedido-autocadastro__valor">
+      {{ pedidoAutocadastro.salario | currency: 'BRL' : 'symbol' : '1.2-2' }}
+    </span>
+  </div>
+
+  <div class="card-pedido-autocadastro__informacao">
+    <span class="body_small card-pedido-autocadastro__rotulo">Data</span>
+    <span class="label_medium card-pedido-autocadastro__valor">
+      {{ formatDateBR(pedidoAutocadastro.dataSolicitacao) }}
+    </span>
+  </div>
+
+  <div class="card-pedido-autocadastro__acoes" aria-label="Ações do pedido de autocadastro">
+    <button
+      type="button"
+      class="card-pedido-autocadastro__botao card-pedido-autocadastro__botao--rejeitar"
+      (click)="emitirRejeicao()"
+    >
+      Rejeitar
+    </button>
+    <button
+      type="button"
+      class="card-pedido-autocadastro__botao card-pedido-autocadastro__botao--aprovar"
+      (click)="emitirAprovacao()"
+    >
+      Aprovar
+    </button>
+  </div>
+</article>

@@ -36,7 +36,7 @@ export interface Address {
   numero: string;
   bairro: string;
   cidade: string;
-  estado: Estado;
+  uf: Estado;
 }
 
 

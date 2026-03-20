@@ -1,0 +1,40 @@
+<div class="modal-backdrop" (click)="emitirFechamento()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    
+    <header class="modal-header">
+      <h2 class="heading_5">Aprovar Autocadastro</h2>
+
+      <button 
+        type="button" 
+        class="btn-fechar"
+        (click)="emitirFechamento()">
+        &times;
+      </button>
+    </header>
+
+    <div class="modal-body">
+      <p class="body_small">
+        Deseja aprovar o pedido de autocadastro de 
+        <strong>{{ pedido.nome }}</strong>? <br>
+        Um e-mail contendo a senha de acesso será enviado ao cliente.
+      </p>
+    </div>
+
+    <footer class="modal-footer">
+      <button
+        type="button"
+        class="button-secondary"
+        (click)="emitirFechamento()">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="button-primary"
+        (click)="emitirConfirmacao()">
+        Confirmar Aprovação
+      </button>
+    </footer>
+
+  </div>
+</div>

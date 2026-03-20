@@ -6,9 +6,9 @@ import { Client } from '../../../shared/models/client';
 import { API_URL } from '../../../core/configs/api.token';
 
 interface UpdateUserResponseApi {
-  user: Client;
   balance: number;
   managerName: string;
+  cliente?: any;
 }
 
 @Injectable({
@@ -19,14 +19,14 @@ export class ClientService {
   private http = inject(HttpClient);
   private apiUrl = inject(API_URL);
 
-  buscaPerfil(id: number): Observable<Client> {
-    return this.http.get<Client>(`${this.apiUrl}/client/perfil/${id}`);
+  buscaPerfil(cpf: string): Observable<Client> {
+    return this.http.get<Client>(`${this.apiUrl}/cliente/perfil/${cpf}`);
   }
 
-  atualizaUsuario(client: Client): Observable<UpdateUserResponseApi> {
+  atualizaUsuario(cpf: string, data: any): Observable<UpdateUserResponseApi> {
     return this.http.put<UpdateUserResponseApi>(
-      `${this.apiUrl}/client/atualizaPerfil/${client.id}`,
-      client
+      `${this.apiUrl}/cliente/atualizaPerfil/${cpf}`,
+      data
     );
   }
 

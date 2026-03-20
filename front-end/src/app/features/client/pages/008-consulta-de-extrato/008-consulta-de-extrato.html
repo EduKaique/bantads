@@ -1,108 +1,105 @@
 <main class="extrato-main">
-  <div class="header">
-    <h2 class="heading_2">Histórico de Transações</h2>
-    <button
-      class="button-primary label_large"
-      (click)="generateReport()"
-      aria-label="Gerar relatório"
-    >
-      <mat-icon>add</mat-icon>
-      Gerar Relatório
-    </button>
-  </div>
+  <div class="container">
 
-  <div class="period-row">
-    <div class="period-section">
-      <h3 class="heading_3">Período</h3>
-      <span
-        *ngIf="!isEditingPeriod"
-        class="heading_4 period-text"
-        (click)="startEditingPeriod()"
-      >
-        {{ periodStart }} - {{ periodEnd }}
-      </span>
-      <div *ngIf="isEditingPeriod" class="period-edit">
-        <input
-          type="text"
-          [(ngModel)]="tempPeriodStart"
-          placeholder="DD/MM/YYYY"
-          class="period-input"
-        />
-        <span class="separator">-</span>
-        <input
-          type="text"
-          [(ngModel)]="tempPeriodEnd"
-          placeholder="DD/MM/YYYY"
-          class="period-input"
-        />
-        <button
-          class="period-btn save-btn"
-          (click)="savePeriod()"
-          aria-label="Salvar período"
-        >
-          <mat-icon>check</mat-icon>
-        </button>
-        <button
-          class="period-btn cancel-btn"
-          (click)="cancelEditingPeriod()"
-          aria-label="Cancelar edição"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
+    <div class="header">
+      <h1 class="title">Histórico de Transações</h1>
+      
+
+      <div class="date-filters">
+        <div class="date-field">
+          <label class="date-label">Data Inicial</label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              [(ngModel)]="dataInicio"
+              placeholder="DD/MM/YYYY"
+              class="date-input"
+              disabled
+            />
+            <button class="calendar-btn" (click)="pickerInicio.open()" aria-label="Selecionar data inicial">
+              <mat-icon>calendar_today</mat-icon>
+            </button>
+            <mat-datepicker #pickerInicio></mat-datepicker>
+            <input matInput 
+              [matDatepicker]="pickerInicio" 
+              (dateChange)="onDataInicioChange($event)"
+              hidden>
+          </div>
+        </div>
+
+        <div class="date-field">
+          <label class="date-label">Data Final</label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              [(ngModel)]="dataFim"
+              placeholder="DD/MM/YYYY"
+              class="date-input"
+              disabled
+            />
+            <button class="calendar-btn" (click)="pickerFim.open()" aria-label="Selecionar data final">
+              <mat-icon>calendar_today</mat-icon>
+            </button>
+            <mat-datepicker #pickerFim></mat-datepicker>
+            <input matInput 
+              [matDatepicker]="pickerFim" 
+              (dateChange)="onDataFimChange($event)"
+              hidden>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="balance-section">
-      <img
-        class="icon"
-        [src]="paymentsIcon"
-        alt="Ícone de saldo em conta"
-        width="24"
-        height="24"
-      />
-      <span class="label_medium balance-label">{{ balanceLabel }}</span>
-      <span class="heading_5 balance-value"
-        >{{ balance | currency:'BRL':'symbol':'1.2-2' }}</span
-      >
-    </div>
-  </div>
 
-  <div class="table-container">
-    <table class="transactions-table">
-      <thead>
-        <tr class="table-header">
-          <th>Data/Hora</th>
-          <th>Operação</th>
-          <th>Remetente/Destinatário</th>
-          <th>Categoria</th>
-          <th>Valor</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          *ngFor="let transaction of transactions"
-          [class]="transaction.isSaldoRow ? 'saldo-row' : 'data-row'"
-          [attr.data-color]="transaction.operacaoColor"
-        >
-          <td class="cell" [class.saldo-cell]="transaction.isSaldoRow">{{ transaction.data }}</td>
-          <td
-            class="cell operacao-cell"
-            [class.saldo-cell]="transaction.isSaldoRow"
-            [class.text-blue]="transaction.operacaoColor === 'blue'"
-            [class.text-red]="transaction.operacaoColor === 'red'"
-          >
-            {{ transaction.operacao }}
-          </td>
-          <td class="cell" [class.saldo-cell]="transaction.isSaldoRow">
-            {{ transaction.remetenteDestinatario || '-' }}
-          </td>
-          <td class="cell" [class.saldo-cell]="transaction.isSaldoRow">
-            {{ transaction.categoria || '-' }}
-          </td>
-          <td class="cell valor-cell" [class.saldo-cell]="transaction.isSaldoRow">
-            {{ transaction.valor }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+
+    <div class="transactions-list">
+      <ng-container *ngFor="let grupo of transacoesPorData">
+
+        <div class="date-group">
+          <div class="date-header">
+            <div class="date-info">
+              <p class="date-text">{{ grupo.data }}</p>
+              <p class="balance-text">Saldo do dia: {{ grupo.saldoDoDia }}</p>
+            </div>
+          </div>
+
+
+          <div class="transactions-group">
+            <div
+              *ngFor="let transacao of grupo.transacoes"
+              class="transaction-item"
+            >
+
+              <div class="left-wrapper">
+
+                <div class="operation-section">
+                  <div class="transaction-icon">
+                    <mat-icon [class.icon-negative]="transacao.operacaoColor === 'red'"
+                              [class.icon-positive]="transacao.operacaoColor === 'blue'">
+                      {{ obterIconeOperacao(transacao.operacao) }}
+                    </mat-icon>
+                  </div>
+                  <div class="operation-info">
+                    <p class="transaction-type">{{ transacao.operacao }}</p>
+                    <p class="transaction-name">{{ transacao.remetenteDestinatario }}</p>
+                  </div>
+                </div>
+
+
+                <div class="category-section">
+                  <p class="category-label">Categoria</p>
+                  <p class="category-value">{{ transacao.categoria }}</p>
+                </div>
+              </div>
+
+
+              <div class="transaction-amount" [class.negative]="transacao.operacaoColor === 'red'">
+                <span class="sign">{{ transacao.operacaoColor === 'red' ? '-' : '+' }}</span>
+                <span class="amount">{{ transacao.valor }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
   </div>
 </main>

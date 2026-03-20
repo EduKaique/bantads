@@ -1,0 +1,47 @@
+.menssage-success-containter {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+    background: var(--color-card, #fafafa);
+}
+
+.circle-check {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: var(--color-green-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-lg, 32px);
+}
+
+.circle-check mat-icon {
+    color: var(--color-primary-foreground);
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 80%;
+    text-align: center;
+}
+
+h2 {
+    color: var(--color-foreground-title);
+}
+
+p {
+    color: var(--color-foreground);
+}
+
+button {
+    margin-top: 16px;
+}

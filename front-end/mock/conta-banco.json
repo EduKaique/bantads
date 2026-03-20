@@ -1,0 +1,24 @@
+[
+  {
+    "accountId": "6r87pyt1",
+    "branch": "0001",
+    "accountNumber": "2465",
+    "holderName": "Catharyna",
+    "holderDocument": "12912861012",
+    "availableBalance": 0,
+    "limit": 5000,
+    "manager": "João da Silva",
+    "transactions": []
+  },
+  {
+    "accountId": "z9qdfqsc",
+    "branch": "0001",
+    "accountNumber": "9431",
+    "holderName": "Catianna",
+    "holderDocument": "85733854057",
+    "availableBalance": 0,
+    "limit": 4000,
+    "manager": "João da Silva",
+    "transactions": []
+  }
+]

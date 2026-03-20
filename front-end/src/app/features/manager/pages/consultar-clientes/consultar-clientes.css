@@ -1,0 +1,152 @@
+main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+  padding-top: var(--spacing-xl);
+}
+
+.cor-titulo {
+  color: var(--color-neutral-800);
+}
+
+.cor-subtitulo {
+  color: var(--color-neutral-600);
+}
+
+.container-filtro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-md);
+}
+
+.controles-filtro {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.entrada-selecao, .entrada-busca {
+  height: 48px;
+  border: 1px solid var(--color-border-alternative);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--spacing-sm);
+  background-color: var(--color-card);
+  color: var(--color-foreground);
+  outline: none;
+}
+
+.entrada-selecao:focus, .entrada-busca:focus {
+  border-color: var(--color-ring);
+}
+
+.entrada-selecao {
+  width: 150px;
+  cursor: pointer;
+}
+
+.envoltorio-busca {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.entrada-busca {
+  width: 100%;
+  padding-right: var(--spacing-xl);
+}
+
+.icone-busca {
+  position: absolute;
+  right: var(--spacing-sm);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: var(--color-neutral-400);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+/* ESTILOS DA TABELA */
+.container-tabela {
+  width: 100%;
+  overflow-x: auto;
+  background-color: var(--color-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+.tabela-clientes {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.tabela-clientes th, .tabela-clientes td {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tabela-clientes thead {
+  background-color: var(--color-primary);
+}
+
+.tabela-clientes th {
+  color: var(--color-primary-foreground);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.linha-tabela {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: var(--color-foreground);
+}
+
+.linha-tabela:hover {
+  background-color: var(--layout-table-row-light);
+}
+
+.estado-vazio {
+  text-align: center;
+  color: var(--color-muted-foreground);
+  padding: var(--spacing-2xl) !important;
+}
+
+/* ESTILOS DA PAGINAÇÃO */
+.controles-paginacao {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-card);
+}
+
+.texto-paginacao {
+  color: var(--color-neutral-600);
+}
+
+.botao-paginacao {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-border-alternative);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.botao-paginacao:hover:not(:disabled) {
+  background-color: var(--color-primary-foreground);
+  border-color: var(--color-primary);
+}
+
+.botao-paginacao:disabled {
+  color: var(--color-neutral-300);
+  border-color: var(--color-border);
+  cursor: not-allowed;
+  opacity: 0.7;
+}

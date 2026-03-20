@@ -4,7 +4,6 @@ export interface User {
   email: string;
   cpf: string;
   phoneNumber: string;
-  password: string;
   salary: number,
   userAccess: 'employee' | 'client'; 
 }
