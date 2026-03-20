@@ -21,11 +21,6 @@ export class ClientAccountService {
 
   readonly account$ = this.accountStateSubject.asObservable();
 
-  constructor() {
-    this.authService.currentUser$.subscribe(() => {
-      this.accountStateSubject.next(this.loadAccountState());
-    });
-  }
 
   getCurrentAccount(): Observable<BankAccount> {
     return this.account$;
@@ -103,7 +98,7 @@ export class ClientAccountService {
     const sessionKey =
       currentUser?.tipo === 'cliente'
         ? this.normalizeStorageKeySegment(
-            currentUser.email || currentUser.name || 'cliente'
+            currentUser.email || currentUser.nome || 'cliente'
           )
         : 'local-demo';
 
@@ -113,8 +108,8 @@ export class ClientAccountService {
   private resolveHolderName(): string {
     const currentUser = this.authService.currentUserValue;
 
-    if (currentUser?.tipo === 'cliente' && currentUser.name.trim()) {
-      return currentUser.name.trim();
+    if (currentUser?.tipo === 'cliente' && currentUser.nome.trim()) {
+      return currentUser.nome.trim();
     }
 
     return 'Cliente BanTads';

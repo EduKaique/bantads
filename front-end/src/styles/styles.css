@@ -153,3 +153,17 @@ mat-stepper {
 .w-full {
     width: 100%;
 }
+
+
+.color-primary {
+    color: var(--color-primary)
+}
+
+.color-primary-foreground {
+    color: var(--color-primary-foreground);
+}
+
+.color-foreground-title {
+    color: var(--color-foreground-title);
+}
+

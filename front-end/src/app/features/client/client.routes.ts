@@ -5,10 +5,20 @@ import { SaqueSucessoPageComponent } from './pages/saque-sucesso-page/saque-suce
 import { ConsultaExtratoPageComponent } from './pages/008-consulta-de-extrato/008-consulta-de-extrato.component';
 import { TransferPage } from './pages/transfer-page/transfer-page';
 import { AlteracaoPerfilComponent } from './pages/alteracao-perfil/alteracao-perfil';
+import { PaginaInicial } from './pages/pagina-inicial/pagina-inicial';
 
 export const clientRoutes: Routes = [
   {
-    path: 'consulta-extrato',
+    path: '',
+    redirectTo: 'home',
+    pathMatch: 'full',
+  },
+  {
+    path: 'home',
+    component: PaginaInicial,
+  },
+  {
+    path: 'extrato',
     component: ConsultaExtratoPageComponent,
   },
   {
