@@ -40,15 +40,15 @@ export class SaqueSucessoPageComponent {
       this.valorSacado = state.valor;
       this.dataHora = new Date(state.dataHora);
     } else {
-      this.router.navigate(['/client/saque']);
+      this.router.navigate(['/cliente/saque']);
     }
   }
 
   voltarDashboard(): void {
-    this.router.navigate(['/client/dashboard']);
+    this.router.navigate(['/cliente/dashboard']);
   }
 
   novoSaque(): void {
-    this.router.navigate(['/client/saque']);
+    this.router.navigate(['/cliente/saque']);
   }
 }

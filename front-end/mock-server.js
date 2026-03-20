@@ -14,8 +14,7 @@ const PATHS = {
   clientes: path.join(__dirname, "mock/clientes.json"),
   gerentes: path.join(__dirname, "mock/gerentes.json"),
   solicitacoes: path.join(__dirname, "mock/solicitacoes.json"),
-  contas: path.join(__dirname, "mock/conta-banco.json"),
-  users: path.join(__dirname, "mock/users.json")
+  contas: path.join(__dirname, "mock/conta-banco.json")
 };
 
 const getData = (file) => JSON.parse(fs.readFileSync(PATHS[file], "utf-8"));
@@ -151,7 +150,6 @@ app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
   const solicitacoes = getData("solicitacoes");
   const clientes = getData("clientes");
   const contas = getData("contas");
-
   const pedido = solicitacoes.find((s) => s.cpf === cpf);
 
   if (!pedido) {
@@ -160,8 +158,14 @@ app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
       .json({ message: "Pedido não encontrado" });
   }
 
+  const novoId =
+  clientes.length > 0
+    ? Math.max(...clientes.map(c => c.id)) + 1
+    : 1;
+
   const novoCliente = {
-    ...pedido
+    ...pedido,
+    novoId
   };
 
   clientes.push(novoCliente);
@@ -200,6 +204,91 @@ app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
   res.json({
     message: "Cliente aprovado com sucesso",
     cliente: novoCliente
+  });
+});
+
+//Busca perfil clientes----------------------
+app.get("/cliente/perfil/:cpf", (req, res) => {
+  const cpf = req.params.cpf;
+  const clientes = getData("clientes");
+
+  const cliente = clientes.find(c => c.cpf === cpf);
+  
+  if (!cliente) {
+    return res.status(404).json({
+      message: "Cliente não encontrado"
+    });
+  }
+
+  res.json({
+    name: cliente.nome,
+    cpf: cliente.cpf,
+    email: cliente.email,
+    phoneNumber: cliente.celular,
+    salary: cliente.salario,
+    address: cliente.endereco
+  });
+});
+
+//Alteração de perfil clientes ----------------------
+app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
+  const cpf = req.params.cpf;
+  const dadosAtualizados = req.body;
+
+  const clientes = getData("clientes");
+  const contas = getData("contas");
+
+  const clienteIndex = clientes.findIndex(c => c.cpf === cpf);
+
+  if (clienteIndex === -1) {
+    return res.status(404).json({
+      message: "Cliente não encontrado"
+    });
+  }
+
+  const clienteAntigo = clientes[clienteIndex];
+
+  const clienteAtualizado = {
+    ...clienteAntigo,
+    nome: dadosAtualizados.name || clienteAntigo.nome,
+    email: dadosAtualizados.email || clienteAntigo.email,
+    celular: dadosAtualizados.phoneNumber || clienteAntigo.celular,
+    salario: Number(dadosAtualizados.salary || clienteAntigo.salario),
+    endereco: {
+      ...clienteAntigo.endereco,
+      cep: dadosAtualizados.address?.cep || clienteAntigo.endereco.cep,
+      logradouro: dadosAtualizados.address?.logradouro || clienteAntigo.endereco.logradouro,
+      numero: dadosAtualizados.address?.numero || clienteAntigo.endereco.numero,
+      complemento: dadosAtualizados.address?.complemento || clienteAntigo.endereco.complemento,
+      bairro: dadosAtualizados.address?.bairro || clienteAntigo.endereco.bairro,
+      cidade: dadosAtualizados.address?.cidade || clienteAntigo.endereco.cidade,
+      uf: dadosAtualizados.address?.uf || clienteAntigo.endereco.uf
+    }
+  };
+
+  clientes[clienteIndex] = clienteAtualizado;
+  saveData("clientes", clientes);
+
+  const contaIndex = contas.findIndex(c => c.holderDocument === cpf);
+  if (contaIndex !== -1) {
+    const conta = contas[contaIndex];
+    const salario = clienteAtualizado.salario;
+    let novoLimite = salario >= 2000 ? salario * 0.5 : 0;
+    
+    if (conta.availableBalance < 0) {
+      const divida = Math.abs(conta.availableBalance);
+      novoLimite = Math.max(novoLimite, divida);
+    }
+    
+    conta.limit = novoLimite;
+    contas[contaIndex] = conta;
+    saveData("contas", contas);
+  }
+
+  res.json({
+    balance: contas[contaIndex]?.availableBalance || 0,
+    managerName: contas[contaIndex]?.manager,
+    cliente: clienteAtualizado
   });
 });
 

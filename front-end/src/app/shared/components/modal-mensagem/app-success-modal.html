@@ -8,9 +8,11 @@
         <h2 class="modal-title">{{ titulo }}</h2>
         <p class="modal-subtitle">{{ subtitulo }}</p>
         <!-- Exibe dados adicionais apenas se foram fornecidos -->
-        @if (dadosAdicionais) {
+        @if (dadosAdicionais.length) {
           <div class="modal-additional">
-            <p>{{ dadosAdicionais }}</p>
+            @for (dado of dadosAdicionais; track dado) {
+              <p>{{ dado }}</p>
+            }
           </div>
         }
         <button class="modal-button" (click)="fecharModal()">

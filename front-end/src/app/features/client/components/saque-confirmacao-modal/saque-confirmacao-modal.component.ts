@@ -5,6 +5,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { formatCurrency } from '../../../../shared/utils/formatters';
 
 export interface SaqueConfirmacaoData {
   valor: number;
@@ -17,13 +18,11 @@ export interface SaqueConfirmacaoData {
   templateUrl: './saque-confirmacao-modal.component.html',
   styleUrls: ['./saque-confirmacao-modal.component.css'],
 })
+
 export class SaqueConfirmacaoModalComponent {
 
   get valorFormatado(): string {
-    return this.data.valor.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    });
+    return formatCurrency(this.data.valor);
   }
 
   constructor(

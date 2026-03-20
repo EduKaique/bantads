@@ -1,53 +1,33 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+
 import { Client } from '../../../shared/models/client';
-import { Estado } from '../../../shared/models/address';
+import { API_URL } from '../../../core/configs/api.token';
+
+interface UpdateUserResponseApi {
+  balance: number;
+  managerName: string;
+  cliente?: any;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClientService {
 
-  private clientMock: Client = {
-    id: 1,
-    name: 'Maria Silva',
-    email: 'maria@email.com',
-    cpf: '12345678900',
-    phoneNumber: '41999999999',
-    password: '123456',
-    salary: '5000',
-    userAccess: 'client',
-    address: {
-      id: 1,
-      cep: '80000000',
-      logradouro: 'Rua das Flores',
-      numero: '123',
-      complemento: 'Apto 12',
-      bairro: 'Centro',
-      cidade: 'Curitiba',
-      estado: Estado.PR
-    }
-  };
+  private http = inject(HttpClient);
+  private apiUrl = inject(API_URL);
 
-  getProfile(): Observable<Client> {
-    return of(this.clientMock);
+  buscaPerfil(cpf: string): Observable<Client> {
+    return this.http.get<Client>(`${this.apiUrl}/cliente/perfil/${cpf}`);
   }
 
-  updateProfile(data: any): Observable<Client> {
-
-    this.clientMock.name = data.name;
-    this.clientMock.phoneNumber = data.phoneNumber;
-    this.clientMock.email = data.email;
-    this.clientMock.salary = data.salary;
-
-    this.clientMock.address.cep = data.zipCode;
-    this.clientMock.address.logradouro = data.street;
-    this.clientMock.address.numero = data.number;
-    this.clientMock.address.complemento = data.complement;
-    this.clientMock.address.bairro = data.neighborhood;
-    this.clientMock.address.cidade = data.city;
-    this.clientMock.address.estado = data.state;
-
-    return of(this.clientMock);
+  atualizaUsuario(cpf: string, data: any): Observable<UpdateUserResponseApi> {
+    return this.http.put<UpdateUserResponseApi>(
+      `${this.apiUrl}/cliente/atualizaPerfil/${cpf}`,
+      data
+    );
   }
+
 }

@@ -14,6 +14,7 @@ import { DepositRequest } from '../../../shared/models/deposit-request';
 import { DepositConfirmationModalComponent } from '../components/deposit-confirmation-modal.component';
 import { DepositSuccessStateComponent } from '../components/deposit-success-state.component';
 import { ClientAccountService } from '../services/client-account.service';
+import { formatCurrency } from '../../../shared/utils/formatters';
 
 const amountPattern = /^\d+(?:[.,]\d{1,2})?$/;
 
@@ -54,15 +55,13 @@ const depositAmountValidator: ValidatorFn = (
 export class DepositPageComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly clientAccountService = inject(ClientAccountService);
-  private readonly currencyFormatter = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
-
+  readonly formatCurrency = formatCurrency;
   readonly account$ = this.clientAccountService.getCurrentAccount();
+
   readonly depositForm = this.formBuilder.nonNullable.group({
     amount: ['', [Validators.required, depositAmountValidator]],
   });
+
   private readonly amountControl = this.depositForm.controls.amount;
 
   isConfirmationVisible = false;
@@ -94,6 +93,7 @@ export class DepositPageComponent {
     this.pendingDeposit = {
       amount: this.parseAmount(this.amountControl.value),
     };
+
     this.submissionError = '';
     this.isConfirmationVisible = true;
   }
@@ -123,6 +123,7 @@ export class DepositPageComponent {
         next: (account) => {
           this.successfulDepositTimestamp =
             account.transactions[0]?.performedAt ?? new Date().toISOString();
+
           this.depositForm.reset({ amount: '' });
           this.resetConfirmationState();
         },
@@ -137,10 +138,6 @@ export class DepositPageComponent {
     return control.invalid && (control.dirty || control.touched);
   }
 
-  formatCurrency(value: number): string {
-    return this.currencyFormatter.format(value);
-  }
-
   get helperMessage(): string {
     if (this.submissionError) {
       return this.submissionError;
@@ -150,33 +147,34 @@ export class DepositPageComponent {
       return this.amountErrorMessage;
     }
 
-    return '* Campo de preenchimento obrigat\u00f3rio';
+    return '* Campo de preenchimento obrigatório';
   }
 
   get helperIsError(): boolean {
-    return Boolean(this.submissionError) || this.hasFieldError(this.amountControl);
+    return (
+      Boolean(this.submissionError) ||
+      this.hasFieldError(this.amountControl)
+    );
   }
 
   get amountErrorMessage(): string {
     if (this.amountControl.hasError('required')) {
-      return 'Informe o valor do dep\u00f3sito.';
+      return 'Informe o valor do depósito.';
     }
 
     if (this.amountControl.hasError('currencyFormat')) {
-      return 'Use um valor v\u00e1lido com at\u00e9 duas casas decimais.';
+      return 'Use um valor válido com até duas casas decimais.';
     }
 
     if (this.amountControl.hasError('positiveAmount')) {
       return 'O valor deve ser maior que zero.';
     }
 
-    return 'Informe um valor v\u00e1lido.';
+    return 'Informe um valor válido.';
   }
 
   get pendingAmountLabel(): string {
-    return this.pendingDeposit
-      ? this.formatCurrency(this.pendingDeposit.amount)
-      : this.formatCurrency(0);
+    return formatCurrency(this.pendingDeposit?.amount ?? 0);
   }
 
   private parseAmount(rawValue: string): number {
@@ -189,8 +187,13 @@ export class DepositPageComponent {
   }
 
   private sanitizeAmountInput(rawValue: string): string {
-    const normalizedValue = rawValue.replace(/\./g, ',').replace(/[^\d,]/g, '');
-    const [integerPart = '', ...fractionChunks] = normalizedValue.split(',');
+    const normalizedValue = rawValue
+      .replace(/\./g, ',')
+      .replace(/[^\d,]/g, '');
+
+    const [integerPart = '', ...fractionChunks] =
+      normalizedValue.split(',');
+
     const fractionPart = fractionChunks.join('').slice(0, 2);
 
     if (fractionChunks.length === 0) {

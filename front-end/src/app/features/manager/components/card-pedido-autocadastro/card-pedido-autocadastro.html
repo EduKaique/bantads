@@ -9,7 +9,7 @@
   <div class="card-pedido-autocadastro__informacao">
     <span class="body_small card-pedido-autocadastro__rotulo">CPF</span>
     <span class="label_medium card-pedido-autocadastro__valor">
-      {{ formatarCpf(pedidoAutocadastro.cpf) }}
+      {{ formatCpf(pedidoAutocadastro.cpf) }}
     </span>
   </div>
 
@@ -23,7 +23,7 @@
   <div class="card-pedido-autocadastro__informacao">
     <span class="body_small card-pedido-autocadastro__rotulo">Data</span>
     <span class="label_medium card-pedido-autocadastro__valor">
-      {{ formatarData(pedidoAutocadastro.dataSolicitacao) }}
+      {{ formatDateBR(pedidoAutocadastro.dataSolicitacao) }}
     </span>
   </div>
 

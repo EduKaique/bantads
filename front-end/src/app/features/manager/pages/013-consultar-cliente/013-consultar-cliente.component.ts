@@ -6,7 +6,7 @@ interface ClienteInfo {
   nome: string;
   cpf: string;
   email: string;
-  telefone: string;
+  celular: string;
   endereco: string;
   salario: string;
   saldo: string;
@@ -84,7 +84,7 @@ export class ConsultarClienteComponent implements OnInit {
       nome: 'Diddy, o Peixe',
       cpf: '11044108980',
       email: 'diddy@gmail.com',
-      telefone: '(41) 98729-0808',
+      celular: '(41) 98729-0808',
       endereco: 'Rua das Flores, 123, Bloco B, Apt 101\nBairro Centro\nCuritiba - PR\n80000-000',
       salario: 'R$ 1.300,00',
       saldo: 'R$ 2.304,00',

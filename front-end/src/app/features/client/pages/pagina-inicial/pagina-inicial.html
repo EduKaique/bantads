@@ -1,0 +1,51 @@
+<main id="home-page">
+  <div class="container">
+    <div class="hero-section">
+      <h2 class="heading_2 color-primary-foreground">
+        {{ tituloVariavelSaldo() }}
+      </h2>
+      <div class="texto-saldo">
+        <span class="heading_6 color-primary-foreground">Seu saldo atual</span>
+        <h1
+          class="display_large color-primary-foreground"
+          [class.text-danger]="saldo() < 0"
+        >
+          {{ saldo() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+        </h1>
+      </div>
+      <div>
+        <img
+          class="ilustracao-marca"
+          src="assets/illustrations/brand-illustration.svg"
+          alt=""
+        />
+      </div>
+    </div>
+    <div class="menu-cards">
+      <app-card-menu
+        icon="payment_arrow_down"
+        label="Depositar"
+        (cardClick)="irPara('deposito')"
+      >
+      </app-card-menu>
+      <app-card-menu
+        icon="account_balance_wallet"
+        label="Sacar"
+        (cardClick)="irPara('saque')"
+      >
+      </app-card-menu>
+      <app-card-menu
+        icon="sync_alt"
+        label="Transferir"
+        (cardClick)="irPara('transferencia')"
+      >
+      </app-card-menu>
+      <app-card-menu
+        icon="receipt_long"
+        label="Extrato"
+        (cardClick)="irPara('extrato')"
+      >
+      </app-card-menu>
+    </div>
+  </div>
+</main>
