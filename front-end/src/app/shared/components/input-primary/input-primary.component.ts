@@ -22,6 +22,7 @@ export class InputPrimaryComponent implements ControlValueAccessor, OnInit {
   thousandSeparator = input<'.' | ',' | ''>('');
   decimalMarker = input<'.' | ','>(',');
   dropSpecialCharacters = input<boolean>(true);
+  readonly = input<boolean>(false);
 
   private ngControl = inject(NgControl, { optional: true, self: true });
 

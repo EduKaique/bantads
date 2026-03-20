@@ -85,7 +85,7 @@ export class SaquePageComponent implements OnInit {
 
       this.saqueService.realizarSaque(valorNumerico).subscribe({
         next: () => {
-          this.router.navigate(['/client/saque/sucesso'], {
+          this.router.navigate(['/cliente/saque/sucesso'], {
             state: {
               valor: valorNumerico,
               dataHora: new Date().toISOString(),

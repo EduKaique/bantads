@@ -36,24 +36,15 @@ export const routes: Routes = [
   {
     path: 'cliente',
     loadChildren: () => import('./features/client/client.routes').then((m) => m.clientRoutes),
-    canActivate: [AuthGuard, RoleGuard],
+    //canActivate: [AuthGuard, RoleGuard],
     data: { expectedRole: 'cliente' },
   },
 
   {
     path: 'gerente',
-    canActivate: [AuthGuard, RoleGuard],
+    loadChildren: () => import('./features/manager/manager.routes').then((m) => m.managerRoutes),
+    //canActivate: [AuthGuard, RoleGuard],
     data: { expectedRole: 'gerente' },
-    children: [
-      {
-        path: '',
-        component: TelaInicialGerenteComponent,
-      },
-      {
-        path: 'consultar-cliente',
-        component: ConsultarClienteComponent,
-      },
-    ],
   },
 
   {

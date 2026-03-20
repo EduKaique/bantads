@@ -8,5 +8,6 @@ export interface BankAccount {
   holderDocument: string;
   availableBalance: number;
   limit?: number;
+  manager: string;
   transactions: AccountTransaction[];
 }

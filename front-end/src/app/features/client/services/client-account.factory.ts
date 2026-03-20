@@ -24,6 +24,7 @@ export function createMockClientAccount(holderName: string): BankAccount {
     holderName,
     holderDocument: '123.456.789-10',
     availableBalance: openingBalance,
+    manager: 'João da Silva',
     transactions: [initialTransaction],
   };
 }

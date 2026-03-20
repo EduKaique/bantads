@@ -4,17 +4,17 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'cpfPipes',
 })
 export class CpfPipesPipe implements PipeTransform {
-  transform(value: unknown, ...args: unknown[]): unknown {
+
+  transform(value: string | null | undefined): string {
     if (!value) return '';
 
-    let cpf = String(value);
+    const digits = value.replace(/\D/g, '');
 
-    cpf = cpf.replace(/\D/g, '');
+    if (digits.length !== 11) return value;
 
-    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');
-    cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');
-    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-
-    return cpf;
+    return digits.replace(
+      /(\d{3})(\d{3})(\d{3})(\d{2})/,
+      '$1.$2.$3-$4'
+    );
   }
 }

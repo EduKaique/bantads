@@ -19,7 +19,7 @@ main {
   justify-content: center;
   gap: var(--spacing-lg);
   border-radius: var(--radius-lg);
-  background: var(--color-background-card);
+  background: var(--color-card);
 }
 
 .update-text {
@@ -91,4 +91,12 @@ main {
 .body_medium {
   color: var(--color-text-default);
   text-align: center;
+}
+
+.error-message {
+    width: 100%;
+    padding: 24px;
+    background-color: var(--color-red-100);
+    color: var(--color-red-500);
+    border-radius: 16px;
 }

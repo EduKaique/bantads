@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { PedidoAutocadastro } from '../../../../shared/models/pedido-autocadastro';
+import { formatCpf, formatDateBR } from '../../../../shared/utils/formatters';
 
 @Component({
   selector: 'app-card-pedido-autocadastro',
@@ -15,21 +16,9 @@ export class CardPedidoAutocadastroComponent {
   @Output() aprovar = new EventEmitter<PedidoAutocadastro>();
   @Output() rejeitar = new EventEmitter<PedidoAutocadastro>();
 
-  private readonly formatadorData = new Intl.DateTimeFormat('pt-BR');
-
-  formatarCpf(cpf: string): string {
-    const cpfNormalizado = cpf.replace(/\D/g, '');
-
-    if (cpfNormalizado.length !== 11) {
-      return cpf;
-    }
-
-    return cpfNormalizado.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-  }
-
-  formatarData(dataSolicitacao: string): string {
-    return this.formatadorData.format(new Date(dataSolicitacao));
-  }
+  // 👇 agora vem do formatter
+  readonly formatCpf = formatCpf;
+  readonly formatDateBR = formatDateBR;
 
   emitirAprovacao(): void {
     this.aprovar.emit(this.pedidoAutocadastro);
