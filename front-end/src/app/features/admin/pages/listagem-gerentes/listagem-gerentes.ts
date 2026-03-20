@@ -38,7 +38,7 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatSort) private ordenador!: MatSort;
 
-  readonly colunasExibidas = ['nome', 'cpf', 'email', 'telefone'];
+  readonly colunasExibidas = ['nome', 'cpf', 'email', 'telefone', 'acoes'];
   readonly formularioFiltro = this.formBuilder.nonNullable.group({
     cpf: [''],
   });

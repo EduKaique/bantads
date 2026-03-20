@@ -60,4 +60,41 @@ describe('GerentesService', () => {
 
     expect(gerentesCarregados).toEqual(gerentesRecebidos);
   });
+
+  it('deve retornar os gerentes ordenados de forma crescente por nome', () => {
+    const gerentesRecebidos = [
+      {
+        cpf: '23862179060',
+        nome: 'Gyândula',
+        email: 'ger3@bantads.com.br',
+        telefone: '(41) 8888-0003',
+      },
+      {
+        cpf: '64065268052',
+        nome: 'Godophredo',
+        email: 'ger2@bantads.com.br',
+        telefone: '(41) 8888-0002',
+      },
+      {
+        cpf: '98574307084',
+        nome: 'Geniéve',
+        email: 'ger1@bantads.com.br',
+        telefone: '(41) 8888-0001',
+      },
+    ];
+
+    let nomesCarregados: string[] = [];
+
+    service.listar().subscribe((gerentes) => {
+      nomesCarregados = gerentes.map((gerente) => gerente.nome);
+    });
+
+    const requisicao = httpTestingController.expectOne(
+      'http://localhost:3000/admin/gerentes',
+    );
+
+    requisicao.flush(gerentesRecebidos);
+
+    expect(nomesCarregados).toEqual(['Geniéve', 'Godophredo', 'Gyândula']);
+  });
 });

@@ -23,7 +23,11 @@ export class GerentesService {
       .get<GerenteResposta[]>(`${this.apiUrl}/admin/gerentes`)
       .pipe(
         map((gerentes) =>
-          gerentes.map((gerente) => this.mapearGerente(gerente)),
+          gerentes
+            .map((gerente) => this.mapearGerente(gerente))
+            .sort((gerenteA, gerenteB) =>
+              gerenteA.nome.localeCompare(gerenteB.nome, 'pt-BR'),
+            ),
         ),
       );
   }

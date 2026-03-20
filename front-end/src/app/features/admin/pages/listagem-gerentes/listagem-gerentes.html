@@ -23,79 +23,82 @@
     } @else if (carregando()) {
       <p class="mensagem-status body_medium">Carregando gerentes...</p>
     } @else {
-      <div class="tabela-container">
-        <table
-          mat-table
-          [dataSource]="fonteDados"
-          matSort
-          matSortActive="nome"
-          matSortDirection="asc"
-          matSortDisableClear
-          class="tabela-gerentes"
-        >
-          <ng-container matColumnDef="nome">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Ordenar por nome">
-              Nome
-            </th>
-            <td mat-cell *matCellDef="let gerente">
-              {{ gerente.nome }}
-            </td>
-          </ng-container>
+      <div class="tabela-bloco">
+        <span class="ordem-indicada label_small">Ordem crescente por nome</span>
 
-          <ng-container matColumnDef="cpf">
-            <th mat-header-cell *matHeaderCellDef>CPF</th>
-            <td mat-cell *matCellDef="let gerente">
-              {{ formatarCpf(gerente.cpf) }}
-            </td>
-          </ng-container>
+        <div class="tabela-container">
+          <table
+            mat-table
+            [dataSource]="fonteDados"
+            matSort
+            matSortActive="nome"
+            matSortDirection="asc"
+            matSortDisableClear
+            class="tabela-gerentes"
+          >
+            <ng-container matColumnDef="nome">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Ordenar por nome">
+                Nome
+              </th>
+              <td mat-cell *matCellDef="let gerente">
+                {{ gerente.nome }}
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef>E-mail</th>
-            <td mat-cell *matCellDef="let gerente">
-              {{ gerente.email }}
-            </td>
-          </ng-container>
+            <ng-container matColumnDef="cpf">
+              <th mat-header-cell *matHeaderCellDef>CPF</th>
+              <td mat-cell *matCellDef="let gerente">
+                {{ formatarCpf(gerente.cpf) }}
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="telefone">
-            <th mat-header-cell *matHeaderCellDef>Telefone</th>
-            <td mat-cell *matCellDef="let gerente">
-              <div class="coluna-telefone">
-                <span>{{ gerente.telefone }}</span>
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>E-mail</th>
+              <td mat-cell *matCellDef="let gerente">
+                {{ gerente.email }}
+              </td>
+            </ng-container>
 
+            <ng-container matColumnDef="telefone">
+              <th mat-header-cell *matHeaderCellDef>Telefone</th>
+              <td mat-cell *matCellDef="let gerente">
+                {{ gerente.telefone }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef>Ações</th>
+              <td mat-cell *matCellDef="let gerente">
                 <div class="acoes-visuais" aria-hidden="true">
-                  <span class="icone icone--editar">
-                    <svg viewBox="0 0 24 24" focusable="false">
-                      <path
-                        d="M4 20h4.5l10.3-10.3a1.5 1.5 0 0 0 0-2.1l-2.4-2.4a1.5 1.5 0 0 0-2.1 0L4 15.5V20Zm2-3.6 8.9-8.9 1.6 1.6-8.9 8.9H6v-1.6Z"
-                      />
-                      <path
-                        d="M5 3h8v2H5a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-8h2v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z"
-                      />
-                    </svg>
+                  <span class="acao-visual acao-visual--editar">
+                    <img
+                      class="acao-visual__imagem acao-visual__imagem--editar"
+                      src="assets/icons/acao-editar.png"
+                      alt=""
+                    />
                   </span>
 
-                  <span class="icone icone--remover">
-                    <svg viewBox="0 0 24 24" focusable="false">
-                      <circle cx="12" cy="12" r="9"></circle>
-                      <path d="M9.17 9.17a1 1 0 0 1 1.41 0L12 10.59l1.41-1.42a1 1 0 1 1 1.42 1.41L13.41 12l1.42 1.41a1 1 0 0 1-1.42 1.42L12 13.41l-1.42 1.42a1 1 0 0 1-1.41-1.42L10.59 12 9.17 10.58a1 1 0 0 1 0-1.41Z"></path>
-                    </svg>
+                  <span class="acao-visual acao-visual--remover">
+                    <img
+                      class="acao-visual__imagem acao-visual__imagem--remover"
+                      src="assets/icons/acao-remover.png"
+                      alt=""
+                    />
                   </span>
                 </div>
-              </div>
-            </td>
-          </ng-container>
+              </td>
+            </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
-          <tr mat-row *matRowDef="let row; columns: colunasExibidas"></tr>
-          <tr *matNoDataRow>
-            <td class="sem-dados body_medium" [attr.colspan]="colunasExibidas.length">
-              Nenhum gerente encontrado para o CPF informado.
-            </td>
-          </tr>
-        </table>
+            <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
+            <tr mat-row *matRowDef="let row; columns: colunasExibidas"></tr>
+            <tr *matNoDataRow>
+              <td class="sem-dados body_medium" [attr.colspan]="colunasExibidas.length">
+                Nenhum gerente encontrado para o CPF informado.
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
     }
-
-    <span class="ordem-indicada label_small">Ordem crescente por nome</span>
   </section>
 </main>

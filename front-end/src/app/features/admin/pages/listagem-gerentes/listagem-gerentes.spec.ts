@@ -19,6 +19,18 @@ describe('ListagemGerentesComponent', () => {
           email: 'ger1@bantads.com.br',
           telefone: '(41) 8888-0001',
         },
+        {
+          cpf: '64065268052',
+          nome: 'Godophredo',
+          email: 'ger2@bantads.com.br',
+          telefone: '(41) 8888-0002',
+        },
+        {
+          cpf: '23862179060',
+          nome: 'Gyândula',
+          email: 'ger3@bantads.com.br',
+          telefone: '(41) 8888-0003',
+        },
       ]),
     );
 
@@ -46,6 +58,48 @@ describe('ListagemGerentesComponent', () => {
         nome: 'Geniéve',
         email: 'ger1@bantads.com.br',
         telefone: '(41) 8888-0001',
+      },
+      {
+        cpf: '64065268052',
+        nome: 'Godophredo',
+        email: 'ger2@bantads.com.br',
+        telefone: '(41) 8888-0002',
+      },
+      {
+        cpf: '23862179060',
+        nome: 'Gyândula',
+        email: 'ger3@bantads.com.br',
+        telefone: '(41) 8888-0003',
+      },
+    ]);
+  });
+
+  it('deve exibir as colunas esperadas incluindo ações', () => {
+    const cabecalhos = Array.from(
+      fixture.nativeElement.querySelectorAll('th') as NodeListOf<HTMLElement>,
+    ).map((elemento) =>
+      elemento.textContent?.replace(/\s+/g, ' ').trim(),
+    );
+
+    expect(cabecalhos).toEqual(['Nome', 'CPF', 'E-mail', 'Telefone', 'Ações']);
+  });
+
+  it('deve exibir uma célula de ações para cada gerente carregado', () => {
+    const celulasAcao = fixture.nativeElement.querySelectorAll('.acoes-visuais');
+
+    expect(celulasAcao.length).toBe(3);
+  });
+
+  it('deve filtrar os gerentes pelo CPF informado', () => {
+    component.formularioFiltro.controls.cpf.setValue('238.621');
+    fixture.detectChanges();
+
+    expect(component.fonteDados.filteredData).toEqual([
+      {
+        cpf: '23862179060',
+        nome: 'Gyândula',
+        email: 'ger3@bantads.com.br',
+        telefone: '(41) 8888-0003',
       },
     ]);
   });
