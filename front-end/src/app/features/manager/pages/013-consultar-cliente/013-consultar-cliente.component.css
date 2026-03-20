@@ -1,0 +1,402 @@
+.consultar-cliente-main {
+  background-color: transparent;
+  min-height: 100%;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 950px;
+  background-color: #fafafa;
+  border-radius: 24px;
+  padding: 48px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  overflow-x: hidden;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+.title {
+  font-family: 'Sora', sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 36px;
+  letter-spacing: -0.4px;
+  color: #546666;
+  margin: 0;
+  white-space: nowrap;
+}
+
+
+.search-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 300px;
+}
+
+.search-label {
+  font-family: 'Sora', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0px;
+  color: #414946;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: white;
+  border: 1px solid #cdd4d1;
+  border-radius: 8px;
+  padding: 8px;
+  height: 48px;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  padding: 0 12px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.1px;
+  color: #242827;
+  background-color: transparent;
+}
+
+.search-input::placeholder {
+  color: #aab6b1;
+}
+
+.search-input:focus {
+  outline: none;
+}
+
+.search-btn {
+  padding: 8px 16px;
+  background-color: #087448;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.search-btn:hover:not(:disabled) {
+  background-color: #065d39;
+}
+
+.search-btn:disabled {
+  background-color: #cdd4d1;
+  cursor: not-allowed;
+}
+
+
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.info-section:last-of-type {
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.1px;
+  color: #242827;
+  margin: 0;
+}
+
+.info-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.row {
+  display: flex;
+  gap: 52px;
+}
+
+.field-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 300px;
+}
+
+.field-group.address-field {
+  min-height: 138px;
+}
+
+.field-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.1px;
+  color: #56645f;
+  margin: 0;
+}
+
+.field-value {
+  background-color: #f5f5f5;
+  border: 1px solid #cdd4d1;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.1px;
+  color: #242827;
+  word-break: break-word;
+}
+
+.field-value.address-value {
+  min-height: 72px;
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 16px;
+}
+
+
+.erro-message {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  padding: 16px;
+  color: #c33;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  margin: 0;
+}
+
+
+.action-buttons {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary {
+  background-color: #f5f5f5;
+  color: #242827;
+  border: 1px solid #cdd4d1;
+}
+
+.btn-secondary:hover {
+  background-color: #efefef;
+}
+
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.empty-state p {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #56645f;
+  margin: 0;
+}
+
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 32px;
+    gap: 32px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .search-section {
+    min-width: auto;
+  }
+
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .field-group {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .consultar-cliente-main {
+    padding: 20px;
+  }
+
+  .container {
+    padding: 24px;
+    gap: 24px;
+    border-radius: 16px;
+  }
+
+  .title {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .search-input-wrapper {
+    flex-wrap: wrap;
+    height: auto;
+    gap: 12px;
+  }
+
+  .search-input {
+    flex: 0 1 100%;
+    min-width: 0;
+  }
+
+  .search-btn {
+    flex: 0 1 auto;
+  }
+
+  .info-section {
+    gap: 16px;
+  }
+
+  .info-rows {
+    gap: 16px;
+  }
+
+  .row {
+    gap: 0;
+  }
+
+  .field-group {
+    gap: 6px;
+    min-width: auto;
+  }
+
+  .field-label {
+    font-size: 12px;
+  }
+
+  .field-value {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .section-title {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .consultar-cliente-main {
+    padding: 12px;
+  }
+
+  .container {
+    padding: 16px;
+    gap: 16px;
+    border-radius: 12px;
+  }
+
+  .header {
+    gap: 16px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .search-label {
+    font-size: 14px;
+  }
+
+  .search-input-wrapper {
+    gap: 8px;
+    padding: 6px;
+  }
+
+  .search-input {
+    font-size: 14px;
+    padding: 0 8px;
+  }
+
+  .search-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .info-rows {
+    gap: 12px;
+  }
+
+  .field-label {
+    font-size: 11px;
+  }
+
+  .field-value {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  .field-value.address-value {
+    min-height: auto;
+    padding: 6px 10px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 12px;
+    flex: 1;
+  }
+}

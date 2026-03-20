@@ -11,8 +11,8 @@ class AuthServiceStub {
   private readonly currentUserSubject = new BehaviorSubject<UserState>({
     name: 'Artur Falavinha',
     email: 'artur@bantads.com',
-    userAccess: 'client',
-    token: 'token',
+    tipo: 'cliente',
+    access_token: 'token',
   });
 
   readonly currentUser$ = this.currentUserSubject.asObservable();
@@ -84,8 +84,8 @@ describe('ClientAccountService', () => {
     authService.setCurrentUser({
       name: 'Employee Session',
       email: 'employee@bantads.com',
-      userAccess: 'employee',
-      token: 'token',
+      tipo: 'gerente',
+      access_token: 'token',
     });
 
     service.depositIntoCurrentAccount({ amount: 50 }).subscribe({
