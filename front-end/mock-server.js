@@ -12,6 +12,7 @@ app.use(express.json());
 const PATHS = {
   auth: path.join(__dirname, "mock/auth.json"),
   clientes: path.join(__dirname, "mock/clientes.json"),
+  gerentes: path.join(__dirname, "mock/gerentes.json"),
   solicitacoes: path.join(__dirname, "mock/solicitacoes.json"),
   contas: path.join(__dirname, "mock/conta-banco.json"),
   users: path.join(__dirname, "mock/users.json")
@@ -137,6 +138,12 @@ app.get("/manager/pedidos-autocadastro", (_req, res) => {
 
 
 //Aprovação de clientes ---------------------------------
+app.get("/admin/gerentes", (_req, res) => {
+  const gerentes = getData("gerentes");
+
+  res.json(gerentes);
+});
+
 app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
 
   const cpf = req.params.cpf;

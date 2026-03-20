@@ -1,0 +1,229 @@
+:host {
+  display: block;
+}
+
+.listagem-gerentes {
+  width: 100%;
+  min-height: 100vh;
+  padding: 52px 0 48px;
+  background: var(--color-background, #e5e8e6);
+}
+
+.painel-gerentes {
+  width: min(1116px, calc(100% - 80px));
+  min-height: 717px;
+  margin: 0 auto;
+  padding: 48px 28px;
+  border-radius: var(--border-lg, 24px);
+  background: var(--color-card, #fafafa);
+  display: flex;
+  flex-direction: column;
+  gap: 52px;
+}
+
+.painel-gerentes__cabecalho h1 {
+  color: var(--color-foreground-title, #414946);
+  line-height: 36px;
+}
+
+.painel-gerentes__filtros {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.painel-gerentes__pesquisa {
+  width: 278px;
+}
+
+.tabela-container {
+  width: 100%;
+  border: 1px solid var(--color-border, #cdd4d1);
+  border-radius: var(--border-md, 16px);
+  background: var(--color-card, #fafafa);
+  overflow: hidden;
+}
+
+.tabela-gerentes {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.tabela-gerentes th {
+  height: 44px;
+  padding: 0 16px;
+  border: none;
+  background: var(--color-primary, #087448);
+  color: var(--color-primary-foreground, #edfcf3);
+  text-align: left;
+  vertical-align: middle;
+  font-family: var(--label-default-font-family);
+  font-size: var(--label-default-font-size);
+  font-weight: var(--label-default-font-weight);
+  line-height: var(--label-default-line-height);
+  letter-spacing: var(--label-default-letter-spacing);
+}
+
+.tabela-gerentes th:first-child {
+  border-top-left-radius: 15px;
+}
+
+.tabela-gerentes th:last-child {
+  border-top-right-radius: 15px;
+}
+
+.tabela-gerentes td {
+  height: 80px;
+  padding: 0 16px;
+  border-top: 1px solid var(--color-border, #cdd4d1);
+  color: var(--color-foreground, #242827);
+  background: var(--color-card, #fafafa);
+  vertical-align: middle;
+  font-family: var(--body-default-font-family);
+  font-size: var(--body-default-font-size);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--body-default-line-height);
+  letter-spacing: var(--body-default-letter-spacing);
+}
+
+.tabela-gerentes tr.mat-mdc-row:nth-child(odd) td {
+  background: #fbfcfb;
+}
+
+.tabela-gerentes .mat-column-nome {
+  width: 28.1%;
+}
+
+.tabela-gerentes .mat-column-cpf {
+  width: 21.6%;
+}
+
+.tabela-gerentes .mat-column-email {
+  width: 28.25%;
+}
+
+.tabela-gerentes .mat-column-telefone {
+  width: 22.05%;
+}
+
+.coluna-telefone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.acoes-visuais {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icone svg {
+  display: block;
+  fill: none;
+}
+
+.icone--editar svg {
+  width: 23px;
+  height: 23px;
+  stroke: #1f1f1f;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icone--remover svg {
+  width: 25px;
+  height: 25px;
+}
+
+.icone--remover circle {
+  fill: #ef4e59;
+}
+
+.icone--remover path {
+  fill: #ffffff;
+}
+
+.mensagem-status {
+  padding: 20px 24px;
+  border: 1px solid var(--color-border, #cdd4d1);
+  border-radius: var(--border-md, 16px);
+  background: var(--color-card, #fafafa);
+  color: var(--color-foreground-title, #414946);
+}
+
+.mensagem-status--erro {
+  border-color: var(--color-red-200, #ffa2a1);
+  color: var(--color-red-400, #e01300);
+}
+
+.sem-dados {
+  height: 80px;
+  text-align: center;
+  color: var(--color-foreground-title, #414946);
+}
+
+.ordem-indicada {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 36px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--color-green-50, #edfcf3);
+  color: var(--color-green-700, #087448);
+}
+
+:host ::ng-deep .tabela-gerentes .mat-sort-header-container {
+  align-items: center;
+}
+
+:host ::ng-deep .tabela-gerentes .mat-sort-header-content {
+  color: inherit;
+}
+
+:host ::ng-deep .tabela-gerentes .mat-sort-header-arrow {
+  display: none;
+}
+
+@media (max-width: 1200px) {
+  .painel-gerentes {
+    width: calc(100% - 48px);
+  }
+}
+
+@media (max-width: 900px) {
+  .listagem-gerentes {
+    padding: 24px 0 32px;
+  }
+
+  .painel-gerentes {
+    width: calc(100% - 32px);
+    padding: 32px 20px;
+    gap: 32px;
+  }
+
+  .painel-gerentes__pesquisa {
+    width: 100%;
+  }
+
+  .tabela-container {
+    overflow-x: auto;
+  }
+
+  .tabela-gerentes {
+    min-width: 960px;
+  }
+}
