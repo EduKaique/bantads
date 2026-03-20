@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, delay, map, of } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { API_URL } from '../../../core/configs/api.token';
 import { PedidoAutocadastro } from '../../../shared/models/pedido-autocadastro';
 import { Client } from '../../../shared/models/client';
@@ -52,9 +52,8 @@ export class PedidosAutocadastroService {
     );
   }
 
-  rejeitar(cpf: string, motivo: string): Observable<boolean> {
-    console.log(`Rejeitando CPF: ${cpf} pelo motivo: ${motivo}`);
-    return of(true).pipe(delay(500));
+  rejeitar(cpf: string, motivo: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/manager/rejeitar-cliente/${cpf}`, { motivo });
   }
 
   aprovar(cpf: string) {
