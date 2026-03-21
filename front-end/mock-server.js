@@ -313,6 +313,94 @@ app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
   });
 });
 
+app.get("/manager/clientes", (req, res) => {
+  const clientes = getData("clientes");
+  const contas = getData("contas");
+
+  const clientesFormatados = clientes.map((cliente) => {
+    const conta = contas.find((c) => c.holderDocument === cliente.cpf);
+
+    return {
+      id: cliente.cpf, 
+      cpf: cliente.cpf,
+      nome: cliente.nome,
+      cidade: cliente.endereco?.cidade || "N/A",
+      estado: cliente.endereco?.uf || "N/A",
+      saldo: conta ? conta.availableBalance : 0,
+      limite: conta ? conta.limit : 0,
+      numeroConta: conta ? conta.accountNumber : "N/A"
+    };
+  });
+
+  res.json(clientesFormatados);
+});
+
+app.get("/contas/:numeroConta", (req, res) => {
+  const { numeroConta } = req.params;
+  const contas = getData("contas");
+  const clientes = getData("clientes");
+
+  const contaDestino = contas.find(c => c.accountNumber === numeroConta);
+
+  if (!contaDestino) {
+    return res.status(404).json({ message: "Conta não encontrada" });
+  }
+
+  const cliente = clientes.find(c => c.cpf === contaDestino.holderDocument);
+
+  res.json({
+    numeroConta: contaDestino.accountNumber,
+    nome: cliente ? cliente.nome : contaDestino.holderName,
+    cpf: contaDestino.holderDocument,
+    saldoDisponivel: contaDestino.availableBalance
+  });
+});
+
+app.post("/transacoes/transferir", (req, res) => {
+  const { contaOrigem, contaDestino, valor } = req.body;
+  const contas = getData("contas");
+
+  const idxOrigem = contas.findIndex(c => c.accountNumber === contaOrigem);
+  const idxDestino = contas.findIndex(c => c.accountNumber === contaDestino);
+
+  if (idxDestino === -1) {
+    return res.status(404).json({ message: "Conta de destino não encontrada." });
+  }
+
+  if (idxOrigem !== -1) { 
+    if (contas[idxOrigem].availableBalance + contas[idxOrigem].limit < valor) {
+        return res.status(400).json({ message: "Saldo insuficiente." });
+    }
+    contas[idxOrigem].availableBalance -= valor;
+  }
+
+  contas[idxDestino].availableBalance += valor;
+
+  saveData("contas", contas);
+
+  res.json({ 
+    message: "Transferência realizada com sucesso!",
+    novoSaldoOrigem: idxOrigem !== -1 ? contas[idxOrigem].availableBalance : null
+  });
+});
+
+// Rota para buscar a conta e o saldo pelo CPF do usuário logado
+app.get("/contas/cpf/:cpf", (req, res) => {
+  const { cpf } = req.params;
+  const contas = getData("contas");
+  
+  const contaOrigem = contas.find(c => c.holderDocument === cpf);
+
+  if (!contaOrigem) {
+    return res.status(404).json({ message: "Conta não encontrada para este CPF." });
+  }
+
+  res.json({
+    numeroConta: contaOrigem.accountNumber,
+    saldoDisponivel: contaOrigem.availableBalance
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Mock server rodando em http://localhost:${PORT}`);
 });
