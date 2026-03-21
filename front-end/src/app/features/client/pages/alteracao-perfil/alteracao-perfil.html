@@ -208,13 +208,10 @@
     </mat-stepper>
   </section>
 
-  <app-success-modal
+<app-success-modal
     [(mostrar)]="showModal"
     titulo="Sua conta foi atualizada com sucesso!"
-    [dadosAdicionais]="[
-      'Saldo: ' + balance,
-      'Gerente: ' + managerName
-    ]"
+    [dadosAdicionais]="'Saldo: R$ ' + balance + ' | Gerente: ' + managerName"
     textoBotao="Voltar para Página inicial"
     rotaDestino="/home">
   </app-success-modal>
