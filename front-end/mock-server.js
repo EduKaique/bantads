@@ -114,6 +114,34 @@ app.post("/auth/register", (req, res) => {
   });
 });
 
+//Rejeição de Cliente ---------------------------------------
+app.post("/manager/rejeitar-cliente/:cpf", (req, res) => {
+  const cpf = req.params.cpf;
+  const { motivo } = req.body; 
+
+  const solicitacoes = getData("solicitacoes");
+  const pedido = solicitacoes.find((s) => s.cpf === cpf);
+
+  if (!pedido) {
+    return res.status(404).json({ message: "Pedido não encontrado" });
+  }
+
+  const dataHoraRejeicao = new Date().toISOString(); 
+
+  const novasSolicitacoes = solicitacoes.filter((s) => s.cpf !== cpf);
+  saveData("solicitacoes", novasSolicitacoes);
+
+  console.log(`Pedido de ${pedido.email} rejeitado. Motivo: ${motivo}`);
+  
+  console.log(`Data/Hora da Rejeição armazenada: ${dataHoraRejeicao}`);
+
+  res.json({
+    message: "Cliente rejeitado com sucesso",
+    dataRejeicao: dataHoraRejeicao
+  });
+});
+
+
 //Listar pedidos ---------------------------------------
 app.get("/manager/pedidos-autocadastro", (_req, res) => {
 
