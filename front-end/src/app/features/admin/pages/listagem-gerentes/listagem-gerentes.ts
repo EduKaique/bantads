@@ -17,7 +17,11 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
 import { Gerente } from '../../../../shared/models/gerente';
 import { GerentesService } from '../../services/gerentes';
-import { ModalInserirGerenteComponent } from '../../components/modal-inserir-gerente/modal-inserir-gerente';@Component({
+import { ModalInserirGerenteComponent } from '../../components/modal-inserir-gerente/modal-inserir-gerente';
+import { ModalAtualizarGerente } from '../../components/modal-atualizar-gerente/modal-atualizar-gerente';
+import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
+
+@Component({
   selector: 'app-listagem-gerentes',
   imports: [
     CommonModule,
@@ -26,12 +30,15 @@ import { ModalInserirGerenteComponent } from '../../components/modal-inserir-ger
     MatTableModule,
     InputPrimaryComponent,
     ModalInserirGerenteComponent,
+    ModalAtualizarGerente,
+    AppSuccessModalComponent  
   ],
   templateUrl: './listagem-gerentes.html',
   styleUrl: './listagem-gerentes.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListagemGerentesComponent implements OnInit, AfterViewInit {
+  showModal = false;
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly gerentesService = inject(GerentesService);
@@ -45,7 +52,9 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
   readonly carregando = signal(true);
   readonly mensagemErro = signal('');
   readonly mostrarModalInserir = signal(false);
+  readonly mostrarModalAtualizar = signal(false);
   readonly fonteDados = new MatTableDataSource<Gerente>([]);
+  readonly gerenteSelecionado = signal<Gerente | null>(null);
 
   ngOnInit(): void {
     this.configurarFiltro();
@@ -111,16 +120,49 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
     this.mostrarModalInserir.set(false);
   }
 
+  abrirModalAtualizar(gerente: Gerente): void {
+    this.gerenteSelecionado.set(gerente);
+    this.mostrarModalAtualizar.set(true);
+  }
+
+  fecharModalAtualizar(): void {
+    this.mostrarModalAtualizar.set(false);
+  }
+
   processarInsercao(dados: any): void {
     this.carregando.set(true);
     this.gerentesService.inserir(dados).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.fecharModalInserir();
+        this.fecharModalAtualizar();
         this.carregarGerentes();
       },
       error: () => {
         this.mensagemErro.set('Erro ao cadastrar gerente.');
         this.carregando.set(false);
+      }
+    });
+  }
+
+  processarAtualizacao(dados: any): void {
+    const gerente = this.gerenteSelecionado();
+
+    if (!gerente) return;
+
+    this.carregando.set(true);
+
+    this.gerentesService
+      .atualizar(gerente.cpf, dados)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.fecharModalAtualizar();
+          this.carregarGerentes();
+          this.showModal = true;
+        },
+        error: () => {
+          this.mensagemErro.set('Erro ao atualizar gerente.');
+          this.carregando.set(false);
       }
     });
   }

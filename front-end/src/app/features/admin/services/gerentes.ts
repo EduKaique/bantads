@@ -8,7 +8,7 @@ interface GerenteResposta {
   cpf: string;
   nome: string;
   email: string;
-  telefone: string;
+  celular: string;
 }
 
 @Injectable({
@@ -37,11 +37,18 @@ export class GerentesService {
       cpf: gerenteResposta.cpf,
       nome: gerenteResposta.nome,
       email: gerenteResposta.email,
-      telefone: gerenteResposta.telefone,
+      telefone: gerenteResposta.celular,
     };
   }
 
   inserir(dadosGerente: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/admin/gerentes`, dadosGerente);
+  }
+
+  atualizar(cpf: string, dadosGerente: any): Observable<any> {
+    return this.http.put(
+      `${this.apiUrl}/admin/atualizaPerfil/${cpf}`,
+      dadosGerente
+    );
   }
 }

@@ -82,6 +82,7 @@
                       class="acao-visual__imagem acao-visual__imagem--editar"
                       src="assets/icons/acao-editar.png"
                       alt=""
+                     (click)="abrirModalAtualizar(gerente)"                    
                     />
                   </span>
 
@@ -113,4 +114,19 @@
       (fechar)="fecharModalInserir()"
       (salvar)="processarInsercao($event)"
     ></app-modal-inserir-gerente>}
+  @if(mostrarModalAtualizar()) {
+<app-modal-atualizar-gerente
+    [gerente]="gerenteSelecionado()"
+    (fechar)="fecharModalAtualizar()"
+    (salvar)="processarAtualizacao($event)"
+  ></app-modal-atualizar-gerente>
+  }
+
+  <app-success-modal
+    [(mostrar)]="showModal"
+    titulo="Gerente atualizado com sucesso!"
+    textoBotao="Voltar"
+    rotaDestino="/home">
+  </app-success-modal>
 </main>
+

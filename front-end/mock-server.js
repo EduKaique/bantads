@@ -292,14 +292,7 @@ app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
   });
 });
 
-app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
-  res.json({
-    balance: contas[contaIndex]?.availableBalance || 0,
-    managerName: contas[contaIndex]?.manager,
-    cliente: clienteAtualizado
-  });
-});
-
+//Cadastro gerente
 app.post("/admin/gerentes", (req, res) => {
   const novoGerente = { ...req.body, tipo: "GERENTE" };
   
@@ -319,6 +312,51 @@ app.post("/admin/gerentes", (req, res) => {
   }
 
   res.status(201).json({ message: "Gerente cadastrado com sucesso!" });
+});
+
+//Alteração de perfil gerente ----------------------
+app.put("/admin/atualizaPerfil/:cpf", (req, res) => {
+  const cpf = req.params.cpf;
+  const dadosAtualizados = req.body;
+
+  const gerentes = getData("gerentes");
+  const auths = getData("auth");
+
+  const gerenteIndex = gerentes.findIndex(g => g.cpf === cpf);
+  const authIndex = auths.findIndex(a => a.cpf === cpf);
+
+  if (gerenteIndex === -1 || authIndex === -1) {
+    return res.status(404).json({
+      message: "Gerente não encontrado"
+    });
+  }
+
+  const gerenteAntigo = gerentes[gerenteIndex];
+  const authAntigo = auths[authIndex];
+
+  const gerenteAtualizado = {
+    ...gerenteAntigo,
+    nome: dadosAtualizados.name || gerenteAntigo.nome,
+    email: dadosAtualizados.email || gerenteAntigo.email
+  };
+
+  gerentes[gerenteIndex] = gerenteAtualizado;
+  saveData("gerentes", gerentes);
+
+  const authAtualizado = {
+    ...authAntigo,
+    nome: dadosAtualizados.name || authAntigo.nome,
+    email: dadosAtualizados.email || authAntigo.email,
+    senha: dadosAtualizados.password || authAntigo.senha
+  };
+
+  auths[authIndex] = authAtualizado;
+  saveData("auth", auths);
+
+  res.json({
+    message: "Perfil atualizado com sucesso",
+    gerente: gerenteAtualizado
+  });
 });
 
 app.listen(PORT, () => {
