@@ -114,8 +114,7 @@ app.post("/auth/register", (req, res) => {
   });
 });
 
-//Rejeitar Cliente ---------------------------------------
-//Rejeição de clientes ---------------------------------
+//Rejeição de Cliente ---------------------------------------
 app.post("/manager/rejeitar-cliente/:cpf", (req, res) => {
   const cpf = req.params.cpf;
   const { motivo } = req.body; 
@@ -127,7 +126,6 @@ app.post("/manager/rejeitar-cliente/:cpf", (req, res) => {
     return res.status(404).json({ message: "Pedido não encontrado" });
   }
 
-  // 1. CRIAMOS A VARIÁVEL BEM AQUI (Fora de qualquer 'if')
   const dataHoraRejeicao = new Date().toISOString(); 
 
   const novasSolicitacoes = solicitacoes.filter((s) => s.cpf !== cpf);
@@ -135,10 +133,8 @@ app.post("/manager/rejeitar-cliente/:cpf", (req, res) => {
 
   console.log(`Pedido de ${pedido.email} rejeitado. Motivo: ${motivo}`);
   
-  // 2. USAMOS ELA AQUI NO LOG
   console.log(`Data/Hora da Rejeição armazenada: ${dataHoraRejeicao}`);
 
-  // 3. E USAMOS ELA AQUI NA RESPOSTA
   res.json({
     message: "Cliente rejeitado com sucesso",
     dataRejeicao: dataHoraRejeicao
