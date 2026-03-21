@@ -40,4 +40,8 @@ export class GerentesService {
       telefone: gerenteResposta.telefone,
     };
   }
+
+  inserir(dadosGerente: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/gerentes`, dadosGerente);
+  }
 }

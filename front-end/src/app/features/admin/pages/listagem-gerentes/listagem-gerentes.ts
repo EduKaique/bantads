@@ -17,8 +17,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
 import { Gerente } from '../../../../shared/models/gerente';
 import { GerentesService } from '../../services/gerentes';
-
-@Component({
+import { ModalInserirGerenteComponent } from '../../components/modal-inserir-gerente/modal-inserir-gerente';@Component({
   selector: 'app-listagem-gerentes',
   imports: [
     CommonModule,
@@ -26,6 +25,7 @@ import { GerentesService } from '../../services/gerentes';
     MatSortModule,
     MatTableModule,
     InputPrimaryComponent,
+    ModalInserirGerenteComponent,
   ],
   templateUrl: './listagem-gerentes.html',
   styleUrl: './listagem-gerentes.css',
@@ -44,6 +44,7 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
   });
   readonly carregando = signal(true);
   readonly mensagemErro = signal('');
+  readonly mostrarModalInserir = signal(false);
   readonly fonteDados = new MatTableDataSource<Gerente>([]);
 
   ngOnInit(): void {
@@ -100,5 +101,27 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
 
   private normalizarCpf(valor: string): string {
     return valor.replace(/\D/g, '');
+  }
+
+  abrirModalInserir(): void {
+    this.mostrarModalInserir.set(true);
+  }
+
+  fecharModalInserir(): void {
+    this.mostrarModalInserir.set(false);
+  }
+
+  processarInsercao(dados: any): void {
+    this.carregando.set(true);
+    this.gerentesService.inserir(dados).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.fecharModalInserir();
+        this.carregarGerentes();
+      },
+      error: () => {
+        this.mensagemErro.set('Erro ao cadastrar gerente.');
+        this.carregando.set(false);
+      }
+    });
   }
 }

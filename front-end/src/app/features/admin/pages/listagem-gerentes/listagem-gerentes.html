@@ -14,8 +14,15 @@
           mask="000.000.000-00"
         ></app-input-primary>
       </form>
-    </div>
 
+      <button
+        type="button"
+        class="button-primary btn-inserir"
+        (click)="abrirModalInserir()">
+        INSERIR
+      </button>
+    </div>
+  
     @if (mensagemErro()) {
       <p class="mensagem-status mensagem-status--erro body_medium">
         {{ mensagemErro() }}
@@ -101,4 +108,9 @@
       </div>
     }
   </section>
+  @if(mostrarModalInserir()) {
+    <app-modal-inserir-gerente
+      (fechar)="fecharModalInserir()"
+      (salvar)="processarInsercao($event)"
+    ></app-modal-inserir-gerente>}
 </main>

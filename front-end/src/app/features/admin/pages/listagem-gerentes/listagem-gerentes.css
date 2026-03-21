@@ -28,7 +28,14 @@
 
 .painel-gerentes__filtros {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap:16px;
+}
+
+.btn-inserir {
+  width: auto;
+  min-width: 140px;
 }
 
 .painel-gerentes__pesquisa {

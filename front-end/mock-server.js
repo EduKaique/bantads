@@ -292,6 +292,35 @@ app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
   });
 });
 
+app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
+  res.json({
+    balance: contas[contaIndex]?.availableBalance || 0,
+    managerName: contas[contaIndex]?.manager,
+    cliente: clienteAtualizado
+  });
+});
+
+app.post("/admin/gerentes", (req, res) => {
+  const novoGerente = { ...req.body, tipo: "GERENTE" };
+  
+  const gerentes = getData("gerentes");
+  const contas = getData("contas");
+
+  gerentes.push(novoGerente);
+  saveData("gerentes", gerentes); 
+  
+  contas.sort((a, b) => a.availableBalance - b.availableBalance);
+  const contaAlvo = contas.find(c => c.managerDocument && c.managerDocument !== novoGerente.cpf);
+
+  if (contaAlvo) {
+    contaAlvo.managerDocument = novoGerente.cpf;
+    saveData("contas", contas);
+    console.log(`[R17] Conta ${contaAlvo.accountNumber} transferida para o novo gerente!`);
+  }
+
+  res.status(201).json({ message: "Gerente cadastrado com sucesso!" });
+});
+
 app.listen(PORT, () => {
   console.log(`Mock server rodando em http://localhost:${PORT}`);
 });
