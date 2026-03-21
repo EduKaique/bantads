@@ -5,7 +5,7 @@
     "accountNumber": "2465",
     "holderName": "Catharyna",
     "holderDocument": "12912861012",
-    "availableBalance": 0,
+    "availableBalance": 1000,
     "limit": 5000,
     "manager": "João da Silva",
     "transactions": []
@@ -16,7 +16,7 @@
     "accountNumber": "9431",
     "holderName": "Catianna",
     "holderDocument": "85733854057",
-    "availableBalance": 0,
+    "availableBalance": 2000,
     "limit": 4000,
     "manager": "João da Silva",
     "transactions": []

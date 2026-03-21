@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 export interface Cliente {
   id: string;
@@ -11,12 +12,13 @@ export interface Cliente {
   estado: string;
   saldo: number;
   limite: number;
+  numeroConta?: string;
 }
 
 @Component({
   selector: 'app-consultar-clientes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
   templateUrl: './consultar-clientes.html',
   styleUrls: ['./consultar-clientes.css']
 })
@@ -30,22 +32,32 @@ export class ConsultarClientesComponent implements OnInit {
   itensPorPagina: number = 5;
   clientesPaginados: Cliente[] = [];
 
-  // Dados de exemplo
-  clientes: Cliente[] = [
-    { id: '1', cpf: '111.111.111-11', nome: 'Gabriel de Paula Brasil', cidade: 'Curitiba', estado: 'Paraná', saldo: 1500.50, limite: 5000 },
-    { id: '2', cpf: '222.222.222-22', nome: 'Amanda Silva', cidade: 'São Paulo', estado: 'São Paulo', saldo: 250.00, limite: 1000 },
-    { id: '3', cpf: '333.333.333-33', nome: 'Carlos Eduardo', cidade: 'Pinhais', estado: 'Paraná', saldo: 8500.00, limite: 15000 },
-    { id: '4', cpf: '444.444.444-44', nome: 'Beatriz Costa', cidade: 'Colombo', estado: 'Paraná', saldo: 120.00, limite: 500 },
-    { id: '5', cpf: '555.555.555-55', nome: 'Daniel Souza', cidade: 'Londrina', estado: 'Paraná', saldo: 3000.00, limite: 6000 },
-    { id: '6', cpf: '666.666.666-66', nome: 'Eduarda Lima', cidade: 'Maringá', estado: 'Paraná', saldo: 450.00, limite: 1500 }
-  ];
-
+  clientes: Cliente[] = [];
   clientesExibidos: Cliente[] = [];
+  carregando: boolean = true;
+
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.ordenarClientesPorNome();
-    this.clientesExibidos = [...this.clientes];
-    this.atualizarPaginacao();
+    this.carregarClientesDaAPI();
+  }
+
+  carregarClientesDaAPI(): void {
+    this.carregando = true;
+    
+    this.http.get<Cliente[]>('http://localhost:3000/manager/clientes').subscribe({
+      next: (dados) => {
+        this.clientes = dados;
+        this.ordenarClientesPorNome();
+        this.clientesExibidos = [...this.clientes];
+        this.atualizarPaginacao();
+        this.carregando = false;
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar clientes da API:', erro);
+        this.carregando = false;
+      }
+    });
   }
 
   get totalPaginas(): number {
