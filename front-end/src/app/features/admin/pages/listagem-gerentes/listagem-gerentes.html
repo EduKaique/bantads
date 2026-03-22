@@ -86,7 +86,7 @@
                     />
                   </span>
 
-                  <span class="acao-visual acao-visual--remover">
+                  <span class="acao-visual acao-visual--remover" (click)="processarRemocao(gerente)">
                     <img
                       class="acao-visual__imagem acao-visual__imagem--remover"
                       src="assets/icons/acao-remover.png"
@@ -124,9 +124,9 @@
 
   <app-success-modal
     [(mostrar)]="showModal"
-    titulo="Gerente atualizado com sucesso!"
+    [titulo]="tituloModalSucesso"
     textoBotao="Voltar"
-    rotaDestino="/home">
+    [rotaDestino]="''">
   </app-success-modal>
 </main>
 

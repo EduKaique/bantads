@@ -51,4 +51,8 @@ export class GerentesService {
       dadosGerente
     );
   }
+  
+  remover(cpf: string) {
+    return this.http.delete<any>(`${this.apiUrl}/admin/gerentes/${cpf}`);
+  }
 }

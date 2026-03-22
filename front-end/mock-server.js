@@ -37,10 +37,10 @@ app.post("/auth/login", (req, res) => {
     });
   }
 
-  res.json({
+ res.json({
     access_token: "fake-jwt-token",
     token_type: "bearer",
-    tipo: user.tipo.toUpperCase(),
+    tipo: (user.tipo).toUpperCase(), 
     usuario: {
       nome: user.nome || "Usuário",
       email: user.email,
@@ -165,7 +165,7 @@ app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
 
   const novoCliente = {
     ...pedido,
-    novoId
+    id: novoId
   };
 
   clientes.push(novoCliente);
@@ -356,6 +356,71 @@ app.put("/admin/atualizaPerfil/:cpf", (req, res) => {
   res.json({
     message: "Perfil atualizado com sucesso",
     gerente: gerenteAtualizado
+  });
+});
+
+//Remoção de Gerente ----------------------
+app.delete("/admin/gerentes/:cpf", (req, res) => {
+  const cpfRemover = req.params.cpf;
+
+  let gerentes = getData("gerentes");
+  let auths = getData("auth");
+  let contas = getData("contas");
+
+  const gerenteIndex = gerentes.findIndex(g => g.cpf === cpfRemover);
+
+  if (gerenteIndex === -1) {
+    return res.status(404).json({ message: "Gerente não encontrado." });
+  }
+
+  if (gerenteIndex !== -1 && gerentes.length <= 1) {
+    return res.status(400).json({ 
+      message: "Operação negada. Não é possível remover o único gerente do banco." 
+    });
+  }
+
+  const gerenteRemovido = gerentes[gerenteIndex];
+
+  // Remove o gerente da lista de gerentes e de autenticação
+  const gerentesRestantes = gerentes.filter(g => g.cpf !== cpfRemover);
+  const authsRestantes = auths.filter(a => a.cpf !== cpfRemover);
+
+  const contagemContas = gerentesRestantes.map(gerente => {
+    return {
+      cpf: gerente.cpf,
+      nome: gerente.nome,
+      qtdContas: contas.filter(c => c.managerDocument === gerente.cpf || c.manager === gerente.nome).length
+    };
+  });
+
+  // Ordena do menor para o maior número de contas
+  contagemContas.sort((a, b) => a.qtdContas - b.qtdContas);
+  
+  const gerenteAlvo = contagemContas[0];
+
+  //Varre as contas e transfere as que eram do gerente excluído para o novo
+  let contasTransferidas = 0;
+  contas = contas.map(conta => {
+    if (conta.managerDocument === cpfRemover || conta.manager === gerenteRemovido.nome) {
+      contasTransferidas++;
+      return { 
+        ...conta, 
+        managerDocument: gerenteAlvo.cpf,
+        manager: gerenteAlvo.nome
+      };
+    }
+    return conta;
+  });
+
+  saveData("gerentes", gerentesRestantes);
+  saveData("auth", authsRestantes);
+  saveData("contas", contas);
+
+  console.log(`Gerente ${gerenteRemovido.nome} removido. ${contasTransferidas} contas transferidas para ${gerenteAlvo.nome}.`);
+  
+  res.json({ 
+    message: "Gerente removido com sucesso e contas realocadas.",
+    contasRealocadas: contasTransferidas
   });
 });
 
