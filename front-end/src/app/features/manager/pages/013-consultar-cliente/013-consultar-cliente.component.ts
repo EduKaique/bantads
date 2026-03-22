@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { ClienteDetailService, ClienteDetalhado } from '../../services/cliente-detail.service';
 
 interface ClienteInfo {
   nome: string;
@@ -21,6 +23,9 @@ interface ClienteInfo {
   styleUrls: ['./013-consultar-cliente.component.css'],
 })
 export class ConsultarClienteComponent implements OnInit {
+  private activatedRoute = inject(ActivatedRoute);
+  private clienteDetailService = inject(ClienteDetailService);
+
   cpfPesquisa: string = '';
   clienteAtual: ClienteInfo | null = null;
   carregando: boolean = false;
@@ -28,7 +33,16 @@ export class ConsultarClienteComponent implements OnInit {
   foiBuscado: boolean = false;
 
   ngOnInit(): void {
-
+    // Verifica se há CPF nos query params
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['cpf']) {
+        this.cpfPesquisa = params['cpf'];
+        // Aguarda um pouco para garantir que a UI foi atualizada
+        setTimeout(() => {
+          this.pesquisarCliente();
+        }, 100);
+      }
+    });
   }
 
   apenasNumeros(): void {
@@ -78,18 +92,23 @@ export class ConsultarClienteComponent implements OnInit {
     return true;
   }
 
-  private carregarClienteExemplo(): void {
-
-    this.clienteAtual = {
-      nome: 'Diddy, o Peixe',
-      cpf: '11044108980',
-      email: 'diddy@gmail.com',
-      celular: '(41) 98729-0808',
-      endereco: 'Rua das Flores, 123, Bloco B, Apt 101\nBairro Centro\nCuritiba - PR\n80000-000',
-      salario: 'R$ 1.300,00',
-      saldo: 'R$ 2.304,00',
-      limite: 'R$ 1.000,00',
-    };
+  private carregarClienteDoServidor(): void {
+    const cpfLimpo = this.cpfPesquisa.replace(/\D/g, '');
+    
+    this.clienteDetailService.getClienteDetailByCpf(cpfLimpo).subscribe({
+      next: (cliente) => {
+        if (cliente) {
+          this.clienteAtual = cliente;
+        } else {
+          this.erro = 'Cliente não encontrado no banco de dados.';
+        }
+        this.carregando = false;
+      },
+      error: () => {
+        this.erro = 'Erro ao buscar dados do cliente no servidor.';
+        this.carregando = false;
+      }
+    });
   }
 
   pesquisarCliente(): void {
@@ -107,12 +126,7 @@ export class ConsultarClienteComponent implements OnInit {
 
     this.carregando = true;
     this.erro = '';
-
-
-    setTimeout(() => {
-      this.carregarClienteExemplo();
-      this.carregando = false;
-    }, 500);
+    this.carregarClienteDoServidor();
   }
 
   limparPesquisa(): void {

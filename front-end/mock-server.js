@@ -162,6 +162,18 @@ app.get("/manager/pedidos-autocadastro", (_req, res) => {
   res.json(pedidos);
 });
 
+//Listar contas (para R14 - Melhores Clientes) ---------
+app.get("/contas", (_req, res) => {
+  const contas = getData("contas");
+  res.json(contas);
+});
+
+//Listar clientes (para R14 - Melhores Clientes) ------
+app.get("/clientes", (_req, res) => {
+  const clientes = getData("clientes");
+  res.json(clientes);
+});
+
 
 //Aprovação de clientes ---------------------------------
 app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
