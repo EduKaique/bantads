@@ -5,7 +5,7 @@
     "accountNumber": "2465",
     "holderName": "Catharyna",
     "holderDocument": "12912861012",
-    "availableBalance": 0,
+    "availableBalance": 7825450.75,
     "limit": 5000,
     "manager": "João da Silva",
     "transactions": []
@@ -16,8 +16,52 @@
     "accountNumber": "9431",
     "holderName": "Catianna",
     "holderDocument": "85733854057",
-    "availableBalance": 0,
+    "availableBalance": 2145320.50,
     "limit": 4000,
+    "manager": "João da Silva",
+    "transactions": []
+  },
+  {
+    "accountId": "a5k8xyz2",
+    "branch": "0001",
+    "accountNumber": "5678",
+    "holderName": "Cleuddônio",
+    "holderDocument": "09506382000",
+    "availableBalance": 5632890.25,
+    "limit": 10000,
+    "manager": "João da Silva",
+    "transactions": []
+  },
+  {
+    "accountId": "b2m9abc3",
+    "branch": "0001",
+    "accountNumber": "4321",
+    "holderName": "Eduardo Kaique",
+    "holderDocument": "44636173910",
+    "availableBalance": 892150.99,
+    "limit": 3000,
+    "manager": "Maria Santos",
+    "transactions": []
+  },
+  {
+    "accountId": "c7n3def4",
+    "branch": "0001",
+    "accountNumber": "8765",
+    "holderName": "Rafael Pomponio",
+    "holderDocument": "11944108980",
+    "availableBalance": 4521330.40,
+    "limit": 7000,
+    "manager": "Maria Santos",
+    "transactions": []
+  },
+  {
+    "accountId": "d4p5ghi5",
+    "branch": "0001",
+    "accountNumber": "3214",
+    "holderName": "Beatriz Costa",
+    "holderDocument": "76543210987",
+    "availableBalance": 3215670.80,
+    "limit": 5000,
     "manager": "João da Silva",
     "transactions": []
   }

@@ -35,5 +35,77 @@
     },
     "dataSolicitacao": "2026-03-14T10:10:00.000Z",
     "id": 2
+  },
+  {
+    "cpf": "09506382000",
+    "nome": "Cleuddônio",
+    "email": "cli2@bantads.com.br",
+    "celular": "41999990002",
+    "salario": 20000,
+    "endereco": {
+      "cep": "80230010",
+      "logradouro": "Avenida Sete de Setembro",
+      "numero": "950",
+      "complemento": "",
+      "bairro": "Rebouças",
+      "cidade": "Curitiba",
+      "uf": "PR"
+    },
+    "dataSolicitacao": "2026-03-14T10:05:00.000Z",
+    "id": 3
+  },
+  {
+    "cpf": "44636173910",
+    "nome": "Eduardo Kaique",
+    "email": "edu.kaique@bantads.com.br",
+    "celular": "41999990004",
+    "salario": 6000,
+    "endereco": {
+      "cep": "80040070",
+      "logradouro": "Rua Coronel Enéas",
+      "numero": "44",
+      "complemento": "Sala 202",
+      "bairro": "Bom Retiro",
+      "cidade": "Cianorte",
+      "uf": "PR"
+    },
+    "dataSolicitacao": "2026-03-15T08:00:00.000Z",
+    "id": 4
+  },
+  {
+    "cpf": "11944108980",
+    "nome": "Rafael Pomponio",
+    "email": "rafael.pomp@bantads.com.br",
+    "celular": "41999990005",
+    "salario": 15000,
+    "endereco": {
+      "cep": "80410130",
+      "logradouro": "Rua Professor Algacyr Munhoz Mader",
+      "numero": "119",
+      "complemento": "",
+      "bairro": "Vila das Flores",
+      "cidade": "São Carlos",
+      "uf": "SP"
+    },
+    "dataSolicitacao": "2026-03-15T09:00:00.000Z",
+    "id": 5
+  },
+  {
+    "cpf": "76543210987",
+    "nome": "Beatriz Costa",
+    "email": "beatriz.costa@bantads.com.br",
+    "celular": "41999990006",
+    "salario": 9500,
+    "endereco": {
+      "cep": "80320060",
+      "logradouro": "Rua das Flores",
+      "numero": "765",
+      "complemento": "Apto 504",
+      "bairro": "Mercês",
+      "cidade": "Curitiba",
+      "uf": "PR"
+    },
+    "dataSolicitacao": "2026-03-15T10:00:00.000Z",
+    "id": 6
   }
 ]
