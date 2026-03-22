@@ -1,13 +1,7 @@
 [
   {
-    "cpf": "98574307084",
-    "nome": "Geniéve Silva",
-    "email": "ger1@bantads.com.br",
-    "celular": "(41) 8888-0001"
-  },
-  {
     "cpf": "64065268052",
-    "nome": "Godophredo",
+    "nome": "Godophredo ",
     "email": "ger2@bantads.com.br",
     "celular": "(41) 8888-0002"
   },
@@ -16,5 +10,13 @@
     "nome": "Gyândula",
     "email": "ger3@bantads.com.br",
     "celular": "(41) 8888-0003"
+  },
+  {
+    "nome": "Anna",
+    "cpf": "429.605.548-84",
+    "email": "annamariano@gmail.com",
+    "celular": "(13) 99676-2377",
+    "senha": "tads03",
+    "tipo": "GERENTE"
   }
 ]

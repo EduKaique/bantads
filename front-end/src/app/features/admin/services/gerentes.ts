@@ -37,7 +37,7 @@ export class GerentesService {
       cpf: gerenteResposta.cpf,
       nome: gerenteResposta.nome,
       email: gerenteResposta.email,
-      telefone: gerenteResposta.celular,
+      celular: gerenteResposta.celular,
     };
   }
 
@@ -46,10 +46,7 @@ export class GerentesService {
   }
 
   atualizar(cpf: string, dadosGerente: any): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/admin/atualizaPerfil/${cpf}`,
-      dadosGerente
-    );
+    return this.http.put(`${this.apiUrl}/admin/atualizaPerfil/${cpf}`, dadosGerente);
   }
   
   remover(cpf: string) {

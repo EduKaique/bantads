@@ -20,7 +20,7 @@ export class ModalInserirGerenteComponent {
     nome: ['', Validators.required],
     cpf: ['', [Validators.required, Validators.minLength(11)]],
     email: ['', [Validators.required, Validators.email]],
-    telefone: ['', Validators.required],
+    celular: ['', Validators.required],
     senha: ['', [Validators.required, Validators.minLength(6)]]
   });
 
