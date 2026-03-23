@@ -1,10 +1,10 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, map } from 'rxjs';
 import { API_URL } from '../../../core/configs/api.token';
 import { BankAccount } from '../../../shared/models/bank-account';
 
-export interface ClientData {
+export interface DadosCliente {
   cpf: string;
   nome: string;
   endereco: {
@@ -13,7 +13,7 @@ export interface ClientData {
   };
 }
 
-export interface TopClientInfo {
+export interface InfoMelhorCliente {
   nome: string;
   cpf: string;
   cidade: string;
@@ -25,14 +25,14 @@ export interface TopClientInfo {
 @Injectable({
   providedIn: 'root',
 })
-export class TopClientsService {
+export class MelhoresClientesService {
   private http = inject(HttpClient);
   private apiUrl = inject(API_URL);
 
-  getTop3Clients(): Observable<TopClientInfo[]> {
+  obter3MelhoresClientes(): Observable<InfoMelhorCliente[]> {
     return forkJoin({
       contas: this.http.get<BankAccount[]>(`${this.apiUrl}/contas`),
-      clientes: this.http.get<ClientData[]>(`${this.apiUrl}/clientes`),
+      clientes: this.http.get<DadosCliente[]>(`${this.apiUrl}/clientes`),
     }).pipe(
       map(({ contas, clientes }) => {
         const topContas = contas

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   DestroyRef,
   OnInit,
@@ -9,7 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TopClientsService, TopClientInfo } from '../../services/top-clients.service';
+import { MelhoresClientesService, InfoMelhorCliente } from '../../services/top-clients.service';
 
 @Component({
   selector: 'app-r14-consulta-3-melhores',
@@ -19,11 +19,11 @@ import { TopClientsService, TopClientInfo } from '../../services/top-clients.ser
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class R14Consulta3MelhorComponent implements OnInit {
-  private readonly topClientsService = inject(TopClientsService);
+  private readonly melhoresClientesService = inject(MelhoresClientesService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly topClients = signal<TopClientInfo[]>([]);
+  readonly topClientes = signal<InfoMelhorCliente[]>([]);
   readonly carregando = signal(true);
   readonly erro = signal('');
 
@@ -35,12 +35,12 @@ export class R14Consulta3MelhorComponent implements OnInit {
     this.carregando.set(true);
     this.erro.set('');
 
-    this.topClientsService
-      .getTop3Clients()
+    this.melhoresClientesService
+      .obter3MelhoresClientes()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (clientes) => {
-          this.topClients.set(clientes);
+          this.topClientes.set(clientes);
           this.carregando.set(false);
         },
         error: () => {
@@ -65,7 +65,7 @@ export class R14Consulta3MelhorComponent implements OnInit {
     });
   }
 
-  consultarCliente(cliente: TopClientInfo): void {
+  consultarCliente(cliente: InfoMelhorCliente): void {
     this.router.navigate(['/gerente/consultar-cliente'], {
       queryParams: { cpf: cliente.cpf }
     });

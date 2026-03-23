@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+﻿import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -100,11 +100,13 @@ export class ConsultarClienteComponent implements OnInit {
         if (cliente) {
           this.clienteAtual = cliente;
         } else {
+          this.clienteAtual = null;
           this.erro = 'Cliente não encontrado no banco de dados.';
         }
         this.carregando = false;
       },
       error: () => {
+        this.clienteAtual = null;
         this.erro = 'Erro ao buscar dados do cliente no servidor.';
         this.carregando = false;
       }
@@ -126,6 +128,7 @@ export class ConsultarClienteComponent implements OnInit {
 
     this.carregando = true;
     this.erro = '';
+    this.clienteAtual = null;
     this.carregarClienteDoServidor();
   }
 
