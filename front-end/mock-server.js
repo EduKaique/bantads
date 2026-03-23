@@ -296,20 +296,25 @@ app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
 app.post("/admin/gerentes", (req, res) => {
   const novoGerente = { ...req.body, tipo: "GERENTE" };
   
+  const auths = getData("auth");
   const gerentes = getData("gerentes");
   const contas = getData("contas");
 
   gerentes.push(novoGerente);
-  saveData("gerentes", gerentes); 
+  auths.push(novoGerente);
   
   contas.sort((a, b) => a.availableBalance - b.availableBalance);
   const contaAlvo = contas.find(c => c.managerDocument && c.managerDocument !== novoGerente.cpf);
 
   if (contaAlvo) {
     contaAlvo.managerDocument = novoGerente.cpf;
-    saveData("contas", contas);
+    contaAlvo.manager = novoGerente.nome;
     console.log(`[R17] Conta ${contaAlvo.accountNumber} transferida para o novo gerente!`);
   }
+
+  saveData("gerentes", gerentes);
+  saveData("auth", auths);
+  saveData("contas", contas);
 
   res.status(201).json({ message: "Gerente cadastrado com sucesso!" });
 });

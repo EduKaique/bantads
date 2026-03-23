@@ -28,9 +28,27 @@ export class ModalInserirGerenteComponent {
     this.fechar.emit();
   }
 
+  removerNumerosDoNome(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const valorSemNumeros = input.value.replace(/[0-9]/g, '');
+    
+    this.formulario.controls.nome.setValue(valorSemNumeros, { emitEvent: false });
+    input.value = valorSemNumeros;
+  }
+
+
   emitirSalvamento(): void {
     if (this.formulario.valid) {
-      this.salvar.emit(this.formulario.getRawValue());
+      const dadosFormulario = this.formulario.getRawValue();
+      
+      const removeNonDigits = (value: string) => value.replace(/\D/g, '');
+
+      const requestData = {
+        ...dadosFormulario,
+        cpf: removeNonDigits(dadosFormulario.cpf),
+      };
+
+      this.salvar.emit(requestData);
     } else {
       this.formulario.markAllAsTouched();
     }

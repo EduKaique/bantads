@@ -8,7 +8,7 @@
     <form class="modal-body" [formGroup]="formulario" (ngSubmit)="emitirSalvamento()">
       <div class="form-group">
         <label class="label_small">Nome</label>
-        <input type="text" formControlName="nome" class="form-input" placeholder="nome preenchido">
+        <input type="text" formControlName="nome" class="form-input" placeholder="nome preenchido" (input)="removerNumerosDoNome($event)">
       </div>
       <div class="form-group">
         <label class="label_small">CPF</label> <app-input-primary 
