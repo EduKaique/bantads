@@ -350,7 +350,6 @@ app.put("/admin/atualizaPerfil/:cpf", (req, res) => {
 
   const authAtualizado = {
     ...authAntigo,
-    nome: dadosAtualizados.name || authAntigo.nome,
     email: dadosAtualizados.email || authAntigo.email,
     senha: dadosAtualizados.password || authAntigo.senha
   };

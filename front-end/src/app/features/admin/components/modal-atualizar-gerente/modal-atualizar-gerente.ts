@@ -45,6 +45,14 @@ export class ModalAtualizarGerente implements OnChanges {
     this.fechar.emit();
   }
 
+  removerNumerosDoNome(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const valorSemNumeros = input.value.replace(/[0-9]/g, '');
+    
+    this.formulario.controls.nome.setValue(valorSemNumeros, { emitEvent: false });
+    input.value = valorSemNumeros;
+  }
+
   emitirSalvamento(): void {
     if (this.formulario.valid && !this.formulario.pristine) {
       const form = this.formulario.getRawValue();
