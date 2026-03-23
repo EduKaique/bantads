@@ -1,4 +1,4 @@
-<main class="r14-consulta-3-melhores">
+﻿<main class="r14-consulta-3-melhores">
   <div class="container">
     <div class="header">
       <h1 class="heading_2">
@@ -17,13 +17,13 @@
       <div class="error-state">
         <p class="body_medium">{{ erro() }}</p>
       </div>
-    } @else if (topClients().length === 0) {
+    } @else if (topClientes().length === 0) {
       <div class="empty-state">
         <p class="body_medium">Nenhum cliente encontrado.</p>
       </div>
     } @else {
       <div class="cards-container">
-        @for (cliente of topClients(); track cliente.cpf) {
+        @for (cliente of topClientes(); track cliente.cpf) {
           <div class="card-cliente">
             <div class="card-header">
               <div class="client-profile">
