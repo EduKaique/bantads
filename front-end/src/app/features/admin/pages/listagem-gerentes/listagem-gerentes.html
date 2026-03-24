@@ -1,0 +1,132 @@
+<main class="listagem-gerentes">
+  <section class="painel-gerentes">
+    <header class="painel-gerentes__cabecalho">
+      <h1 class="heading_3">Listagem de Gerentes</h1>
+    </header>
+
+    <div class="painel-gerentes__filtros">
+      <form class="painel-gerentes__pesquisa" [formGroup]="formularioFiltro">
+        <app-input-primary
+          formControlName="cpf"
+          inputName="cpf-gerente"
+          label="Pesquisar"
+          placeholder="Digite o CPF..."
+          mask="000.000.000-00"
+        ></app-input-primary>
+      </form>
+
+      <button
+        type="button"
+        class="button-primary btn-inserir"
+        (click)="abrirModalInserir()">
+        INSERIR
+      </button>
+    </div>
+  
+    @if (mensagemErro()) {
+      <p class="mensagem-status mensagem-status--erro body_medium">
+        {{ mensagemErro() }}
+      </p>
+    } @else if (carregando()) {
+      <p class="mensagem-status body_medium">Carregando gerentes...</p>
+    } @else {
+      <div class="tabela-bloco">
+        <span class="ordem-indicada label_small">Ordem crescente por nome</span>
+
+        <div class="tabela-container">
+          <table
+            mat-table
+            [dataSource]="fonteDados"
+            matSort
+            matSortActive="nome"
+            matSortDirection="asc"
+            matSortDisableClear
+            class="tabela-gerentes"
+          >
+            <ng-container matColumnDef="nome">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Ordenar por nome">
+                Nome
+              </th>
+              <td mat-cell *matCellDef="let gerente">
+                {{ gerente.nome }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="cpf">
+              <th mat-header-cell *matHeaderCellDef>CPF</th>
+              <td mat-cell *matCellDef="let gerente">
+                {{ formatarCpf(gerente.cpf) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>E-mail</th>
+              <td mat-cell *matCellDef="let gerente">
+                {{ gerente.email }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="celular">
+              <th mat-header-cell *matHeaderCellDef>Telefone</th>
+              <td mat-cell *matCellDef="let gerente">
+                {{ gerente.celular }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef>Ações</th>
+              <td mat-cell *matCellDef="let gerente">
+                <div class="acoes-visuais" aria-hidden="true">
+
+                  <span class="acao-visual acao-visual--editar" (click)="abrirModalAtualizar(gerente)" >
+                    <img
+                      class="acao-visual__imagem acao-visual__imagem--editar"
+                      src="assets/icons/acao-editar.png"
+                      alt=""              
+                    />
+                  </span>
+
+                  <span class="acao-visual acao-visual--remover" (click)="processarRemocao(gerente)">
+                    <img
+                      class="acao-visual__imagem acao-visual__imagem--remover"
+                      src="assets/icons/acao-remover.png"
+                      alt=""
+                    />
+                  </span>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
+            <tr mat-row *matRowDef="let row; columns: colunasExibidas"></tr>
+            <tr *matNoDataRow>
+              <td class="sem-dados body_medium" [attr.colspan]="colunasExibidas.length">
+                Nenhum gerente encontrado para o CPF informado.
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    }
+  </section>
+  @if(mostrarModalInserir()) {
+    <app-modal-inserir-gerente
+      (fechar)="fecharModalInserir()"
+      (salvar)="processarInsercao($event)"
+    ></app-modal-inserir-gerente>}
+  @if(mostrarModalAtualizar()) {
+<app-modal-atualizar-gerente
+    [gerente]="gerenteSelecionado()"
+    (fechar)="fecharModalAtualizar()"
+    (salvar)="processarAtualizacao($event)"
+  ></app-modal-atualizar-gerente>
+  }
+
+  <app-success-modal
+    [(mostrar)]="showModal"
+    [titulo]="tituloModalSucesso"
+    textoBotao="Voltar"
+    [rotaDestino]="''">
+  </app-success-modal>
+</main>
+

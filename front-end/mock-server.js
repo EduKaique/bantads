@@ -12,6 +12,7 @@ app.use(express.json());
 const PATHS = {
   auth: path.join(__dirname, "mock/auth.json"),
   clientes: path.join(__dirname, "mock/clientes.json"),
+  gerentes: path.join(__dirname, "mock/gerentes.json"),
   solicitacoes: path.join(__dirname, "mock/solicitacoes.json"),
   contas: path.join(__dirname, "mock/conta-banco.json")
 };
@@ -36,10 +37,10 @@ app.post("/auth/login", (req, res) => {
     });
   }
 
-  res.json({
+ res.json({
     access_token: "fake-jwt-token",
     token_type: "bearer",
-    tipo: user.tipo.toUpperCase(),
+    tipo: (user.tipo).toUpperCase(), 
     usuario: {
       nome: user.nome || "Usuário",
       email: user.email,
@@ -176,6 +177,12 @@ app.get("/clientes", (_req, res) => {
 
 
 //Aprovação de clientes ---------------------------------
+app.get("/admin/gerentes", (_req, res) => {
+  const gerentes = getData("gerentes");
+
+  res.json(gerentes);
+});
+
 app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
 
   const cpf = req.params.cpf;
@@ -198,7 +205,7 @@ app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
 
   const novoCliente = {
     ...pedido,
-    novoId
+    id: novoId
   };
 
   clientes.push(novoCliente);
@@ -322,6 +329,142 @@ app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
     balance: contas[contaIndex]?.availableBalance || 0,
     managerName: contas[contaIndex]?.manager,
     cliente: clienteAtualizado
+  });
+});
+
+//Cadastro gerente
+app.post("/admin/gerentes", (req, res) => {
+  const novoGerente = { ...req.body, tipo: "GERENTE" };
+  
+  const auths = getData("auth");
+  const gerentes = getData("gerentes");
+  const contas = getData("contas");
+
+  gerentes.push(novoGerente);
+  auths.push(novoGerente);
+  
+  contas.sort((a, b) => a.availableBalance - b.availableBalance);
+  const contaAlvo = contas.find(c => c.managerDocument && c.managerDocument !== novoGerente.cpf);
+
+  if (contaAlvo) {
+    contaAlvo.managerDocument = novoGerente.cpf;
+    contaAlvo.manager = novoGerente.nome;
+    console.log(`[R17] Conta ${contaAlvo.accountNumber} transferida para o novo gerente!`);
+  }
+
+  saveData("gerentes", gerentes);
+  saveData("auth", auths);
+  saveData("contas", contas);
+
+  res.status(201).json({ message: "Gerente cadastrado com sucesso!" });
+});
+
+//Alteração de perfil gerente ----------------------
+app.put("/admin/atualizaPerfil/:cpf", (req, res) => {
+  const cpf = req.params.cpf;
+  const dadosAtualizados = req.body;
+
+  const gerentes = getData("gerentes");
+  const auths = getData("auth");
+
+  const gerenteIndex = gerentes.findIndex(g => g.cpf === cpf);
+  const authIndex = auths.findIndex(a => a.cpf === cpf);
+
+  if (gerenteIndex === -1 || authIndex === -1) {
+    return res.status(404).json({
+      message: "Gerente não encontrado"
+    });
+  }
+
+  const gerenteAntigo = gerentes[gerenteIndex];
+  const authAntigo = auths[authIndex];
+
+  const gerenteAtualizado = {
+    ...gerenteAntigo,
+    nome: dadosAtualizados.name || gerenteAntigo.nome,
+    email: dadosAtualizados.email || gerenteAntigo.email
+  };
+
+  gerentes[gerenteIndex] = gerenteAtualizado;
+  saveData("gerentes", gerentes);
+
+  const authAtualizado = {
+    ...authAntigo,
+    email: dadosAtualizados.email || authAntigo.email,
+    senha: dadosAtualizados.password || authAntigo.senha
+  };
+
+  auths[authIndex] = authAtualizado;
+  saveData("auth", auths);
+
+  res.json({
+    message: "Perfil atualizado com sucesso",
+    gerente: gerenteAtualizado
+  });
+});
+
+//Remoção de Gerente ----------------------
+app.delete("/admin/gerentes/:cpf", (req, res) => {
+  const cpfRemover = req.params.cpf;
+
+  let gerentes = getData("gerentes");
+  let auths = getData("auth");
+  let contas = getData("contas");
+
+  const gerenteIndex = gerentes.findIndex(g => g.cpf === cpfRemover);
+
+  if (gerenteIndex === -1) {
+    return res.status(404).json({ message: "Gerente não encontrado." });
+  }
+
+  if (gerenteIndex !== -1 && gerentes.length <= 1) {
+    return res.status(400).json({ 
+      message: "Operação negada. Não é possível remover o único gerente do banco." 
+    });
+  }
+
+  const gerenteRemovido = gerentes[gerenteIndex];
+
+  // Remove o gerente da lista de gerentes e de autenticação
+  const gerentesRestantes = gerentes.filter(g => g.cpf !== cpfRemover);
+  const authsRestantes = auths.filter(a => a.cpf !== cpfRemover);
+
+  const contagemContas = gerentesRestantes.map(gerente => {
+    return {
+      cpf: gerente.cpf,
+      nome: gerente.nome,
+      qtdContas: contas.filter(c => c.managerDocument === gerente.cpf || c.manager === gerente.nome).length
+    };
+  });
+
+  // Ordena do menor para o maior número de contas
+  contagemContas.sort((a, b) => a.qtdContas - b.qtdContas);
+  
+  const gerenteAlvo = contagemContas[0];
+
+  //Varre as contas e transfere as que eram do gerente excluído para o novo
+  let contasTransferidas = 0;
+  contas = contas.map(conta => {
+    if (conta.managerDocument === cpfRemover || conta.manager === gerenteRemovido.nome) {
+      contasTransferidas++;
+      return { 
+        ...conta, 
+        managerDocument: gerenteAlvo.cpf,
+        manager: gerenteAlvo.nome
+      };
+    }
+    return conta;
+  });
+
+  saveData("gerentes", gerentesRestantes);
+  saveData("auth", authsRestantes);
+  saveData("contas", contas);
+
+  console.log(`Gerente ${gerenteRemovido.nome} removido. ${contasTransferidas} contas transferidas para ${gerenteAlvo.nome}.`);
+  
+  res.json({ 
+    message: "Gerente removido com sucesso e contas realocadas.",
+    contasRealocadas: contasTransferidas
   });
 });
 
