@@ -1,15 +1,18 @@
-﻿import {
+import {
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   OnInit,
   inject,
   signal,
-  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MelhoresClientesService, InfoMelhorCliente } from '../../services/top-clients.service';
+import {
+  InformacoesMelhorCliente,
+  MelhoresClientesService,
+} from '../../services/melhores-clientes.service';
 
 @Component({
   selector: 'app-r14-consulta-3-melhores',
@@ -23,7 +26,7 @@ export class R14Consulta3MelhorComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly topClientes = signal<InfoMelhorCliente[]>([]);
+  readonly melhoresClientes = signal<InformacoesMelhorCliente[]>([]);
   readonly carregando = signal(true);
   readonly erro = signal('');
 
@@ -40,7 +43,7 @@ export class R14Consulta3MelhorComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (clientes) => {
-          this.topClientes.set(clientes);
+          this.melhoresClientes.set(clientes);
           this.carregando.set(false);
         },
         error: () => {
@@ -52,9 +55,11 @@ export class R14Consulta3MelhorComponent implements OnInit {
 
   formatarCpf(cpf: string): string {
     const cpfNormalizado = cpf.replace(/\D/g, '');
+
     if (cpfNormalizado.length !== 11) {
       return cpf;
     }
+
     return cpfNormalizado.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   }
 
@@ -65,9 +70,9 @@ export class R14Consulta3MelhorComponent implements OnInit {
     });
   }
 
-  consultarCliente(cliente: InfoMelhorCliente): void {
+  consultarCliente(cliente: InformacoesMelhorCliente): void {
     this.router.navigate(['/gerente/consultar-cliente'], {
-      queryParams: { cpf: cliente.cpf }
+      queryParams: { cpf: cliente.cpf },
     });
   }
 }

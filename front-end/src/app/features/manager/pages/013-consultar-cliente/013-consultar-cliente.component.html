@@ -15,7 +15,7 @@
             class="search-input"
             maxlength="11"
           />
-          <button class="search-btn" (click)="pesquisarCliente()" [disabled]="carregando || !validarCPF(cpfPesquisa)">
+          <button class="search-btn" (click)="pesquisarCliente()" [disabled]="carregando || !validarCpf(cpfPesquisa)">
             {{ carregando ? 'Buscando...' : 'Buscar' }}
           </button>
         </div>
