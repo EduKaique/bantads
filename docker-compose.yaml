@@ -1,8 +1,10 @@
 services:
+  # =========== FRONTEND ===========
   frontend:
     build:
       context: ./front-end
       dockerfile: front.dockerfile
+      target: dev
     ports:
       - "4200:4200"
     volumes:
@@ -12,47 +14,173 @@ services:
       - NODE_OPTIONS=--max_old_space_size=4096
     restart: unless-stopped
 
-  backend:
+  # =========== INFRAESTRUTURA BASE =========== 
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   
+      - "15672:15672"
+    restart: unless-stopped
+
+  api-gateway:
     build:
-      context: ./back-end
-      dockerfile: back.dockerfile
+      context: ./back-end/api-gateway
+      dockerfile: Dockerfile
       target: dev
     ports:
-      - "8080:8080"
-    depends_on:
-      mysql:
-        condition: service_healthy
+      - "8080:8080" 
     volumes:
-      - ./back-end:/app
+      - ./back-end/api-gateway:/app
       - maven-repo:/root/.m2
+    restart: unless-stopped
+
+  # =========== BANCOS DE DADOS ===========
+
+  # Banco do MS Auth (NoSQL)
+  mongodb-auth:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-auth-data:/data/db
+    restart: unless-stopped
+
+  # Banco do MS Cliente 
+  postgres-cliente:
+    image: postgres:15
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/bantads_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=UTF-8
+      - POSTGRES_USER=springuser
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=bantads_cliente
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-cliente-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Banco do MS Gerente 
+  postgres-gerente:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=springuser
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=bantads_gerente
+    ports:
+      - "5433:5432" 
+    volumes:
+      - postgres-gerente-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  postgres-conta-cud:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=springuser
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=bantads_conta_cud
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-conta-cud-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  postgres-conta-read:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=springuser
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=bantads_conta_read
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres-conta-read-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # =========== MICROSSERVIÇOS ===========
+  ms-auth:
+    build:
+      context: ./back-end/auth
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "8081:8080"
+    depends_on:
+      - mongodb-auth
+    environment:
+      - MONGO_URI=mongodb://mongodb-auth:27017/bantads_auth
+    volumes:
+      - ./ms-auth:/app
+      - maven-repo:/root/.m2
+    restart: unless-stopped
+
+  ms-cliente:
+    build:
+      context: ./back-end/cliente
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres-cliente
+      - rabbitmq
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-cliente:5432/bantads_cliente
       - SPRING_DATASOURCE_USERNAME=springuser
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-    restart: unless-stopped
-
-  mysql:
-    image: mysql:latest
-    ports:
-      - "3308:3306"
-    environment:
-      - MYSQL_USER=springuser
-      - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=bantads_db
-      - MYSQL_ROOT_PASSWORD=root
+      - SPRING_RABBITMQ_HOST=rabbitmq
     volumes:
-      - "./conf.d:/etc/mysql/conf.d:ro"
-      - mysql-data:/var/lib/mysql
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-      interval: 10s
-
+      - ./ms-cliente:/app
+      - maven-repo:/root/.m2
     restart: unless-stopped
 
+  ms-gerente:
+    build:
+      context: ./back-end/gerente
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "8083:8080"
+    depends_on:
+      - postgres-gerente
+      - rabbitmq
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-gerente:5432/bantads_gerente
+      - SPRING_DATASOURCE_USERNAME=springuser
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    volumes:
+      - ./ms-gerente:/app
+      - maven-repo:/root/.m2
+    restart: unless-stopped
+
+  conta:
+    build:
+      context: ./back-end/conta
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "8084:8080"
+    depends_on:
+      - postgres-conta-cud
+      - postgres-conta-read
+      - rabbitmq
+    environment:
+      - DB_CUD_URL=jdbc:postgresql://postgres-conta-cud:5432/bantads_conta_cud
+      - DB_READ_URL=jdbc:postgresql://postgres-conta-read:5432/bantads_conta_read
+      - DB_USERNAME=springuser
+      - DB_PASSWORD=password
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    volumes:
+      - ./back-end/conta:/app
+      - maven-repo:/root/.m2
+    restart: unless-stopped
+
+# VOLUMES 
 volumes:
-  mysql-data:
   maven-repo:
+  mongo-auth-data:
+  postgres-cliente-data:
+  postgres-gerente-data:
+  postgres-conta-cud-data:
+  postgres-conta-read-data:
