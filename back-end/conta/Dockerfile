@@ -8,8 +8,6 @@ RUN ./mvnw dependency:go-offline
 COPY src ./src
 
 FROM base AS dev
-EXPOSE 8080
-EXPOSE 5005
 CMD ["./mvnw", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"]
 
 FROM base AS build
