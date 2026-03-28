@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { MatIconModule } from '@angular/material/icon';
+import { formatCpf } from '../../../../shared/utils/formatters';
 
 @Component({
   selector: 'app-transfer-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, AppSuccessModalComponent, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule, AppSuccessModalComponent, MatIconModule],  
   templateUrl: './transfer-page.html',
   styleUrls: ['./transfer-page.css']
 })
@@ -97,15 +99,6 @@ export class TransferPage implements OnInit {
     this.transferForm.patchValue({ amount: 'R$ ' + formatted });
   }
 
-  // Máscara de CPF
-  onCpfInput(event: any) {
-    let val = event.target.value.replace(/\D/g, '').slice(0, 11);
-    if (val.length > 9) val = val.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-    else if (val.length > 6) val = val.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
-    else if (val.length > 3) val = val.replace(/(\d{3})(\d{1,3})/, '$1.$2');
-    this.transferForm.patchValue({ cpf: val });
-  }
-
   searchAccount(): void {
     const accountControl = this.transferForm.get('accountNumber');
 
@@ -126,7 +119,7 @@ export class TransferPage implements OnInit {
           this.contaEncontrada = true;
           this.transferForm.patchValue({
             name: dados.nome,
-            cpf: dados.cpf
+            cpf: formatCpf(dados.cpf)
           });
         },
         error: (erro) => {

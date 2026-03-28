@@ -14,7 +14,8 @@ const PATHS = {
   clientes: path.join(__dirname, "mock/clientes.json"),
   gerentes: path.join(__dirname, "mock/gerentes.json"),
   solicitacoes: path.join(__dirname, "mock/solicitacoes.json"),
-  contas: path.join(__dirname, "mock/conta-banco.json")
+  contas: path.join(__dirname, "mock/conta-banco.json"),
+  transacoes: path.join(__dirname, "mock/transacoes.json")
 };
 
 const getData = (file) => JSON.parse(fs.readFileSync(PATHS[file], "utf-8"));
@@ -378,6 +379,7 @@ app.get("/contas/:numeroConta", (req, res) => {
 app.post("/transacoes/transferir", (req, res) => {
   const { contaOrigem, contaDestino, valor } = req.body;
   const contas = getData("contas");
+  let transacoes = getData("transacoes");
 
   const idxOrigem = contas.findIndex(c => c.accountNumber === contaOrigem);
   const idxDestino = contas.findIndex(c => c.accountNumber === contaDestino);
@@ -396,6 +398,18 @@ app.post("/transacoes/transferir", (req, res) => {
   contas[idxDestino].availableBalance += valor;
 
   saveData("contas", contas);
+
+  const novaTransacao = {
+    id: Math.random().toString(36).substring(2, 10),
+    dataHora: new Date().toISOString(),
+    contaOrigem: contaOrigem,
+    nomeOrigem: idxOrigem !== -1 ? contas[idxOrigem].holderName : "Sistema/Depósito",
+    contaDestino: contaDestino,
+    nomeDestino: contas[idxDestino].holderName,
+    valor: valor
+  };
+  transacoes.push(novaTransacao);
+  saveData("transacoes", transacoes);
 
   res.json({ 
     message: "Transferência realizada com sucesso!",

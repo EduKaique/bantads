@@ -5,7 +5,7 @@
     "accountNumber": "2465",
     "holderName": "Catharyna",
     "holderDocument": "12912861012",
-    "availableBalance": 1000,
+    "availableBalance": 900,
     "limit": 5000,
     "manager": "João da Silva",
     "transactions": []
@@ -16,7 +16,7 @@
     "accountNumber": "9431",
     "holderName": "Catianna",
     "holderDocument": "85733854057",
-    "availableBalance": 2000,
+    "availableBalance": 2100,
     "limit": 4000,
     "manager": "João da Silva",
     "transactions": []
@@ -49,7 +49,7 @@
     "accountNumber": "8765",
     "holderName": "Rafael Pomponio",
     "holderDocument": "11944108980",
-    "availableBalance": 4521330.40,
+    "availableBalance": 4521330.4,
     "limit": 7000,
     "manager": "Maria Santos",
     "transactions": []
@@ -60,7 +60,7 @@
     "accountNumber": "3214",
     "holderName": "Beatriz Costa",
     "holderDocument": "76543210987",
-    "availableBalance": 3215670.80,
+    "availableBalance": 3215670.8,
     "limit": 5000,
     "manager": "João da Silva",
     "transactions": []

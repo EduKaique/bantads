@@ -45,7 +45,8 @@
         @for (cliente of clientesPaginados; track cliente.id) {
           <tr 
             class="body_small linha-tabela"
-            [routerLink]="['/gerente/cliente', cliente.id]"
+            [routerLink]="['/gerente/consultar-cliente', cliente.cpf]" 
+            style="cursor: pointer;"
           >
             <td>{{ cliente.cpf }}</td>
             <td>{{ cliente.nome }}</td>
