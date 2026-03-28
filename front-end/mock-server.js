@@ -417,6 +417,8 @@ app.get("/contas/cpf/:cpf", (req, res) => {
   res.json({
     numeroConta: contaOrigem.accountNumber,
     saldoDisponivel: contaOrigem.availableBalance
+  });
+});
 
 //Cadastro gerente
 app.post("/admin/gerentes", (req, res) => {
