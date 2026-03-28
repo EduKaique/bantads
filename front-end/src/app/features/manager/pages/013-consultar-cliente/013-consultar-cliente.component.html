@@ -1,4 +1,4 @@
-<main class="consultar-cliente-main">
+﻿<main class="consultar-cliente-main">
   <div class="container">
 
     <div class="header">
@@ -15,18 +15,16 @@
             class="search-input"
             maxlength="11"
           />
-          <button class="search-btn" (click)="pesquisarCliente()" [disabled]="carregando || !validarCPF(cpfPesquisa)">
+          <button class="search-btn" (click)="pesquisarCliente()" [disabled]="carregando || !validarCpf(cpfPesquisa)">
             {{ carregando ? 'Buscando...' : 'Buscar' }}
           </button>
         </div>
       </div>
     </div>
 
-
     <div *ngIf="erro" class="erro-message">
       {{ erro }}
     </div>
-
 
     <div *ngIf="clienteAtual" class="cliente-info">
 

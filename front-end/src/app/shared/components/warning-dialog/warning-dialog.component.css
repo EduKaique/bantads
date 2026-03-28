@@ -17,3 +17,7 @@ mat-dialog-content {
   text-align: center;
   color: #555;
 }
+
+button {
+  cursor: pointer;
+}

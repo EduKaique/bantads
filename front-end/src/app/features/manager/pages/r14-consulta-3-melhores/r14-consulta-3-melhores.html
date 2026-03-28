@@ -1,0 +1,59 @@
+<main class="r14-consulta-3-melhores">
+  <div class="container">
+    <div class="header">
+      <h1 class="heading_2">
+        <svg class="icon-star" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
+        Melhores Clientes
+      </h1>
+    </div>
+
+    @if (carregando()) {
+      <div class="estado-carregando">
+        <p class="body_medium">Carregando melhores clientes...</p>
+      </div>
+    } @else if (erro()) {
+      <div class="estado-erro">
+        <p class="body_medium">{{ erro() }}</p>
+      </div>
+    } @else if (melhoresClientes().length === 0) {
+      <div class="estado-vazio">
+        <p class="body_medium">Nenhum cliente encontrado.</p>
+      </div>
+    } @else {
+      <div class="cards-clientes">
+        @for (cliente of melhoresClientes(); track cliente.cpf) {
+          <div class="card-cliente">
+            <div class="cabecalho-card">
+              <div class="perfil-cliente">
+                <div class="avatar-perfil">
+                  <span>{{ cliente.nome.charAt(0).toUpperCase() }}</span>
+                </div>
+                <span class="label_large nome-cliente">{{ cliente.nome }}</span>
+              </div>
+              <button class="botao-adicionar" aria-label="Adicionar" (click)="consultarCliente(cliente)">+</button>
+            </div>
+
+            <div class="informacoes-card">
+              <div class="campo-informacao">
+                <span class="rotulo body_small">Saldo</span>
+                <span class="valor label_large">{{ formatarSaldo(cliente.saldo) }}</span>
+              </div>
+
+              <div class="campo-informacao">
+                <span class="rotulo body_small">CPF</span>
+                <span class="valor label_large">{{ formatarCpf(cliente.cpf) }}</span>
+              </div>
+
+              <div class="campo-informacao">
+                <span class="rotulo body_small">Cidade</span>
+                <span class="valor label_large">{{ cliente.cidade }}/{{ cliente.estado }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</main>
