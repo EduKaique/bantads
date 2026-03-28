@@ -8,6 +8,7 @@
     "availableBalance": 900,
     "limit": 5000,
     "manager": "João da Silva",
+    "managerDocument": "11122233344",
     "transactions": []
   },
   {
@@ -19,6 +20,7 @@
     "availableBalance": 2100,
     "limit": 4000,
     "manager": "João da Silva",
+    "managerDocument": "11122233344",
     "transactions": []
   },
   {
@@ -30,6 +32,7 @@
     "availableBalance": 5632890.25,
     "limit": 10000,
     "manager": "João da Silva",
+    "managerDocument": "11122233344",
     "transactions": []
   },
   {
@@ -41,6 +44,7 @@
     "availableBalance": 892150.99,
     "limit": 3000,
     "manager": "Maria Santos",
+    "managerDocument": "55566677788",
     "transactions": []
   },
   {
@@ -52,6 +56,7 @@
     "availableBalance": 4521330.4,
     "limit": 7000,
     "manager": "Maria Santos",
+    "managerDocument": "55566677788",
     "transactions": []
   },
   {
@@ -63,6 +68,7 @@
     "availableBalance": 3215670.8,
     "limit": 5000,
     "manager": "João da Silva",
+    "managerDocument": "11122233344",
     "transactions": []
   }
 ]
