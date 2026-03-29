@@ -271,7 +271,7 @@ app.get("/cliente/perfil/:cpf", (req, res) => {
 });
 
 //Alteração de perfil clientes ----------------------
-app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
+app.put("/cliente/alteracao-perfil/:cpf", (req, res) => {
   const cpf = req.params.cpf;
   const dadosAtualizados = req.body;
 
@@ -328,7 +328,8 @@ app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
   res.json({
     balance: contas[contaIndex]?.availableBalance || 0,
     managerName: contas[contaIndex]?.manager,
-    cliente: clienteAtualizado
+    cliente: clienteAtualizado,
+    limit: contas[contaIndex]?.limit
   });
 });
 
