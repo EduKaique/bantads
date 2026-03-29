@@ -1,0 +1,151 @@
+.card-gerente-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #cac4d0;
+  border-radius: 12px;
+  background: #fef7ff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 280px;
+  user-select: none;
+}
+
+.card-gerente-dashboard:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-color: #d4cfdb;
+}
+
+.card-gerente-dashboard__cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.card-gerente-dashboard__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #eaddff;
+  color: #6750a4;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.card-gerente-dashboard__info-principal {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-gerente-dashboard__nome {
+  margin: 0;
+  color: #1d1b20;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-gerente-dashboard__cargo {
+  margin: 4px 0 0;
+  color: #49454f;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-gerente-dashboard__menu {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  color: #49454f;
+  transition: color 0.2s;
+}
+
+.card-gerente-dashboard__menu:hover {
+  color: #1d1b20;
+}
+
+.card-gerente-dashboard__corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-gerente-dashboard__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-gerente-dashboard__label {
+  color: #49454f;
+  margin: 0;
+}
+
+.card-gerente-dashboard__valor {
+  color: #1d1b20;
+  margin: 0;
+}
+
+.card-gerente-dashboard__rodape {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.card-gerente-dashboard__botao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: 1px solid #cac4d0;
+  border-radius: 24px;
+  background: transparent;
+  color: #1d1b20;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.card-gerente-dashboard__botao:hover {
+  border-color: #6750a4;
+  color: #6750a4;
+}
+
+.card-gerente-dashboard__icone {
+  font-size: 16px;
+}
+
+/* Tipografia */
+.label_large {
+  font-family: 'Sora', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0;
+}
+
+.body_small {
+  font-family: 'Sora', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 0.4px;
+}
+
+.heading_5 {
+  font-family: 'Sora', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 28px;
+  letter-spacing: 0;
+}

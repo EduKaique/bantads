@@ -1,0 +1,354 @@
+.tela-inicial-administrador {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 32px;
+  background: #f5f5f5;
+  min-height: 100vh;
+  user-select: none;
+}
+
+/* ============= Container Verde do Dashboard ============= */
+.dashboard-container-verde {
+  background: #042A1C;
+  border-radius: 24px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dashboard-container-verde .heading_2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 44px;
+  letter-spacing: -0.4px;
+  font-family: 'Sora', sans-serif;
+}
+
+/* ============= Dashboard Header ============= */
+.dashboard-header {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Cards de Estatísticas */
+.cards-estatisticas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.card-stat {
+  background: #087448;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 140px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.card-stat:hover {
+  background: #065a3b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-stat__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.card-stat__label {
+  color: #edfcf3;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Sora', sans-serif;
+}
+
+.card-stat__icon {
+  font-size: 20px;
+}
+
+.card-stat__valor {
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 36px;
+  letter-spacing: 0;
+  font-family: 'Sora', sans-serif;
+  margin: 0;
+}
+
+.heading_2 {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+  letter-spacing: 0;
+  font-family: 'Sora', sans-serif;
+}
+
+.heading_3 {
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 36px;
+  letter-spacing: 0;
+  font-family: 'Sora', sans-serif;
+}
+
+.heading_5 {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 28px;
+  letter-spacing: 0;
+  font-family: 'Sora', sans-serif;
+}
+
+.body_medium {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  font-family: 'Sora', sans-serif;
+}
+
+/* ============= Seção de Gerentes ============= */
+.secao-gerentes {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.container-filtro-gerentes {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+}
+
+/* ============= Painel de Filtros ============= */
+.painel-filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: #f9f3ff;
+  border: 1px solid #cac4d0;
+  border-radius: 12px;
+  height: fit-content;
+  user-select: none;
+}
+
+.painel-filtros__titulo {
+  margin: 0;
+  color: #1d1b20;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 28px;
+  letter-spacing: 0;
+  font-family: 'Sora', sans-serif;
+}
+
+.painel-filtros__checkbox-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.painel-filtros__checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.painel-filtros__checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #6750a4;
+}
+
+.painel-filtros__label {
+  font-size: 14px;
+  font-weight: 400;
+  color: #1d1b20;
+  font-family: 'Sora', sans-serif;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ============= Seção de Cards ============= */
+.secao-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Barra de Pesquisa */
+.barra-pesquisa {
+  display: flex;
+  gap: 12px;
+}
+
+.barra-pesquisa form {
+  flex: 1;
+}
+
+.barra-pesquisa__input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #cac4d0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Sora', sans-serif;
+  color: #1d1b20;
+  background: #fef7ff;
+  transition: all 0.3s ease;
+  user-select: text;
+}
+
+.barra-pesquisa__input:focus {
+  outline: none;
+  border-color: #6750a4;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.1);
+}
+
+.barra-pesquisa__input::placeholder {
+  color: #49454f;
+}
+
+/* Mensagens de Status */
+.mensagem-status {
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 24px 0;
+  font-family: 'Sora', sans-serif;
+}
+
+.mensagem-status--erro {
+  background: #fce8e0;
+  color: #b2281f;
+}
+
+/* Lista de Cards */
+.lista-cards-gerentes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  min-height: 200px;
+  max-height: 600px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.lista-cards-gerentes::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lista-cards-gerentes::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.lista-cards-gerentes::-webkit-scrollbar-thumb {
+  background: #d4cfdb;
+  border-radius: 4px;
+}
+
+.lista-cards-gerentes::-webkit-scrollbar-thumb:hover {
+  background: #c9c1d0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .tela-inicial-administrador {
+    padding: 16px;
+    gap: 24px;
+  }
+
+  .dashboard-container-verde {
+    padding: 24px;
+    gap: 20px;
+  }
+
+  .dashboard-container-verde .heading_2 {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .cards-estatisticas {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .card-stat {
+    min-height: 120px;
+    padding: 16px;
+  }
+
+  .card-stat__valor {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .container-filtro-gerentes {
+    grid-template-columns: 1fr;
+  }
+
+  .painel-filtros {
+    display: none;
+  }
+
+  .lista-cards-gerentes {
+    grid-template-columns: 1fr;
+    max-height: none;
+  }
+
+  .secao-gerentes {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container-verde {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .dashboard-container-verde .heading_2 {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .cards-estatisticas {
+    grid-template-columns: 1fr;
+  }
+
+  .card-stat {
+    min-height: 100px;
+    padding: 12px;
+  }
+
+  .card-stat__label {
+    font-size: 12px;
+  }
+
+  .card-stat__valor {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .barra-pesquisa__input {
+    font-size: 12px;
+  }
+}
