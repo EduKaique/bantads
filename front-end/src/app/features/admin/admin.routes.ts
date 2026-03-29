@@ -1,16 +1,21 @@
 import { Routes } from '@angular/router';
 import { ListagemGerentesComponent } from './pages/listagem-gerentes/listagem-gerentes';
+import { R15TelaInicialAdministrador } from './pages/r15-tela-inicial-administrador/r15-tela-inicial-administrador';
 
 export const adminRoutes: Routes = [
   {
     path: '',
-    redirectTo: 'listar-gerentes',
+    redirectTo: 'dashboard',
     pathMatch: 'full',
   },
   {
     path: 'home',
-    redirectTo: 'listar-gerentes',
+    redirectTo: 'dashboard',
     pathMatch: 'full',
+  },
+  {
+    path: 'dashboard',
+    component: R15TelaInicialAdministrador,
   },
   {
     path: 'listar-gerentes',

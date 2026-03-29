@@ -1,0 +1,131 @@
+<main class="tela-inicial-administrador">
+  <!-- Frame Verde Escuro do Dashboard -->
+  <section class="dashboard-container-verde">
+    <h1 class="heading_2">Dashboard Gerentes</h1>
+
+    <!-- Cards de Estatísticas -->
+    @if (estatisticas(); as stats) {
+      <div class="cards-estatisticas">
+        <!-- Card Gerentes -->
+        <div class="card-stat">
+          <div class="card-stat__header">
+            <span class="card-stat__label">Gerentes</span>
+            <span class="card-stat__icon">👥</span>
+          </div>
+          <div class="card-stat__valor heading_3">{{ stats.totalGerentes }}</div>
+        </div>
+
+        <!-- Card Clientes -->
+        <div class="card-stat">
+          <div class="card-stat__header">
+            <span class="card-stat__label">Clientes</span>
+            <span class="card-stat__icon">👤</span>
+          </div>
+          <div class="card-stat__valor heading_3">{{ stats.totalClientes }}</div>
+        </div>
+
+        <!-- Card Gerentes Positivos -->
+        <div class="card-stat">
+          <div class="card-stat__header">
+            <span class="card-stat__label">Gerentes Positivos</span>
+            <span class="card-stat__icon">➕</span>
+          </div>
+          <div class="card-stat__valor heading_3">{{ stats.totalGerentesPositivos }}</div>
+        </div>
+
+        <!-- Card Gerentes Negativos -->
+        <div class="card-stat">
+          <div class="card-stat__header">
+            <span class="card-stat__label">Gerentes Negativos</span>
+            <span class="card-stat__icon">➖</span>
+          </div>
+          <div class="card-stat__valor heading_3">{{ stats.totalGerentesNegativos }}</div>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- Seção de Filtros e Gerentes -->
+  <section class="secao-gerentes">
+    <div class="container-filtro-gerentes">
+      <!-- Painel de Filtros -->
+      <aside class="painel-filtros">
+        <h2 class="painel-filtros__titulo heading_5">Filtros</h2>
+        <div class="painel-filtros__checkbox-container">
+          <div class="painel-filtros__checkbox-group">
+            <input
+              type="checkbox"
+              id="filtro-todos"
+              class="painel-filtros__checkbox"
+              [checked]="todosFiltroosSelecionados()"
+              (change)="selecionarTodosFiltros()"
+              aria-label="Selecionar todos os filtros"
+            />
+            <label for="filtro-todos" class="painel-filtros__label">
+              Selecionar Todos
+            </label>
+          </div>
+
+          @for (filtro of filtros(); track filtro.id) {
+            <div class="painel-filtros__checkbox-group">
+              <input
+                [id]="filtro.id"
+                type="checkbox"
+                class="painel-filtros__checkbox"
+                [checked]="filtro.selecionado"
+                (change)="alternadorFiltro(filtro.id)"
+                [attr.aria-label]="'Filtro: ' + filtro.label"
+              />
+              <label [for]="filtro.id" class="painel-filtros__label">
+                {{ filtro.label }}
+              </label>
+            </div>
+          }
+        </div>
+      </aside>
+
+      <!-- Seção de Pesquisa e Cards de Gerentes -->
+      <div class="secao-cards">
+        <!-- Barra de Pesquisa -->
+        <div class="barra-pesquisa">
+          <form [formGroup]="formularioFiltro">
+            <input
+              type="text"
+              formControlName="pesquisa"
+              class="barra-pesquisa__input"
+              placeholder="Pesquisar gerente por nome, email ou CPF..."
+              aria-label="Pesquisar gerente"
+            />
+          </form>
+        </div>
+
+        <!-- Status e Cards -->
+        @if (mensagemErro()) {
+          <p class="mensagem-status mensagem-status--erro body_medium">
+            {{ mensagemErro() }}
+          </p>
+        } @else if (carregando()) {
+          <p class="mensagem-status body_medium">
+            Carregando gerentes...
+          </p>
+        } @else if (gerentesFiltrados.length === 0) {
+          <p class="mensagem-status body_medium">
+            Nenhum gerente encontrado.
+          </p>
+        } @else {
+          <div class="lista-cards-gerentes">
+            @for (
+              gerente of gerentesFiltrados;
+              track rastrearPorCpf($index, gerente)
+            ) {
+              <app-card-gerente-dashboard
+                [gerente]="gerente"
+              ></app-card-gerente-dashboard>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+</main>
+

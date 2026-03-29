@@ -15,7 +15,8 @@
       "uf": "PR"
     },
     "dataSolicitacao": "2026-03-14T10:00:00.000Z",
-    "id": 1
+    "id": 1,
+    "cpfGerente": "64065268052"
   },
   {
     "cpf": "85733854057",
@@ -34,7 +35,8 @@
       "estado": "PR"
     },
     "dataSolicitacao": "2026-03-14T10:10:00.000Z",
-    "id": 2
+    "id": 2,
+    "cpfGerente": "23862179060"
   },
   {
     "cpf": "09506382000",
@@ -52,7 +54,8 @@
       "uf": "PR"
     },
     "dataSolicitacao": "2026-03-14T10:05:00.000Z",
-    "id": 3
+    "id": 3,
+    "cpfGerente": "42960554884"
   },
   {
     "cpf": "44636173910",
@@ -70,7 +73,8 @@
       "uf": "PR"
     },
     "dataSolicitacao": "2026-03-15T08:00:00.000Z",
-    "id": 4
+    "id": 4,
+    "cpfGerente": "11122233344"
   },
   {
     "cpf": "11944108980",
@@ -88,7 +92,8 @@
       "uf": "SP"
     },
     "dataSolicitacao": "2026-03-15T09:00:00.000Z",
-    "id": 5
+    "id": 5,
+    "cpfGerente": "22233344455"
   },
   {
     "cpf": "76543210987",
@@ -106,6 +111,45 @@
       "uf": "PR"
     },
     "dataSolicitacao": "2026-03-15T10:00:00.000Z",
-    "id": 6
+    "id": 6,
+    "cpfGerente": "33344455566"
+  },
+  {
+    "cpf": "55544433322",
+    "nome": "Carlosinho Banana",
+    "email": "carlosinho@bantads.com.br",
+    "celular": "41999990007",
+    "salario": 3000,
+    "endereco": {
+      "cep": "80010000",
+      "logradouro": "Avenida Getúlio Vargas",
+      "numero": "555",
+      "complemento": "Apto 301",
+      "bairro": "Centro",
+      "cidade": "Curitiba",
+      "uf": "PR"
+    },
+    "dataSolicitacao": "2026-03-16T11:00:00.000Z",
+    "id": 7,
+    "cpfGerente": "64065268052"
+  },
+  {
+    "cpf": "99988877766",
+    "nome": "Fernanda Pobre",
+    "email": "fernanda.neg@bantads.com.br",
+    "celular": "41999990008",
+    "salario": 4500,
+    "endereco": {
+      "cep": "80010000",
+      "logradouro": "Avenida Getúlio Vargas",
+      "numero": "999",
+      "complemento": "Apto 801",
+      "bairro": "Centro",
+      "cidade": "Curitiba",
+      "uf": "PR"
+    },
+    "dataSolicitacao": "2026-03-16T14:00:00.000Z",
+    "id": 8,
+    "cpfGerente": "23862179060"
   }
 ]

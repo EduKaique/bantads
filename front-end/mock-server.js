@@ -163,13 +163,19 @@ app.get("/manager/pedidos-autocadastro", (_req, res) => {
   res.json(pedidos);
 });
 
-//Listar contas (para R14 - Melhores Clientes) ---------
+//Listar contas (para R14 - Melhores Clientes e Dashboard) ---------
 app.get("/contas", (_req, res) => {
   const contas = getData("contas");
-  res.json(contas);
+  const contasComSaldo = contas.map((conta) => ({
+    cpf: conta.holderDocument,
+    nome: conta.holderName,
+    saldoPositivo: conta.availableBalance > 0 ? conta.availableBalance : 0,
+    saldoNegativo: Math.abs(Math.min(0, -(conta.limit - conta.availableBalance))),
+  }));
+  res.json(contasComSaldo);
 });
 
-//Listar clientes (para R14 - Melhores Clientes) ------
+//Listar clientes (para R14 - Melhores Clientes e Dashboard) ------
 app.get("/clientes", (_req, res) => {
   const clientes = getData("clientes");
   res.json(clientes);
@@ -466,6 +472,12 @@ app.delete("/admin/gerentes/:cpf", (req, res) => {
     message: "Gerente removido com sucesso e contas realocadas.",
     contasRealocadas: contasTransferidas
   });
+});
+
+//Listar gerentes ---------
+app.get("/gerentes", (_req, res) => {
+  const gerentes = getData("gerentes");
+  res.json(gerentes);
 });
 
 app.listen(PORT, () => {
