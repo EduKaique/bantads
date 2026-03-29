@@ -28,6 +28,6 @@ export class HeaderComponent {
 
   editProfile() {
     this.isMenuOpen.set(false);
-    this.router.navigate([`/cliente/perfil/${this.user?.id}`]); 
+    this.router.navigate([`/cliente/alteracao-perfil/${this.user?.id}`]); 
   }
 }

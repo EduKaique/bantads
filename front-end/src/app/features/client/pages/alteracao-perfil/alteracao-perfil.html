@@ -1,221 +1,108 @@
 <main>
-  <section class="update-container">
-    <div class="update-text">
-      <h1 class="heading_3">Altere seu perfil</h1>
-      <p class="body_medium">Preencha suas informações atualizadas.</p>
-    </div>
+    <section class="update-container">
 
-    <mat-stepper linear #stepper>
+        <div class="update-header">
+            <div class="update-text">
+                <h1 class="heading_3">Informações de perfil</h1>
+                <p class="body_medium">Visualize e edite seus dados.</p>
+            </div>
 
-      <!-- Informações pessoais -->
-      <mat-step [stepControl]="firstFormGroup">
+            <div class="row-button">
+                <button type="button"
+                    [class]="isEditMode ? 'button-secondary label_large' : 'button-primary label_large'"
+                    (click)="toggleEdit()">
 
+                    {{ isEditMode ? 'Cancelar' : 'Editar' }}
+                </button>
+
+                <button type="button" class="button-primary label_large" [disabled]="!isEditMode"
+                    (click)="isEditMode && onSubmit()">
+                    Atualizar
+                </button>
+            </div>
+        </div>
+
+        <!--Informações pessoais-->
         <form class="form-content" [formGroup]="firstFormGroup">
+            <h3>Informações Pessoais</h3>
 
-          <ng-template matStepLabel>
-            Informações Pessoais
-          </ng-template>
+            <div class="grid-2">
+                <app-input-primary label="Nome" formControlName="nameUser" [readonly]="!isEditMode">
+                </app-input-primary>
 
-          <app-input-primary
-            label="Nome Completo"
-            type="text"
-            formControlName="nameUser"
-            placeholder="Digite seu Nome Completo"
-            class="input-inherit"
-            errorMessage="Nome completo é obrigatório">
-          </app-input-primary>
+                <app-input-primary label="CPF" formControlName="cpfUser" mask="000.000.000-00" [readonly]="true">
+                </app-input-primary>
+            </div>
 
-          <div class="row-form-cpf-phone">
+            <div class="grid-2">
+                <app-input-primary label="Email" formControlName="email" [readonly]="!isEditMode">
+                </app-input-primary>
 
-            <app-input-primary
-              label="CPF"
-              type="text"
-              formControlName="cpfUser"
-              placeholder="___.___.___-__"
-              mask="000.000.000-00"
-              class="input-inherit"
-              [readonly]="true"
-              errorMessage="CPF é obrigatório">
-            </app-input-primary>
+                <app-input-primary label="Telefone" formControlName="phoneUser" mask="(00) 00000-0000"
+                    [readonly]="!isEditMode">
+                </app-input-primary>
+            </div>
 
-            <app-input-primary
-              label="Celular"
-              type="text"
-              formControlName="phoneUser"
-              placeholder="(__) _ ____-____"
-              mask="(00) 00000-0000"
-              class="input-inherit"
-              errorMessage="Telefone é obrigatório">
-            </app-input-primary>
+            <div class="grid-2">
+                <app-input-primary label="Salário" formControlName="salary" mask="separator.2" thousandSeparator="."
+                    decimalMarker="," [readonly]="!isEditMode">
+                </app-input-primary>
 
-          </div>
-
-          <app-input-primary
-            label="Email"
-            type="email"
-            formControlName="email"
-            placeholder="exemplo@email.com"
-            class="input-inherit"
-            required
-            errorMessage="Email é obrigatório">
-          </app-input-primary>
-
-          <app-input-primary
-            label="Salário"
-            formControlName="salary"
-            placeholder="R$ 0.00"
-            class="input-inherit"
-            mask="separator.2"
-            thousandSeparator="."
-            decimalMarker=","
-            required
-            errorMessage="Salário é obrigatório">
-          </app-input-primary>
-
-          <div class="first-button">
-            <button
-              type="button"
-              class="button-primary label_large"
-              matStepperNext>
-              Próximo
-            </button>
-          </div>
-
+                <app-input-primary label="Limite" formControlName="limit" [readonly]="true">
+                </app-input-primary>
+            </div>
         </form>
 
-      </mat-step>
-
-      <!-- Endereço completo -->
-      <mat-step [stepControl]="secondFormGroup">
-
+        <!--Endereço-->
         <form class="form-content" [formGroup]="secondFormGroup">
+            <h3>Endereço</h3>
 
-          <ng-template matStepLabel>
-            Endereço Completo
-          </ng-template>
+            <div class="cep-row">
+                <app-input-primary formControlName="cep" label="CEP" mask="00000-000" [readonly]="!isEditMode">
+                </app-input-primary>
 
-          <div class="div-row">
+                <span class="button-search-cep label_large" [class.disabled]="!isEditMode || !isCepValid"
+                    (click)="(isEditMode && isCepValid) && searchCep()">
 
-            <app-input-primary
-              formControlName="cep"
-              type="text"
-              inputName="cep"
-              label="CEP"
-              placeholder="_____-___"
-              mask="00000-000"
-              errorMessage="CEP é obrigatório">
-            </app-input-primary>
+                    <mat-icon fontIcon="search"></mat-icon>
+                    Pesquisar
+                </span>
+            </div>
 
-            <span
-              class="button-search-cep label_large"
-              [class.disabled]="!isCepValid"
-              (click)="isCepValid && searchCep()">
+            <div class="grid-3">
+                <app-input-primary label="Rua" formControlName="address" [readonly]="!isEditMode">
+                </app-input-primary>
 
-              <mat-icon
-                aria-hidden="false"
-                aria-label="Pesquisar"
-                fontIcon="search">
-              </mat-icon>
+                <app-input-primary label="Bairro" formControlName="neighborhood" [readonly]="!isEditMode">
+                </app-input-primary>
 
-              Pesquisar
-            </span>
+                <app-input-primary label="Número" formControlName="number" [readonly]="!isEditMode">
+                </app-input-primary>
+            </div>
 
-            
+            <div class="grid-3">
+                <app-input-primary label="Cidade" formControlName="city" [readonly]="!isEditMode">
+                </app-input-primary>
 
-          </div>
+                <app-input-primary label="Complemento" formControlName="complement" [readonly]="!isEditMode">
+                </app-input-primary>
 
-          <div class="div-row">
+                <app-input-primary label="Estado" formControlName="state" [readonly]="!isEditMode">
+                </app-input-primary>
+            </div>
 
-            <app-input-primary
-              formControlName="address"
-              type="text"
-              inputName="address"
-              label="Endereço"
-              placeholder="Digite seu Endereço"
-              class="input-inherit"
-              errorMessage="Endereço é obrigatório">
-            </app-input-primary>
-
-            <app-input-primary
-              formControlName="number"
-              type="text"
-              inputName="input-numero"
-              label="Número"
-              placeholder="Digite seu número"
-              errorMessage="Número é obrigatório">
-            </app-input-primary>
-
-          </div>
-
-          <div class="div-row">
-
-            <app-input-primary
-              formControlName="complement"
-              label="Complemento"
-              type="text"
-              placeholder="Ex: Bloco, Apto..."
-              class="input-inherit">
-            </app-input-primary>
-
-            <app-input-primary
-              label="Bairro"
-              type="text"
-              formControlName="neighborhood"
-              class="input-inherit"
-              errorMessage="Bairro é obrigatório">
-            </app-input-primary>
-
-          </div>
-
-          <div class="div-row">
-
-            <app-input-primary
-              label="Cidade"
-              type="text"
-              formControlName="city"
-              class="input-inherit"
-              errorMessage="Cidade é obrigatória">
-            </app-input-primary>
-
-            <app-input-primary
-              label="Estado"
-              type="text"
-              formControlName="state"
-              placeholder="Selecione seu Estado"
-              class="input-inherit"
-              errorMessage="Estado é obrigatório">
-            </app-input-primary>
-          </div>       
-
-          <div class="div-row row-button">
-
-            <button
-              type="button"
-              class="button-secondary label_large"
-              matStepperPrevious>
-              Voltar
-            </button>
-
-            <button
-              type="button"
-              class="button-primary label_large"
-              (click)="onSubmit()">
-              Atualizar
-            </button>
-          </div>
         </form>
-      </mat-step>
-    </mat-stepper>
-  </section>
 
-  <app-success-modal
-    [(mostrar)]="showModal"
-    titulo="Sua conta foi atualizada com sucesso!"
-    [dadosAdicionais]="[
-      'Saldo: ' + balance,
-      'Gerente: ' + managerName
-    ]"
-    textoBotao="Voltar para Página inicial"
-    rotaDestino="/home">
-  </app-success-modal>
+    </section>
+
+    <app-success-modal 
+      [(mostrar)]="showModal" 
+      titulo="Sua conta foi atualizada com sucesso!" 
+      [dadosAdicionais]="[
+        'Saldo: ' + balance,
+        'Gerente: ' + managerName
+      ]" 
+      textoBotao="Voltar" 
+      rotaDestino="cliente/dados-cliente/:cpf">
+    </app-success-modal>
 </main>
