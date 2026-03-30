@@ -13,53 +13,57 @@
 }
 
 .saque-card {
-  width: 100%;
-  max-width: 680px;
+  width: 660px;
   max-width: 100%;
-  min-height: 360px;
-  padding: 48px;
+  min-height: 356px;
+  padding: 32px 40px;
   border-radius: var(--radius-lg);
   background: var(--color-card);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xl);
+  gap: 40px;
 }
 
 .saque-header {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: 8px;
 }
 
 .saque-titulo {
   margin: 0;
   color: var(--color-foreground-title);
-  line-height: var(--heading-h2-line-height);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--font-line-height-4xl);
+  letter-spacing: var(--font-letter-spacing-2x-tight);
 }
 
 .saque-subtitulo {
   margin: 0;
   color: var(--color-foreground);
+  font-size: var(--font-size-lg);
+  line-height: var(--font-line-height-xl);
+  letter-spacing: var(--font-letter-spacing-tight);
 }
 
 .saque-form {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: 24px;
 }
 
 .saque-campos {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 278px));
-  gap: var(--spacing-md);
+  gap: 24px;
 }
 
 .campo-wrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-5xs);
+  gap: 4px;
 }
 
 .campo-label {
@@ -69,14 +73,14 @@
 .campo-shell {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: 8px;
   min-height: 48px;
-  padding: 0 var(--spacing-xs);
+  padding: 8px 16px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-neutral-50);
   box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease;
 }
 
 .campo-shell--erro {
@@ -92,13 +96,14 @@
 .campo-readonly-valor,
 .campo-shell input {
   color: var(--color-foreground);
+  font-size: var(--font-size-lg);
   line-height: var(--body-default-line-height);
+  letter-spacing: var(--font-letter-spacing-tight);
 }
 
 .campo-shell input {
   flex: 1;
   min-width: 0;
-  height: 100%;
   padding: 0;
   border: 0;
   outline: none;
@@ -117,6 +122,9 @@
 .campo-obrigatorio {
   margin: 0;
   color: var(--color-muted-foreground);
+  font-size: var(--font-size-default);
+  line-height: var(--font-line-height-default);
+  letter-spacing: var(--font-letter-spacing-tight);
 }
 
 .campo-obrigatorio--erro {
@@ -141,6 +149,7 @@
 @media (max-width: 720px) {
   .saque-card {
     padding: 24px;
+    gap: 32px;
   }
 
   .saque-campos {
