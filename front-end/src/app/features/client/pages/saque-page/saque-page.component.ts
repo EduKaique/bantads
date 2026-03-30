@@ -1,9 +1,42 @@
 import { Component, OnInit } from '@angular/core';
-import {FormBuilder,FormGroup,Validators,ReactiveFormsModule,} from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+
+import { SaqueConfirmacaoModalComponent } from '../../components/saque-confirmacao-modal/saque-confirmacao-modal.component';
 import { SaqueService } from '../../services/saque.service';
-import {SaqueConfirmacaoModalComponent,} from '../../components/saque-confirmacao-modal/saque-confirmacao-modal.component';
+
+const valorPattern = /^\d+(?:[.,]\d{1,2})?$/;
+
+const saqueValorValidator: ValidatorFn = (
+  control: AbstractControl
+): ValidationErrors | null => {
+  const valorBruto = String(control.value ?? '').trim();
+
+  if (!valorBruto) {
+    return null;
+  }
+
+  if (!valorPattern.test(valorBruto)) {
+    return { formatoMoeda: true };
+  }
+
+  const valorNormalizado = Number(valorBruto.replace(',', '.'));
+
+  if (!Number.isFinite(valorNormalizado) || valorNormalizado <= 0) {
+    return { min: true };
+  }
+
+  return null;
+};
 
 @Component({
   selector: 'app-saque-page',
@@ -14,7 +47,14 @@ import {SaqueConfirmacaoModalComponent,} from '../../components/saque-confirmaca
 })
 export class SaquePageComponent implements OnInit {
   saqueForm!: FormGroup;
-  saldoDisponivel: number = 0;
+  saldoDisponivel = 0;
+
+  constructor(
+    private fb: FormBuilder,
+    private dialog: MatDialog,
+    private router: Router,
+    private saqueService: SaqueService
+  ) {}
 
   get saldoFormatado(): string {
     return this.saldoDisponivel.toLocaleString('pt-BR', {
@@ -28,24 +68,34 @@ export class SaquePageComponent implements OnInit {
   }
 
   get erroValor(): string | null {
-    const c = this.valorControl;
-    if (!c || !c.touched || c.valid) return null;
-    if (c.errors?.['required']) return 'Informe o valor do saque.';
-    if (c.errors?.['min']) return 'O valor mínimo é R$ 0,01.';
-    if (c.errors?.['saldoInsuficiente']) return 'Saldo insuficiente para este saque.';
+    const controle = this.valorControl;
+
+    if (!controle || !controle.touched || controle.valid) {
+      return null;
+    }
+
+    if (controle.errors?.['required']) {
+      return 'Informe o valor do saque.';
+    }
+
+    if (controle.errors?.['formatoMoeda']) {
+      return 'Use um valor válido com até duas casas decimais.';
+    }
+
+    if (controle.errors?.['min']) {
+      return 'O valor mínimo é R$ 0,01.';
+    }
+
+    if (controle.errors?.['saldoInsuficiente']) {
+      return 'Saldo insuficiente para este saque.';
+    }
+
     return null;
   }
 
-  constructor(
-    private fb: FormBuilder,
-    private dialog: MatDialog,
-    private router: Router,
-    private saqueService: SaqueService
-  ) {}
-
   ngOnInit(): void {
     this.saqueForm = this.fb.group({
-      valor: ['', [Validators.required, Validators.min(0.01)]],
+      valor: ['', [Validators.required, saqueValorValidator]],
     });
 
     this.saqueService.getSaldoDisponivel().subscribe((conta) => {
@@ -53,10 +103,25 @@ export class SaquePageComponent implements OnInit {
     });
   }
 
+  onValorInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const valorSanitizado = this.sanitizarValor(input.value);
+
+    if (input.value !== valorSanitizado) {
+      input.value = valorSanitizado;
+    }
+
+    this.valorControl?.setValue(valorSanitizado, { emitEvent: false });
+    this.valorControl?.markAsDirty();
+    this.valorControl?.updateValueAndValidity();
+  }
+
   onEnviar(): void {
     this.saqueForm.markAllAsTouched();
 
-    if (this.saqueForm.invalid) return;
+    if (this.saqueForm.invalid) {
+      return;
+    }
 
     const valorRaw = this.valorControl?.value as string;
     const valorNumerico = parseFloat(
@@ -81,7 +146,9 @@ export class SaquePageComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((confirmado: boolean) => {
-      if (!confirmado) return;
+      if (!confirmado) {
+        return;
+      }
 
       this.saqueService.realizarSaque(valorNumerico).subscribe({
         next: () => {
@@ -98,5 +165,22 @@ export class SaquePageComponent implements OnInit {
         },
       });
     });
+  }
+
+  private sanitizarValor(valorBruto: string): string {
+    const valorNormalizado = valorBruto
+      .replace(/\./g, ',')
+      .replace(/[^\d,]/g, '');
+
+    const [parteInteira = '', ...partesDecimais] =
+      valorNormalizado.split(',');
+
+    const parteDecimal = partesDecimais.join('').slice(0, 2);
+
+    if (partesDecimais.length === 0) {
+      return parteInteira;
+    }
+
+    return `${parteInteira},${parteDecimal}`;
   }
 }
