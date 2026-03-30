@@ -45,7 +45,7 @@ export class SaqueSucessoPageComponent {
   }
 
   voltarDashboard(): void {
-    this.router.navigate(['/cliente/dashboard']);
+    this.router.navigate(['/cliente/home']);
   }
 
   novoSaque(): void {
