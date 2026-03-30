@@ -1,0 +1,135 @@
+:host {
+  display: block;
+}
+
+.relatorio-clientes {
+  width: 100%;
+  min-height: 100vh;
+  padding: 52px 0 48px;
+  background: var(--color-background, #e5e8e6);
+}
+
+.painel-relatorio {
+  width: min(1300px, calc(100% - 80px)); /* Mais largo para caber as 9 colunas */
+  min-height: 717px;
+  margin: 0 auto;
+  padding: 48px 28px;
+  border-radius: var(--border-lg, 24px);
+  background: var(--color-card, #fafafa);
+  display: flex;
+  flex-direction: column;
+  gap: 32px; 
+}
+
+.painel-relatorio__cabecalho h1 {
+  color: var(--color-foreground-title, #414946);
+  line-height: 36px;
+}
+
+.mt-2 {
+  margin-top: 8px;
+}
+
+.tabela-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tabela-container {
+  width: 100%;
+  border: 1px solid var(--color-border, #cdd4d1);
+  border-radius: var(--border-md, 16px);
+  background: var(--color-card, #fafafa);
+  overflow-x: auto; /* Adiciona barra de rolagem horizontal se a tela for pequena */
+}
+
+.tabela-relatorio {
+  width: 100%;
+  min-width: 1200px; /* Evita que as colunas fiquem esmagadas */
+  table-layout: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.tabela-relatorio th {
+  height: 44px;
+  padding: 0 16px;
+  border: none;
+  background: var(--color-primary, #087448);
+  color: var(--color-primary-foreground, #edfcf3);
+  text-align: left;
+  vertical-align: middle;
+  font-family: var(--label-small-font-family);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+}
+
+.tabela-relatorio th:first-child {
+  border-top-left-radius: 15px;
+}
+
+.tabela-relatorio th:last-child {
+  border-top-right-radius: 15px;
+}
+
+.tabela-relatorio td {
+  height: 80px;
+  padding: 0 16px;
+  border-top: 1px solid var(--color-border, #cdd4d1);
+  color: var(--color-muted-foreground, #65756d);
+  background: var(--color-card, #fafafa);
+  vertical-align: middle;
+  font-family: var(--body-small-font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.tabela-relatorio tr.mat-mdc-row:nth-child(odd) td {
+  background: #fbfcfb;
+}
+
+/* Regras visuais baseadas no Figma */
+.text-highlight-green {
+  color: var(--color-green-700, #087448) !important;
+  font-weight: var(--font-weight-bold) !important;
+}
+
+.text-highlight-red {
+  color: var(--color-destructive, #e01300) !important;
+  font-weight: var(--font-weight-bold) !important;
+}
+
+.mensagem-status {
+  padding: 20px 24px;
+  border: 1px solid var(--color-border, #cdd4d1);
+  border-radius: var(--border-md, 16px);
+  background: var(--color-card, #fafafa);
+  color: var(--color-foreground-title, #414946);
+}
+
+.mensagem-status--erro {
+  border-color: var(--color-red-200, #ffa2a1);
+  color: var(--color-red-400, #e01300);
+}
+
+.sem-dados {
+  height: 80px;
+  text-align: center;
+  color: var(--color-foreground-title, #414946);
+}
+
+.rodape-tabela {
+  padding: 16px 24px;
+  border: 1px solid var(--color-border, #cdd4d1);
+  border-radius: var(--border-md, 16px);
+  background: var(--color-card, #fafafa);
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Limpeza visual dos headers ordenáveis do Angular Material */
+:host ::ng-deep .tabela-relatorio .mat-sort-header-container { align-items: center; }
+:host ::ng-deep .tabela-relatorio .mat-sort-header-content { color: inherit; }
+:host ::ng-deep .tabela-relatorio .mat-sort-header-arrow { display: none; }

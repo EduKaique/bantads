@@ -18,5 +18,19 @@
     "celular": "(13) 99676-2377",
     "senha": "123456",
     "tipo": "GERENTE"
+  },
+  {
+    "nome": "João da Silva",
+    "cpf": "11122233344",
+    "email": "joao.silva@bantads.com.br",
+    "celular": "(41) 98888-1111",
+    "tipo": "GERENTE"
+  },
+  {
+    "nome": "Maria Santos",
+    "cpf": "55566677788",
+    "email": "maria.santos@bantads.com.br",
+    "celular": "(41) 98888-2222",
+    "tipo": "GERENTE"
   }
 ]
