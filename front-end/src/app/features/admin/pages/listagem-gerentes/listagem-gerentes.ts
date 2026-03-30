@@ -20,7 +20,7 @@ import { GerentesService } from '../../services/gerentes';
 import { ModalInserirGerenteComponent } from '../../components/modal-inserir-gerente/modal-inserir-gerente';
 import { ModalAtualizarGerente } from '../../components/modal-atualizar-gerente/modal-atualizar-gerente';
 import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
-import { MatDialog } from '@angular/material/dialog';
+//import { MatDialog } from '@angular/material/dialog';
 import { WarningDialogComponent } from '../../../../shared/components/warning-dialog/warning-dialog.component';
 
 @Component({
@@ -45,7 +45,7 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly gerentesService = inject(GerentesService);
-  private readonly dialog = inject(MatDialog);
+  //private readonly dialog = inject(MatDialog);
 
   @ViewChild(MatSort) private ordenador!: MatSort;
 
@@ -55,8 +55,10 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
   });
   readonly carregando = signal(true);
   readonly mensagemErro = signal('');
+  readonly erroAcao = signal('');
   readonly mostrarModalInserir = signal(false);
   readonly mostrarModalAtualizar = signal(false);
+  readonly mostrarModalRemover = signal(false);
   readonly fonteDados = new MatTableDataSource<Gerente>([]);
   readonly gerenteSelecionado = signal<Gerente | null>(null);
 
@@ -172,34 +174,42 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  processarRemocao(gerente: Gerente): void {
-    const dialogRef = this.dialog.open(WarningDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Excluir Gerente',
-        message: `Tem certeza que deseja remover o gerente ${gerente.nome}? Esta ação transferirá as contas dele para outro gerente.`
-      }
-    });
+  abrirModalRemover(gerente: Gerente): void {
+    this.gerenteSelecionado.set(gerente);
+    this.mostrarModalRemover.set(true);
+    this.erroAcao.set(''); // Limpa erros antigos
+  }
 
-    dialogRef.afterClosed().subscribe(confirmado => {
-      
-      if (confirmado) {
-        this.carregando.set(true);
-        
-        this.gerentesService.remover(gerente.cpf)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: (resposta) => {
-              this.carregarGerentes(); 
-              this.tituloModalSucesso = resposta.message || 'Gerente removido com sucesso!'; 
-              this.showModal = true;
-            },
-            error: (erro) => {
-              this.mensagemErro.set(erro.error?.message || 'Erro ao remover o gerente.');
-              this.carregando.set(false);
-            }
-          });
-      }
-    });
+  fecharModalRemover(): void {
+    this.mostrarModalRemover.set(false);
+    this.gerenteSelecionado.set(null);
+  }
+
+  processarRemocao(): void {
+    const gerente = this.gerenteSelecionado();
+    if (!gerente) return;
+
+    this.carregando.set(true);
+    this.fecharModalRemover();
+    
+    this.gerentesService.remover(gerente.cpf)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resposta) => {
+          this.carregarGerentes(); 
+          this.tituloModalSucesso = resposta.message || 'Gerente removido com sucesso!'; 
+          this.showModal = true;
+        },
+        error: (erro) => {
+          // Preenche a nova variável que NÃO esconde a tabela!
+          this.erroAcao.set(erro.error?.message || 'Erro ao remover o gerente.');
+          this.carregando.set(false);
+          
+          // Apaga o erro automaticamente após 5 segundos
+          setTimeout(() => {
+             this.erroAcao.set('');
+          }, 5000);
+        }
+      });
   }
 }
