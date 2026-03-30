@@ -86,7 +86,7 @@
                     />
                   </span>
 
-                  <span class="acao-visual acao-visual--remover" (click)="processarRemocao(gerente)">
+                  <span class="acao-visual acao-visual--remover" (click)="abrirModalRemover(gerente)">
                     <img
                       class="acao-visual__imagem acao-visual__imagem--remover"
                       src="assets/icons/acao-remover.png"
@@ -112,14 +112,42 @@
   @if(mostrarModalInserir()) {
     <app-modal-inserir-gerente
       (fechar)="fecharModalInserir()"
-      (salvar)="processarInsercao($event)"
-    ></app-modal-inserir-gerente>}
+      (salvar)="processarInsercao($event)">
+    </app-modal-inserir-gerente>
+  }
+  
   @if(mostrarModalAtualizar()) {
-<app-modal-atualizar-gerente
-    [gerente]="gerenteSelecionado()"
-    (fechar)="fecharModalAtualizar()"
-    (salvar)="processarAtualizacao($event)"
-  ></app-modal-atualizar-gerente>
+    <app-modal-atualizar-gerente
+      [gerente]="gerenteSelecionado()"
+      (fechar)="fecharModalAtualizar()"
+      (salvar)="processarAtualizacao($event)">
+    </app-modal-atualizar-gerente>
+  }
+
+@if(mostrarModalRemover()) {
+    <div class="modal-backdrop" (click)="fecharModalRemover()">
+      <div class="modal-container" (click)="$event.stopPropagation()">
+        
+        <header class="modal-header">
+          <h2 class="heading_3">Excluir Gerente</h2>
+          <p class="body_medium">Tem certeza que deseja remover o gerente <strong>{{ gerenteSelecionado()?.nome }}</strong>?</p>
+        </header>
+
+        <div class="modal-body">
+          <p class="body_medium" style="color: #d93025;">
+            Atenção: Esta ação transferirá todas as contas vinculadas a este gerente para outro profissional.
+          </p>
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" class="button-secondary" (click)="fecharModalRemover()">Cancelar</button>
+          <button type="button" class="button-primary" style="background-color: #d93025; border-color: #d93025;" (click)="processarRemocao()">
+            Excluir
+          </button>
+        </footer>
+
+      </div>
+    </div>
   }
 
   <app-success-modal
@@ -128,5 +156,11 @@
     textoBotao="Voltar"
     [rotaDestino]="''">
   </app-success-modal>
+  
+  @if (erroAcao()) {
+    <div style="position: fixed; bottom: 20px; right: 20px; background: #f8d7da; color: #721c24; padding: 16px 24px; border-radius: 8px; border: 1px solid #f5c6cb; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000;">
+      <strong>Aviso:</strong> {{ erroAcao() }}
+    </div>
+  }
 </main>
 

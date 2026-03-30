@@ -1,15 +1,13 @@
 <header class="header-container">
   <div class="header-content">
-    <div class="logo-section" routerLink="/cliente/home">
+    <div class="logo-section" [routerLink]="menuItems[0]?.route || '/login'" style="cursor: pointer;">
       <img src="assets/images/logo-white.svg" alt="Bantads Logo" width="150">
     </div>
 
     <nav class="nav-links">
-      <a routerLink="/cliente/home" routerLinkActive="active-link">Home</a>
-      <a routerLink="/cliente/deposito" routerLinkActive="active-link">Depósito</a>
-      <a routerLink="/cliente/saque" routerLinkActive="active-link">Saque</a>
-      <a routerLink="/cliente/transferencia" routerLinkActive="active-link">Transferência</a>
-      <a routerLink="/cliente/extrato" routerLinkActive="active-link">Extrato</a>
+      @for (item of menuItems; track item.route) {
+        <a [routerLink]="item.route" routerLinkActive="active-link">{{ item.label }}</a>
+      }
     </nav>
 
     <div class="profile-section">
@@ -21,9 +19,13 @@
 
       @if (isMenuOpen()) {
         <div class="profile-dropdown">
-          <button (click)="editProfile()">
-            <mat-icon>person_edit</mat-icon> Editar Perfil
-          </button>
+          
+          @if (user?.tipo === 'cliente') {
+            <button (click)="editProfile()">
+              <mat-icon>person_edit</mat-icon> Editar Perfil
+            </button>
+          }
+
           <button (click)="logout()" class="logout-btn">
             <mat-icon>logout</mat-icon> Sair do sistema
           </button>
