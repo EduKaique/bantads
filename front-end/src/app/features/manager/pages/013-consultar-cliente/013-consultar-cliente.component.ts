@@ -2,18 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { DetalheClienteService } from '../../services/detalhe-cliente.service';
-
-interface ClienteInfo {
-  nome: string;
-  cpf: string;
-  email: string;
-  celular: string;
-  endereco: string;
-  salario: string;
-  saldo: string;
-  limite: string;
-}
+import { DetalheClienteService, ClienteDetalhado } from '../../services/detalhe-cliente.service';
 
 @Component({
   selector: 'app-consultar-cliente',
@@ -27,15 +16,16 @@ export class ConsultarClienteComponent implements OnInit {
   private readonly detalheClienteService = inject(DetalheClienteService);
 
   cpfPesquisa: string = '';
-  clienteAtual: ClienteInfo | null = null;
+  clienteAtual: ClienteDetalhado | null = null;
   carregando = false;
   erro = '';
   foiBuscado = false;
 
-  ngOnInit(): void {
-    this.activatedRoute.queryParams.subscribe((params) => {
-      if (params['cpf']) {
-        this.cpfPesquisa = params['cpf'];
+ngOnInit(): void {
+    this.activatedRoute.paramMap.subscribe((params) => {
+      const cpfDaUrl = params.get('cpf');
+      if (cpfDaUrl) {
+        this.cpfPesquisa = cpfDaUrl;
         setTimeout(() => {
           this.pesquisarCliente();
         }, 100);

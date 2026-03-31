@@ -28,7 +28,7 @@ export const clientRoutes: Routes = [
   { path: 'saque',         component: SaquePageComponent },
   { path: 'saque/sucesso', component: SaqueSucessoPageComponent },
   {
-    path: 'transfer',
+    path: 'transferencia',
     component: TransferPage,
   },
   { 

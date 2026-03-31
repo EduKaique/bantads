@@ -22,12 +22,13 @@
       </div>
     </div>
 
-    <div *ngIf="erro" class="erro-message">
-      {{ erro }}
-    </div>
-
-    <div *ngIf="clienteAtual" class="cliente-info">
-
+    @if (erro) {
+      <div class="erro-message">
+        {{ erro }}
+      </div>
+    }
+      @if (clienteAtual) {
+      <div class="cliente-info">
       <div class="info-section">
         <h2 class="section-title">Informações Pessoais</h2>
         
@@ -60,7 +61,17 @@
           <div class="row">
             <div class="field-group address-field">
               <label class="field-label">Endereço</label>
-              <div class="field-value address-value" [innerHTML]="clienteAtual.endereco.split('\n').join('<br>')"></div>
+              <div class="field-value address-value">
+                {{ clienteAtual.endereco.logradouro }}, {{ clienteAtual.endereco.numero }}
+                
+                @if (clienteAtual.endereco.complemento) {
+                  - {{ clienteAtual.endereco.complemento }}
+                }
+                <br>
+                {{ clienteAtual.endereco.bairro }}, {{ clienteAtual.endereco.cidade }} - {{ clienteAtual.endereco.uf }}
+                <br>
+                CEP: {{ clienteAtual.endereco.cep }}
+              </div>
             </div>
             <div class="field-group">
               <label class="field-label">Salário</label>
@@ -94,14 +105,18 @@
         </button>
       </div>
     </div>
+    }
 
 
-    <div *ngIf="!clienteAtual && !erro && cpfPesquisa && foiBuscado" class="empty-state">
-      <p>Nenhum cliente encontrado com este CPF</p>
-    </div>
-
-    <div *ngIf="!clienteAtual && !erro && !cpfPesquisa" class="empty-state">
-      <p>Digite um CPF para buscar informações do cliente</p>
-    </div>
-  </div>
-</main>
+    @if (!clienteAtual && !erro) {
+      @if (cpfPesquisa && foiBuscado) {
+        <div class="empty-state">
+          <p>Nenhum cliente encontrado com este CPF</p>
+        </div>
+      } @else if (!cpfPesquisa) {
+        <div class="empty-state">
+          <p>Digite um CPF para buscar informações do cliente</p>
+        </div>
+      }
+    }
+  </div> </main>

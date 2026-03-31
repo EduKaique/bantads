@@ -26,7 +26,15 @@ export interface ClienteDetalhado {
   cpf: string;
   email: string;
   celular: string;
-  endereco: string;
+  endereco: {
+    cep: string;
+    logradouro: string;
+    numero: string;
+    complemento?: string;
+    bairro: string;
+    cidade: string;
+    uf: string;
+  };
   salario: string;
   saldo: string;
   limite: string;
@@ -54,14 +62,13 @@ export class DetalheClienteService {
         }
 
         const conta = contas.find((contaAtual) => contaAtual.holderDocument === cpfLimpo);
-        const endereco = `${cliente.endereco.logradouro}, ${cliente.endereco.numero}${cliente.endereco.complemento ? `, ${cliente.endereco.complemento}` : ''}\nBairro ${cliente.endereco.bairro}\n${cliente.endereco.cidade} - ${cliente.endereco.uf}\n${cliente.endereco.cep}`;
 
         return {
           nome: cliente.nome,
           cpf: cliente.cpf,
           email: cliente.email,
           celular: cliente.celular,
-          endereco,
+          endereco: cliente.endereco,
           salario: this.formatarMoeda(cliente.salario),
           saldo: this.formatarMoeda(conta?.availableBalance || 0),
           limite: this.formatarMoeda(conta?.limit || 0),

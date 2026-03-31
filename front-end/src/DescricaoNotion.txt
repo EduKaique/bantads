@@ -1,0 +1,60 @@
+/*
+ * BANTADS (EQUIPE 1) - REFERÊNCIA DE ARQUITETURA E REGRAS
+ * =========================================================
+ * DEPENDÊNCIAS DO PROJETO:
+ * - Node 22.22
+ * - Java 21 (LTS)
+ * - Maven 3.9.X (opcional)
+ * - Docker Desktop (para Windows)
+ * - Angular 20
+ *
+ * EXTENSÕES RECOMENDADAS PARA VS CODE:
+ * - Angular Language Service
+ * - Prettier - Code Formatter
+ * - Extension Pack for Java
+ * - Spring boot Extension Pack
+ *
+ * COMANDOS ÚTEIS DO DOCKER:
+ * - Subir todas as imagens: docker compose up -d
+ * - Iniciar container: docker start <CONTAINER ID>
+ * - Parar o container: docker stop <CONTAINER ID>
+ * - Remover o container: docker rm <CONTAINER ID>
+ * - Build front prod: docker build -t bantads-front:prod -f Dockerfile .
+ * - Run front prod: docker run -d -p 4200:80 --name front-prod bantads-front:prod
+ *
+ * REGRAS DE DESENVOLVIMENTO:
+ * - Criar apenas usando ng generate, sem criar um monte de arquivos manualmente.
+ * - Manter código sempre em Português (componente, variáveis, funções, rotas, etc).
+ * - Utilizar o servidor mock na fase de desenvolvimento do front-end.
+ * - Qualquer suposição extra deve ser documentada e entregue em arquivo .pdf.
+ *
+ * FLUXO DE COMMITS, PRs E CODE REVIEW:
+ * - Commits precisam chegar na main via PR (para o script do Razer contar).
+ * - PROIBIDO PUSH DIRETO NA MAIN.
+ * - Antes de alterar, faça pull da main. Trabalhe em branch separada.
+ * - ABERTURA DE PR: DEVE SER FEITO ATÉ DOMINGO ÀS 14:00.
+ * - Caso não seja possível seguir o prazo, COMUNIQUE no grupo do WhatsApp.
+ *
+ * PULL REQUEST TEMPLATE:
+ * - Título do PR: [FRONTEND | BACKEND] Número + Nome da Issue
+ * - Tipos de Mudança permitidos: FEAT, FIX, REFACTOR, PERF, TEST.
+ * - Incluir Guia de Testes: Como reproduzir, rota e resultado esperado.
+ *
+ * ESTRUTURA FRONTEND (Feature-based architecture):
+ * [CORE] - src/app/core/
+ * - Tudo que é injetado/carregado ao executar a aplicação.
+ * - Inclui guards, interceptors, layout (header, side-bar) e services globais.
+ * - Exemplo: toast.service.ts para notificações de erro/sucesso.
+ *
+ * [FEATURES] - src/app/features/
+ * - Módulos separados por usuário (admin, client, manager).
+ * - Usam lazy loading (Angular só renderiza se o usuário precisar).
+ * - Cada módulo possui seu grupo de rotas (admin.routes.ts, etc).
+ *
+ * [SHARED] - src/app/shared/
+ * - Tudo o que é compartilhado pela aplicação inteira.
+ * - Dumb components genéricos (inputs, cards, modals).
+ * - Models para tipar os dados da API, directives e pipes.
+ * - Funções utilitárias (ex: validador de cpf).
+ * =========================================================
+ */
