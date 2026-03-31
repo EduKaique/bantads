@@ -9,11 +9,6 @@ export const adminRoutes: Routes = [
     pathMatch: 'full',
   },
   {
-    path: 'home',
-    redirectTo: 'dashboard',
-    pathMatch: 'full',
-  },
-  {
     path: 'dashboard',
     component: R15TelaInicialAdministrador,
   },
