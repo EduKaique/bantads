@@ -7,6 +7,11 @@
         </div>
         <h2 class="modal-title">{{ titulo }}</h2>
         <p class="modal-subtitle">{{ subtitulo }}</p>
+        @if (mostrarDataHora) {
+          <div class="modal-datetime">
+            {{ dataHoraFormatada }}
+          </div>
+        }
         <!-- Exibe dados adicionais apenas se foram fornecidos -->
         @if (dadosAdicionais.length) {
           <div class="modal-additional">

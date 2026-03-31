@@ -1,43 +1,93 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { MatIconModule } from '@angular/material/icon';
+import { formatCpf } from '../../../../shared/utils/formatters';
 
 @Component({
   selector: 'app-transfer-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, AppSuccessModalComponent, MatIconModule],  
   templateUrl: './transfer-page.html',
   styleUrls: ['./transfer-page.css']
 })
 export class TransferPage implements OnInit {
   transferForm!: FormGroup;
 
-  // Saldo mockado (obter depois via banco)
-  availableBalance: number = 10125.49;
+  isModalOpen: boolean = false;
+  toastMessage: string = '';
+  showToast: boolean = false;
+  exibirModalSucesso: boolean = false; 
+  valorEnviado: string = '';
 
-  constructor(private fb: FormBuilder) {}
+  minhaContaLogada: string = ''; 
+  availableBalance: number = 0;
+
+  buscandoConta: boolean = false;
+  contaEncontrada: boolean = false;
+
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
+
+  exibirToast(mensagem: string): void {
+    this.toastMessage = mensagem;
+    this.showToast = true;
+    setTimeout(() => {
+      this.showToast = false;
+    }, 3000);
+  }
 
   ngOnInit(): void {
     // Inicializa o formulário e suas validações
     this.transferForm = this.fb.group({
-      accountNumber: ['', [Validators.required, Validators.pattern('^[0-9]{4}$')]], // Definir a quantidade de numeros, atualmente: 4
+      accountNumber: ['', [Validators.required, Validators.pattern('^[0-9]{4}$')]],
       name: [{ value: '', disabled: true }],
       cpf: [{ value: '', disabled: true }],
       amount: ['', [Validators.required]],
-      balance: [{ value: 'R$ 10.125,49', disabled: true }]
+      balance: [{ value: 'Carregando...', disabled: true }]    
+    });
+
+    const usuarioLogado = this.authService.currentUserValue;
+    if (usuarioLogado && usuarioLogado.cpf) {
+      this.carregarSaldoOrigem(usuarioLogado.cpf);
+    } else {
+      this.transferForm.patchValue({ balance: 'Usuário não logado' });
+      this.exibirToast('Não foi possível identificar o usuário logado.');
+    }
+
+    // Escuta alterações no campo da conta. Se o usuário digitar outro número, reseta a busca.
+    this.transferForm.get('accountNumber')?.valueChanges.subscribe(() => {
+      this.contaEncontrada = false;
+      this.transferForm.patchValue({ name: '', cpf: '' }, { emitEvent: false });
     });
   }
 
-  // Máscara de CPF
-  onCpfInput(event: any) {
-    let val = event.target.value.replace(/\D/g, '').slice(0, 11);
-    if (val.length > 9) val = val.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-    else if (val.length > 6) val = val.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
-    else if (val.length > 3) val = val.replace(/(\d{3})(\d{1,3})/, '$1.$2');
-    this.transferForm.patchValue({ cpf: val });
+  carregarSaldoOrigem(cpf: string): void {
+    this.http.get<any>(`http://localhost:3000/contas/cpf/${cpf}`).subscribe({
+      next: (dadosConta) => {
+        this.minhaContaLogada = dadosConta.numeroConta; 
+        this.availableBalance = dadosConta.saldoDisponivel || 0;
+        
+        const saldoFormatado = 'R$ ' + this.availableBalance.toLocaleString('pt-BR', { 
+          minimumFractionDigits: 2, 
+          maximumFractionDigits: 2 
+        });
+
+        this.transferForm.patchValue({ balance: saldoFormatado });
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar conta do cliente logado:', erro);
+        this.transferForm.patchValue({ balance: 'Erro ao carregar' });
+      }
+    });
   }
 
-  // Máscara de dinheiro
   onAmountInput(event: any) {
     let val = event.target.value.replace(/\D/g, '');
     if (!val) {
@@ -52,47 +102,105 @@ export class TransferPage implements OnInit {
   searchAccount(): void {
     const accountControl = this.transferForm.get('accountNumber');
 
-    // Verifica se a conta é válida antes de preencher
     if (accountControl?.valid) {
-      this.transferForm.patchValue({
-        name: 'Catianna Silva',
-        cpf: '857.338.540-57'
+      this.buscandoConta = true;
+      const numeroDigitado = accountControl.value;
+
+      // Impede de transferir para a própria conta
+      if (numeroDigitado === this.minhaContaLogada) {
+        this.buscandoConta = false;
+        this.exibirToast('Você não pode transferir para a sua própria conta.');
+        return;
+      }
+
+      this.http.get<any>(`http://localhost:3000/contas/${numeroDigitado}`).subscribe({
+        next: (dados) => {
+          this.buscandoConta = false;
+          this.contaEncontrada = true;
+          this.transferForm.patchValue({
+            name: dados.nome,
+            cpf: formatCpf(dados.cpf)
+          });
+        },
+        error: (erro) => {
+          this.buscandoConta = false;
+          this.contaEncontrada = false;
+          this.exibirToast('Conta não encontrada na base de dados.');
+          console.error(erro);
+        }
       });
     } else {
-      alert('Por favor, insira um valor válido.');
+      this.exibirToast('Por favor, insira um código de conta válido com 4 dígitos.');
     }
   }
 
   onSubmit(): void {
+    if (!this.contaEncontrada) {
+      this.exibirToast('Busque e valide a conta de destino antes de transferir.');
+      return;
+    }
+
     if (this.transferForm.invalid) {
       this.transferForm.markAllAsTouched();
       return;
     }
 
     const rawAmount = this.transferForm.get('amount')?.value;
-    if (!rawAmount) return;
-
-    // Converte a string formatada de volta para número decimal
     const cleanAmountStr = rawAmount.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
     const transferAmount = parseFloat(cleanAmountStr);
 
     if (transferAmount > this.availableBalance) {
-      alert('Saldo insuficiente! Confira o seu limite.');
+      this.exibirToast('Saldo insuficiente para realizar esta transferência.');
       return;
     }
 
-    // Monta o payload que será enviado para a API Gateway via Service
+    this.isModalOpen = true;
+  }
+
+  closeModal(): void {
+    this.isModalOpen = false;
+  }
+
+  confirmTransfer(): void {
+    const rawAmount = this.transferForm.get('amount')?.value;
+    const cleanAmountStr = rawAmount.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
+    const transferAmount = parseFloat(cleanAmountStr);
+
     const payload = {
-      destinationAccount: this.transferForm.get('accountNumber')?.value,
-      amount: transferAmount
+      contaOrigem: this.minhaContaLogada, // Pega dinamicamente a conta de quem logou
+      contaDestino: this.transferForm.get('accountNumber')?.value,
+      valor: transferAmount
     };
 
-    console.log('Dados do envio:', payload);
-    alert('Transferência concluída com sucesso!');
+    console.log('Enviando para a API:', payload);
 
-    // Limpa o formulário após o sucesso
-    this.transferForm.reset({
-      balance: 'R$ 10.125,49'
+    // Requisição POST para o mock-server realizar a transferência
+    this.http.post<any>('http://localhost:3000/transacoes/transferir', payload).subscribe({
+      next: (resposta) => {
+        this.closeModal();
+        
+        let newBalanceFormatted = 'R$ 0,00'; // fallback
+        if (resposta.novoSaldoOrigem !== null && resposta.novoSaldoOrigem !== undefined) {
+           this.availableBalance = resposta.novoSaldoOrigem;
+           newBalanceFormatted = 'R$ ' + resposta.novoSaldoOrigem.toLocaleString('pt-BR', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+          });
+        }
+
+        this.transferForm.reset({
+          balance: newBalanceFormatted
+        });
+        
+        this.contaEncontrada = false;
+        this.valorEnviado = transferAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        this.exibirModalSucesso = true;
+      },
+      error: (erro) => {
+        this.closeModal();
+        this.exibirToast(erro.error?.message || 'Erro ao processar a transferência.');
+        console.error(erro);
+      }
     });
   }
 }
