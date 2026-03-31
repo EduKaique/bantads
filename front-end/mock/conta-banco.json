@@ -5,10 +5,9 @@
     "accountNumber": "2465",
     "holderName": "Catharyna",
     "holderDocument": "12912861012",
-    "availableBalance": 900,
+    "availableBalance": 135123.50,
     "limit": 5000,
-    "manager": "João da Silva",
-    "managerDocument": "11122233344",
+    "manager": "Claudineu Silva",
     "transactions": []
   },
   {
@@ -17,10 +16,9 @@
     "accountNumber": "9431",
     "holderName": "Catianna",
     "holderDocument": "85733854057",
-    "availableBalance": 2100,
+    "availableBalance": 116733.50,
     "limit": 4000,
-    "manager": "João da Silva",
-    "managerDocument": "11122233344",
+    "manager": "Baitcha Mendes",
     "transactions": []
   },
   {
@@ -29,10 +27,9 @@
     "accountNumber": "5678",
     "holderName": "Cleuddônio",
     "holderDocument": "09506382000",
-    "availableBalance": 5632890.25,
+    "availableBalance": 99836.40,
     "limit": 10000,
-    "manager": "João da Silva",
-    "managerDocument": "11122233344",
+    "manager": "Boróvis Costa",
     "transactions": []
   },
   {
@@ -41,10 +38,9 @@
     "accountNumber": "4321",
     "holderName": "Eduardo Kaique",
     "holderDocument": "44636173910",
-    "availableBalance": 892150.99,
+    "availableBalance": -67052.50,
     "limit": 3000,
-    "manager": "Maria Santos",
-    "managerDocument": "55566677788",
+    "manager": "Claudineu Silva",
     "transactions": []
   },
   {
@@ -53,10 +49,9 @@
     "accountNumber": "8765",
     "holderName": "Rafael Pomponio",
     "holderDocument": "11944108980",
-    "availableBalance": 4521330.4,
+    "availableBalance": -56184.50,
     "limit": 7000,
-    "manager": "Maria Santos",
-    "managerDocument": "55566677788",
+    "manager": "Baitcha Mendes",
     "transactions": []
   },
   {
@@ -65,10 +60,66 @@
     "accountNumber": "3214",
     "holderName": "Beatriz Costa",
     "holderDocument": "76543210987",
-    "availableBalance": 3215670.8,
+    "availableBalance": -7632.30,
     "limit": 5000,
-    "manager": "João da Silva",
-    "managerDocument": "11122233344",
+    "manager": "Boróvis Costa",
+    "transactions": []
+  },
+  {
+    "accountId": "f6r7mno7",
+    "branch": "0001",
+    "accountNumber": "2222",
+    "holderName": "Maria Santos",
+    "holderDocument": "88877766655",
+    "availableBalance": 62150.25,
+    "limit": 8000,
+    "manager": "Baitcha Mendes",
+    "transactions": []
+  },
+  {
+    "accountId": "g7s8pqr8",
+    "branch": "0001",
+    "accountNumber": "3333",
+    "holderName": "Pedro Costa",
+    "holderDocument": "77766655544",
+    "availableBalance": 28950.00,
+    "limit": 4500,
+    "manager": "Boróvis Costa",
+    "transactions": []
+  },
+  {
+    "accountId": "h8t9stu9",
+    "branch": "0001",
+    "accountNumber": "4444",
+    "holderName": "Ana Ferreira",
+    "holderDocument": "66655544433",
+    "availableBalance": 75480.50,
+    "limit": 7500,
+    "manager": "Claudineu Silva",
+    "transactions": []
+  },
+  {
+    "accountId": "i9u0vwx0",
+    "branch": "0001",
+    "accountNumber": "9999",
+    "holderName": "Carlosinho Negativo",
+    "holderDocument": "55544433322",
+    "availableBalance": -35700.00,
+    "limit": 1500,
+    "manager": "Godophredo",
+    "managerDocument": "64065268052",
+    "transactions": []
+  },
+  {
+    "accountId": "j0w1xyz1",
+    "branch": "0001",
+    "accountNumber": "8888",
+    "holderName": "Fernanda Negativa",
+    "holderDocument": "99988877766",
+    "availableBalance": -28950.75,
+    "limit": 2000,
+    "manager": "Gyândula",
+    "managerDocument": "23862179060",
     "transactions": []
   }
 ]

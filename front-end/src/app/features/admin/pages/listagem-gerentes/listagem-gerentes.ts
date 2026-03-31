@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { startWith } from 'rxjs';
@@ -46,6 +47,7 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly gerentesService = inject(GerentesService);
   private readonly dialog = inject(MatDialog);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   @ViewChild(MatSort) private ordenador!: MatSort;
 
@@ -63,6 +65,21 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.configurarFiltro();
     this.carregarGerentes();
+    this.escutarParametrosEdicao();
+  }
+
+  private escutarParametrosEdicao(): void {
+    this.activatedRoute.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const cpfParaEditar = params['editar'];
+        if (cpfParaEditar) {
+          const gerente = this.fonteDados.data.find((g) => g.cpf === cpfParaEditar);
+          if (gerente) {
+            this.abrirModalAtualizar(gerente);
+          }
+        }
+      });
   }
 
   ngAfterViewInit(): void {

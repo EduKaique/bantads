@@ -1,0 +1,52 @@
+<article class="card-gerente-dashboard">
+  <div class="card-gerente-dashboard__cabecalho">
+    <div class="card-gerente-dashboard__avatar">
+      {{ obterIniciais() }}
+    </div>
+    <div class="card-gerente-dashboard__info-principal">
+      <h3 class="card-gerente-dashboard__nome label_large">{{ gerente.nome }}</h3>
+      <p class="card-gerente-dashboard__cargo body_small">
+        {{ gerente.email }}
+      </p>
+    </div>
+  </div>
+
+  <div class="card-gerente-dashboard__corpo">
+    <div class="card-gerente-dashboard__stat">
+      <span class="card-gerente-dashboard__label body_small">
+        Total de Clientes
+      </span>
+      <span class="card-gerente-dashboard__valor heading_5">
+        {{ gerente.totalClientes }}
+      </span>
+    </div>
+
+    <div class="card-gerente-dashboard__stat">
+      <span class="card-gerente-dashboard__label body_small">
+        Total Saldo Positivo
+      </span>
+      <span class="card-gerente-dashboard__valor heading_5">
+        {{ formatarMoeda(gerente.totalSaldoPositivo) }}
+      </span>
+    </div>
+
+    <div class="card-gerente-dashboard__stat">
+      <span class="card-gerente-dashboard__label body_small">
+        Total Saldo Negativo
+      </span>
+      <span class="card-gerente-dashboard__valor heading_5">
+        {{ formatarMoeda(gerente.totalSaldoNegativo) }}
+      </span>
+    </div>
+  </div>
+
+  <div class="card-gerente-dashboard__rodape">
+    <button 
+      class="card-gerente-dashboard__botao"
+      (click)="irParaListaGerentes()"
+    >
+      Ver Gerentes
+      <span class="card-gerente-dashboard__icone">→</span>
+    </button>
+  </div>
+</article>
