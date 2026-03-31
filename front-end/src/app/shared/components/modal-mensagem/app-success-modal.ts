@@ -17,8 +17,19 @@ export class AppSuccessModalComponent {
   @Input() subtitulo: string = '';
   @Input() textoBotao: string = 'Voltar para Página Inicial';
   @Input() rotaDestino: string | any[] = '/';
-  
-  @Input() dadosAdicionais: string[] = [];
+  @Input() mostrarDataHora: boolean = false;
+
+  @Input() dadosAdicionais: string = '';
+
+  get dataHoraFormatada(): string {
+    const dataAtual = new Date();
+    const data = dataAtual.toLocaleDateString('pt-BR');
+    const hora = dataAtual.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    return `Data: ${data} | Hora: ${hora}`;
+  }
 
   constructor(private router: Router) {}
 
