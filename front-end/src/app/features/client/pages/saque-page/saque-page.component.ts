@@ -98,6 +98,14 @@ export class SaquePageComponent implements OnInit {
       valor: ['', [Validators.required, saqueValorValidator]],
     });
 
+    this.valorControl?.valueChanges.subscribe((valorAtual) => {
+      const valorSanitizado = this.sanitizarValor(String(valorAtual ?? ''));
+
+      if (valorAtual !== valorSanitizado) {
+        this.aplicarValorSanitizado(valorSanitizado);
+      }
+    });
+
     this.saqueService.getSaldoDisponivel().subscribe((conta) => {
       this.saldoDisponivel = conta.saldo + conta.limite;
     });
@@ -111,7 +119,48 @@ export class SaquePageComponent implements OnInit {
       input.value = valorSanitizado;
     }
 
-    this.valorControl?.setValue(valorSanitizado, { emitEvent: false });
+    this.aplicarValorSanitizado(valorSanitizado);
+    this.valorControl?.markAsDirty();
+    this.valorControl?.updateValueAndValidity();
+  }
+
+  onValorKeydown(event: KeyboardEvent): void {
+    if (
+      event.ctrlKey ||
+      event.metaKey ||
+      [
+        'Backspace',
+        'Delete',
+        'Tab',
+        'ArrowLeft',
+        'ArrowRight',
+        'Home',
+        'End',
+      ].includes(event.key)
+    ) {
+      return;
+    }
+
+    if (/^\d$/.test(event.key) || event.key === ',' || event.key === '.') {
+      return;
+    }
+
+    event.preventDefault();
+  }
+
+  onValorPaste(event: ClipboardEvent): void {
+    const input = event.target as HTMLInputElement;
+    const valorColado = event.clipboardData?.getData('text') ?? '';
+    const inicioSelecao = input.selectionStart ?? input.value.length;
+    const fimSelecao = input.selectionEnd ?? input.value.length;
+
+    event.preventDefault();
+
+    const proximoValor = `${input.value.slice(0, inicioSelecao)}${valorColado}${input.value.slice(fimSelecao)}`;
+    const valorSanitizado = this.sanitizarValor(proximoValor);
+
+    input.value = valorSanitizado;
+    this.aplicarValorSanitizado(valorSanitizado);
     this.valorControl?.markAsDirty();
     this.valorControl?.updateValueAndValidity();
   }
@@ -182,5 +231,13 @@ export class SaquePageComponent implements OnInit {
     }
 
     return `${parteInteira},${parteDecimal}`;
+  }
+
+  private aplicarValorSanitizado(valorSanitizado: string): void {
+    queueMicrotask(() => {
+      if (this.valorControl?.value !== valorSanitizado) {
+        this.valorControl?.setValue(valorSanitizado, { emitEvent: false });
+      }
+    });
   }
 }

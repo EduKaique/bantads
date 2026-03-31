@@ -21,7 +21,9 @@
               autocomplete="off"
               formControlName="valor"
               placeholder="________________"
+              (keydown)="onValorKeydown($event)"
               (input)="onValorInput($event)"
+              (paste)="onValorPaste($event)"
             />
           </div>
         </div>
