@@ -1,9 +1,9 @@
 main {
-  min-height: calc(100vh - 80px);
+  min-height: calc(100vh - var(--size-1200)); 
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 24px;
+  padding-top: var(--spacing-md); 
 }
 
 .update-container {
@@ -26,19 +26,19 @@ main {
 .update-text {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-2xs);
 }
 
 .form-content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--spacing-md);
 }
 
 .row-button {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: var(--spacing-xs);
 }
 
 button:disabled {
@@ -54,7 +54,7 @@ button:disabled {
 }
 
 .button-search-cep.disabled {
-  color: var(--color-text-secondary);
+  color: var(--color-muted-foreground);
   opacity: 0.5;
   pointer-events: none;
 }
@@ -62,18 +62,18 @@ button:disabled {
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: var(--spacing-md);
 }
 
 .grid-3 {
   display: grid;
   grid-template-columns: 2fr 2fr 1fr;
-  gap: 24px;
+  gap: var(--spacing-md);
 }
 
 .cep-row {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 16px;
+  gap: var(--spacing-sm); 
   align-items: end;
 }

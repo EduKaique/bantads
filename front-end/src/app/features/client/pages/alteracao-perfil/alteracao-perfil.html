@@ -101,8 +101,8 @@
       [dadosAdicionais]="[
         'Saldo: ' + balance,
         'Gerente: ' + managerName
-      ]" 
+      ]"
       textoBotao="Voltar" 
-      rotaDestino="cliente/alteracao-perfil/:cpf">
+      [rotaDestino]="'cliente/alteracao-perfil/' + cpf">
     </app-success-modal>
 </main>
