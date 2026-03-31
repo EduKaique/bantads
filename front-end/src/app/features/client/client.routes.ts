@@ -32,7 +32,7 @@ export const clientRoutes: Routes = [
     component: TransferPage,
   },
   { 
-    path: 'atualizaPerfil/:cpf',
+    path: 'alteracao-perfil/:cpf',
     component: AlteracaoPerfilComponent,
   },
 ];

@@ -19,7 +19,7 @@ export class AppSuccessModalComponent {
   @Input() rotaDestino: string | any[] = '/';
   @Input() mostrarDataHora: boolean = false;
 
-  @Input() dadosAdicionais: string = '';
+  @Input() dadosAdicionais!: string[];
 
   get dataHoraFormatada(): string {
     const dataAtual = new Date();
