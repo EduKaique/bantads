@@ -1,49 +1,50 @@
 <main class="saque-wrapper">
   <article class="saque-card">
-
     <header class="saque-header">
-      <h1 class="saque-titulo">Saque</h1>
-      <p class="saque-subtitulo">Preencha o valor que deseja sacar da sua conta.</p>
+      <h1 class="saque-titulo heading_2">Saque</h1>
+      <p class="saque-subtitulo body_large">
+        Preencha o valor que deseja sacar da sua conta.
+      </p>
     </header>
 
     <form class="saque-form" [formGroup]="saqueForm" (ngSubmit)="onEnviar()">
-
       <div class="saque-campos">
-
         <div class="campo-wrapper">
-          <label class="campo-label" for="valor">*Valor</label>
+          <label class="campo-label label_large" for="valor">*Valor</label>
           <div class="campo-shell" [class.campo-shell--erro]="!!erroValor">
-            <span class="campo-prefix">R$</span>
+            <span class="campo-prefix body_medium">R$</span>
             <input
               id="valor"
               type="text"
+              class="body_medium"
               inputmode="decimal"
               autocomplete="off"
               formControlName="valor"
               placeholder="________________"
+              (keydown)="onValorKeydown($event)"
+              (input)="onValorInput($event)"
+              (paste)="onValorPaste($event)"
             />
           </div>
         </div>
 
         <div class="campo-wrapper">
-          <label class="campo-label" for="disponivel">Disponível</label>
+          <label class="campo-label label_large" for="disponivel">Disponível</label>
           <div id="disponivel" class="campo-shell campo-shell--readonly">
-            <span class="campo-readonly-valor">{{ saldoFormatado }}</span>
+            <span class="campo-readonly-valor body_medium">{{ saldoFormatado }}</span>
           </div>
         </div>
-
       </div>
 
-      <p class="campo-obrigatorio" [class.campo-obrigatorio--erro]="!!erroValor">
+      <p class="campo-obrigatorio body_medium" [class.campo-obrigatorio--erro]="!!erroValor">
         {{ erroValor ?? '* Campo de preenchimento obrigatório' }}
       </p>
 
       <div class="saque-acoes">
-        <button type="submit" class="btn-enviar" [disabled]="saqueForm.invalid && saqueForm.touched">
+        <button type="submit" class="button-primary btn-enviar label_large" [disabled]="saqueForm.invalid && saqueForm.touched">
           Enviar
         </button>
       </div>
-
     </form>
   </article>
 </main>

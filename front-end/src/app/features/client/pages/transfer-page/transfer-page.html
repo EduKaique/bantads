@@ -1,18 +1,31 @@
 <div class="bg-main">
   <div class="card-transfer">
     <div class="header-content">
-      <h1 class="text-title h2">Transferência</h1>
-      <p class="text-description">Preencha as informações para realizar a transferência.</p>
+      <h1 class="text-title heading_2">Transferência</h1>
+      <p class="text-description body_large">
+        Preencha as informações para realizar a transferência.
+      </p>
     </div>
 
     <form [formGroup]="transferForm" (ngSubmit)="onSubmit()" class="form-grid-layout">
-
       <div class="form-row account-search-group full-width">
         <div class="form-group flex-grow">
-          <label class="form-label">*Número da Conta de Destino</label>
-          <input type="text" class="form-control" formControlName="accountNumber" placeholder="Ex: 1291" maxlength="4">
+          <label class="form-label label_large">*Número da Conta de Destino</label>
+          <input
+            type="text"
+            class="form-control body_medium"
+            formControlName="accountNumber"
+            placeholder="Ex: 1291"
+            maxlength="4"
+          />
         </div>
-        <button type="button" class="btn-search" (click)="searchAccount()" [disabled]="buscandoConta">
+
+        <button
+          type="button"
+          class="btn-search label_large"
+          (click)="searchAccount()"
+          [disabled]="buscandoConta"
+        >
           @if (!buscandoConta) {
             <mat-icon>search</mat-icon>
           }
@@ -21,71 +34,97 @@
       </div>
 
       <div class="form-row full-width form-group">
-        <label class="form-label">Nome</label>
-        <input type="text" class="form-control disabled-field" formControlName="name" readonly>
+        <label class="form-label label_large">Nome</label>
+        <input type="text" class="form-control body_medium disabled-field" formControlName="name" readonly />
       </div>
 
       <div class="form-row full-width form-group">
-        <label class="form-label">CPF</label>
-        <input type="text" class="form-control disabled-field" formControlName="cpf" placeholder="___.___.___-__" readonly>
+        <label class="form-label label_large">CPF</label>
+        <input
+          type="text"
+          class="form-control body_medium disabled-field"
+          formControlName="cpf"
+          placeholder="___.___.___-__"
+          readonly
+        />
       </div>
 
       <div class="form-row split-group full-width">
         <div class="form-group half-width">
-          <label class="form-label">*Valor</label>
-          <input type="text" class="form-control" formControlName="amount" placeholder="R$ 0,00" (input)="onAmountInput($event)">
+          <label class="form-label label_large">*Valor</label>
+          <input
+            type="text"
+            class="form-control body_medium"
+            formControlName="amount"
+            placeholder="R$ 0,00"
+            (input)="onAmountInput($event)"
+          />
         </div>
+
         <div class="form-group half-width">
-          <label class="form-label">Saldo Disponível</label>
-          <input type="text" class="form-control disabled-field" formControlName="balance" readonly>
+          <label class="form-label label_large">Saldo Disponível</label>
+          <input type="text" class="form-control body_medium disabled-field" formControlName="balance" readonly />
         </div>
       </div>
 
-      <div class="form-row full-width footer-actions mt-5">
-        <p class="footer-note">* Campo de preenchimento obrigatório</p>
-        <button type="submit" class="btn-submit" [disabled]="!contaEncontrada || buscandoConta">Enviar</button>
+      <div class="form-row full-width footer-actions">
+        <p class="footer-note body_medium">* Campo de preenchimento obrigatório</p>
+        <button
+          type="submit"
+          class="button-primary btn-submit label_large"
+          [disabled]="!contaEncontrada || buscandoConta"
+        >
+          Enviar
+        </button>
       </div>
     </form>
   </div>
 
-@if (isModalOpen) {
-  <div class="modal-overlay">
-    <div class="modal-content">
-    
-    <div class="modal-header">
-      <h3 class="modal-title">Confirmar a transferência</h3>
-      <button type="button" class="btn-close-modal" (click)="closeModal()">✕</button>
-    </div>
+  @if (isModalOpen) {
+    <div class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">Confirmar a transferência</h3>
+          <button type="button" class="btn-close-modal" (click)="closeModal()">✕</button>
+        </div>
 
-    <div class="modal-body">
-      <div class="form-group mb-modal">
-        <label class="form-label">Tem certeza que deseja enviar</label>
-        <input type="text" class="form-control disabled-field" [value]="transferForm.get('amount')?.value" readonly>
+        <div class="modal-body">
+          <div class="form-group mb-modal">
+            <label class="form-label label_large">Tem certeza que deseja enviar</label>
+            <input
+              type="text"
+              class="form-control body_medium disabled-field"
+              [value]="transferForm.get('amount')?.value"
+              readonly
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label label_large">Para</label>
+            <input
+              type="text"
+              class="form-control body_medium disabled-field"
+              [value]="transferForm.get('name')?.value"
+              readonly
+            />
+          </div>
+        </div>
+
+        <div class="modal-footer flex-buttons">
+          <button type="button" class="btn-modal-cancel label_large" (click)="closeModal()">Cancelar</button>
+          <button type="button" class="btn-modal-confirm label_large" (click)="confirmTransfer()">Confirmar</button>
+        </div>
       </div>
+    </div>
+  }
 
-      <div class="form-group">
-        <label class="form-label">Para</label>
-        <input type="text" class="form-control disabled-field" [value]="transferForm.get('name')?.value" readonly>
+  @if (showToast) {
+    <div class="toast-container">
+      <div class="toast-content body_medium">
+        <span>{{ toastMessage }}</span>
       </div>
     </div>
-
-    <div class="modal-footer flex-buttons">
-      <button type="button" class="btn-modal-cancel" (click)="closeModal()">Cancelar</button>
-      <button type="button" class="btn-modal-confirm" (click)="confirmTransfer()">Confirmar</button>
-    </div>
-
-  </div>
-</div>
-}
-
-@if (showToast) {
-  <div class="toast-container">
-    <div class="toast-content">
-      <span>{{ toastMessage }}</span>
-    </div>
-  </div>
-}
-
+  }
 </div>
 
 <app-success-modal

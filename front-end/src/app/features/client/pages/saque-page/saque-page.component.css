@@ -4,11 +4,11 @@
 
 .saque-wrapper {
   min-height: 100vh;
-  padding: 24px;
+  padding: var(--spacing-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #e5e8e6;
+  background: var(--color-background);
   box-sizing: border-box;
 }
 
@@ -17,8 +17,8 @@
   max-width: 100%;
   min-height: 356px;
   padding: 32px 40px;
-  border-radius: 24px;
-  background: #fafafa;
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -33,22 +33,19 @@
 
 .saque-titulo {
   margin: 0;
-  color: #414946;
-  font-family: 'Sora', sans-serif;
-  font-size: 32px;
-  font-weight: 500;
-  line-height: 36px;
-  letter-spacing: -0.4px;
+  color: var(--color-foreground-title);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--font-line-height-4xl);
+  letter-spacing: var(--font-letter-spacing-2x-tight);
 }
 
 .saque-subtitulo {
   margin: 0;
-  color: #242827;
-  font-family: 'Roboto', sans-serif;
-  font-size: 18px;
-  font-weight: 400;
-  line-height: 24px;
-  letter-spacing: -0.1px;
+  color: var(--color-foreground);
+  font-size: var(--font-size-lg);
+  line-height: var(--font-line-height-xl);
+  letter-spacing: var(--font-letter-spacing-tight);
 }
 
 .saque-form {
@@ -70,11 +67,7 @@
 }
 
 .campo-label {
-  color: #56645f;
-  font-family: 'Sora', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 20px;
+  color: var(--color-muted-foreground);
 }
 
 .campo-shell {
@@ -83,29 +76,29 @@
   gap: 8px;
   min-height: 48px;
   padding: 8px 16px;
-  border: 1px solid #cdd4d1;
-  border-radius: 8px;
-  background: #f5f5f5;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-50);
   box-sizing: border-box;
+  transition: border-color 0.2s ease;
 }
 
 .campo-shell--erro {
-  border-color: #ff5e5b;
+  border-color: var(--color-destructive);
 }
 
 .campo-shell--readonly {
   justify-content: flex-start;
+  background: var(--color-neutral-100);
 }
 
 .campo-prefix,
 .campo-readonly-valor,
 .campo-shell input {
-  color: #56645f;
-  font-family: 'Roboto', sans-serif;
-  font-size: 18px;
-  font-weight: 400;
-  line-height: 24px;
-  letter-spacing: -0.1px;
+  color: var(--color-foreground);
+  font-size: var(--font-size-lg);
+  line-height: var(--body-default-line-height);
+  letter-spacing: var(--font-letter-spacing-tight);
 }
 
 .campo-shell input {
@@ -117,22 +110,25 @@
   background: transparent;
 }
 
+.campo-shell:focus-within {
+  border-color: var(--color-primary);
+}
+
 .campo-shell input::placeholder {
-  color: #56645f;
+  color: var(--color-muted-foreground);
   opacity: 1;
 }
 
 .campo-obrigatorio {
   margin: 0;
-  color: #56645f;
-  font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 16px;
+  color: var(--color-muted-foreground);
+  font-size: var(--font-size-default);
+  line-height: var(--font-line-height-default);
+  letter-spacing: var(--font-letter-spacing-tight);
 }
 
 .campo-obrigatorio--erro {
-  color: #ff5e5b;
+  color: var(--color-destructive);
 }
 
 .saque-acoes {
@@ -141,20 +137,8 @@
 }
 
 .btn-enviar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: 200px;
-  min-height: 48px;
-  border: 0;
-  border-radius: 8px;
-  background: #087448;
-  color: #edfcf3;
-  font-family: 'Sora', sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 16px;
-  cursor: pointer;
+  border-radius: var(--radius-sm);
 }
 
 .btn-enviar:disabled {
@@ -170,5 +154,9 @@
 
   .saque-campos {
     grid-template-columns: 1fr;
+  }
+
+  .btn-enviar {
+    width: 100%;
   }
 }
