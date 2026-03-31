@@ -3,7 +3,7 @@ services:
   frontend:
     build:
       context: ./front-end
-      dockerfile: front.dockerfile
+      dockerfile: Dockerfile
       target: dev
     ports:
       - "4200:4200"
