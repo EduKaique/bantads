@@ -583,6 +583,38 @@ app.get("/gerentes", (_req, res) => {
   res.json(gerentes);
 });
 
+app.post("/transacoes/saque", (req, res) => {
+  const { contaOrigem, valor } = req.body;
+  const contas = getData("contas");
+  let transacoes = getData("transacoes");
+
+  const idxOrigem = contas.findIndex(c => c.accountNumber === contaOrigem);
+
+  if (idxOrigem === -1) {
+    return res.status(404).json({ message: "Conta não encontrada." });
+  }
+  if (contas[idxOrigem].availableBalance + contas[idxOrigem].limit < valor) {
+      return res.status(400).json({ message: "Saldo insuficiente." });
+  }
+  contas[idxOrigem].availableBalance -= valor;
+  saveData("contas", contas);
+
+  const novaTransacao = {
+    id: Math.random().toString(36).substring(2, 10),
+    dataHora: new Date().toISOString(),
+    contaOrigem: contaOrigem,
+    tipo: "SAQUE",
+    valor: valor
+  };
+  transacoes.push(novaTransacao);
+  saveData("transacoes", transacoes);
+
+  res.json({ 
+    message: "Saque realizado com sucesso!",
+    novoSaldoOrigem: contas[idxOrigem].availableBalance
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Mock server rodando em http://localhost:${PORT}`);
 });

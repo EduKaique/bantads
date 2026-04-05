@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormBuilder,
@@ -10,9 +12,11 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { finalize } from 'rxjs';
 
 import { SaqueConfirmacaoModalComponent } from '../../components/saque-confirmacao-modal/saque-confirmacao-modal.component';
-import { SaqueService } from '../../services/saque.service';
+import { ClientAccountService } from '../../services/client-account.service';
+import { formatCurrency } from '../../../../shared/utils/formatters';
 
 const valorPattern = /^\d+(?:[.,]\d{1,2})?$/;
 
@@ -41,26 +45,42 @@ const saqueValorValidator: ValidatorFn = (
 @Component({
   selector: 'app-saque-page',
   standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule],
   templateUrl: './saque-page.component.html',
   styleUrls: ['./saque-page.component.css'],
 })
 export class SaquePageComponent implements OnInit {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
+  private readonly clientAccountService = inject(ClientAccountService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly account$ = this.clientAccountService.getCurrentAccount();
+  readonly formatCurrency = formatCurrency;
+
   saqueForm!: FormGroup;
   saldoDisponivel = 0;
+  isSubmitting = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private dialog: MatDialog,
-    private router: Router,
-    private saqueService: SaqueService
-  ) {}
-
-  get saldoFormatado(): string {
-    return this.saldoDisponivel.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
+  ngOnInit(): void {
+    this.saqueForm = this.formBuilder.group({
+      valor: ['', [Validators.required, saqueValorValidator]],
     });
+
+    this.valorControl?.valueChanges.subscribe((valorAtual) => {
+      const valorSanitizado = this.sanitizarValor(String(valorAtual ?? ''));
+      if (valorAtual !== valorSanitizado) {
+        this.aplicarValorSanitizado(valorSanitizado);
+      }
+    });
+
+    this.account$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((account) => {
+        const limite = (account as any).limit ?? 5000;
+        this.saldoDisponivel = account.availableBalance + limite;
+      });
   }
 
   get valorControl() {
@@ -91,24 +111,6 @@ export class SaquePageComponent implements OnInit {
     }
 
     return null;
-  }
-
-  ngOnInit(): void {
-    this.saqueForm = this.fb.group({
-      valor: ['', [Validators.required, saqueValorValidator]],
-    });
-
-    this.valorControl?.valueChanges.subscribe((valorAtual) => {
-      const valorSanitizado = this.sanitizarValor(String(valorAtual ?? ''));
-
-      if (valorAtual !== valorSanitizado) {
-        this.aplicarValorSanitizado(valorSanitizado);
-      }
-    });
-
-    this.saqueService.getSaldoDisponivel().subscribe((conta) => {
-      this.saldoDisponivel = conta.saldo + conta.limite;
-    });
   }
 
   onValorInput(event: Event): void {
@@ -195,24 +197,24 @@ export class SaquePageComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((confirmado: boolean) => {
-      if (!confirmado) {
-        return;
-      }
-
-      this.saqueService.realizarSaque(valorNumerico).subscribe({
-        next: () => {
-          this.router.navigate(['/cliente/saque/sucesso'], {
-            state: {
-              valor: valorNumerico,
-              dataHora: new Date().toISOString(),
-            },
-          });
-        },
-        error: (err: Error) => {
-          this.valorControl?.setErrors({ saldoInsuficiente: true });
-          console.error(err.message);
-        },
-      });
+      if (!confirmado) return;
+      this.isSubmitting = true;
+      this.clientAccountService.withdrawFromCurrentAccount({ amount: valorNumerico })
+        .pipe(finalize(() => this.isSubmitting = false))
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/cliente/saque/sucesso'], {
+              state: {
+                valor: valorNumerico,
+                dataHora: new Date().toISOString(),
+              },
+            });
+          },
+          error: (err: Error) => {
+            this.valorControl?.setErrors({ saldoInsuficiente: true });
+            console.error(err.message);
+          },
+        });
     });
   }
 
