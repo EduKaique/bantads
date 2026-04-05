@@ -6,6 +6,11 @@ import { R14Consulta3MelhorComponent } from './pages/r14-consulta-3-melhores/r14
 
 export const managerRoutes: Routes = [
   {
+    path: '',
+    redirectTo: 'pedidos-autocadastro',
+    pathMatch: 'full',
+  },
+  {
     path: 'consultar-clientes',
     component: ConsultarClientesComponent,
   },
