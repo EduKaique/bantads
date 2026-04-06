@@ -60,7 +60,7 @@ app.post("/auth/login", (req, res) => {
   console.log(`Login realizado: ${email}`);
 });
 
-//Autocadastro --------------------------
+// Autocadastro --------------------------
 app.post("/auth/register", (req, res) => {
   const {
     cpf,
@@ -79,21 +79,37 @@ app.post("/auth/register", (req, res) => {
 
   const solicitacoes = getData("solicitacoes");
   const clientes = getData("clientes");
+  const gerentes = getData("gerentes"); 
   const auths = getData("auth");
 
-  const jaCadastrado =
-    clientes.some((c) => c.cpf === cpf) ||
-    auths.some((a) => a.cpf === cpf);
-
-  const jaEmAprovacao =
-    solicitacoes.some((s) => s.cpf === cpf);
+  const jaCadastrado = clientes.some((c) => c.cpf === cpf) || auths.some((a) => a.cpf === cpf);
+  const jaEmAprovacao = solicitacoes.some((s) => s.cpf === cpf);
 
   if (jaCadastrado || jaEmAprovacao) {
     return res.status(400).json({
-      message:
-        "Erro: Cliente já cadastrado ou aguardando aprovação."
+      message: "Erro: Cliente já cadastrado ou aguardando aprovação."
     });
   }
+
+  if (!gerentes || gerentes.length === 0) {
+    return res.status(500).json({
+      message: "Erro interno: Nenhum gerente disponível no sistema para assumir o cliente."
+    });
+  }
+
+  const contagemCarga = gerentes.map(gerente => {
+    const qtdClientesAtivos = clientes.filter(c => c.cpfGerente === gerente.cpf).length;
+    const qtdSolicitacoesPendentes = solicitacoes.filter(s => s.cpfGerente === gerente.cpf).length;
+    
+    return {
+      cpf: gerente.cpf,
+      totalCarga: qtdClientesAtivos + qtdSolicitacoesPendentes
+    };
+  });
+
+  contagemCarga.sort((a, b) => a.totalCarga - b.totalCarga);
+  
+  const gerenteDesignadoCpf = contagemCarga[0].cpf;
 
   const novaSolicitacao = {
     cpf,
@@ -110,17 +126,17 @@ app.post("/auth/register", (req, res) => {
       cidade,
       uf
     },
+    cpfGerente: gerenteDesignadoCpf, 
     dataSolicitacao: new Date().toISOString()
   };
 
   solicitacoes.push(novaSolicitacao);
   saveData("solicitacoes", solicitacoes);
 
-  console.log(`Novo pedido de cadastro: ${cpf} - ${nome}`);
+  console.log(`[Autocadastro] Novo pedido: ${cpf} - ${nome} | Atribuído ao gerente: ${gerenteDesignadoCpf}`);
 
   res.status(202).json({
-    message:
-      "Solicitação de autocadastro enviada com sucesso!"
+    message: "Solicitação de autocadastro enviada com sucesso!"
   });
 });
 
@@ -153,9 +169,17 @@ app.post("/manager/rejeitar-cliente/:cpf", (req, res) => {
 
 
 //Listar pedidos ---------------------------------------
-app.get("/manager/pedidos-autocadastro", (_req, res) => {
+app.get("/manager/pedidos-autocadastro", (req, res) => {
+  const cpfGerenteLogado = req.query.cpfGerente;
+
+  if (!cpfGerenteLogado) {
+    return res.status(400).json({ 
+      message: "CPF do gerente não informado na consulta." 
+    });
+  }
 
   const pedidos = getData("solicitacoes")
+    .filter((solicitacao) => solicitacao.cpfGerente === cpfGerenteLogado) 
     .map(({ cpf, nome, salario, dataSolicitacao, endereco }) => ({
       cpf,
       nome,

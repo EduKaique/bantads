@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient,HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { API_URL } from '../../../core/configs/api.token';
 import { PedidoAutocadastro } from '../../../shared/models/pedido-autocadastro';
@@ -19,9 +19,11 @@ export class PedidosAutocadastroService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = inject(API_URL);
 
-  listar(): Observable<PedidoAutocadastro[]> {
+  listar(cpfGerente: string): Observable<PedidoAutocadastro[]> {
+    const params = new HttpParams().set('cpfGerente', cpfGerente);
+
     return this.http
-      .get<PedidoAutocadastroResposta[]>(`${this.apiUrl}/manager/pedidos-autocadastro`)
+      .get<PedidoAutocadastroResposta[]>(`${this.apiUrl}/manager/pedidos-autocadastro`, { params })
       .pipe(
         map((resposta) =>
           resposta
