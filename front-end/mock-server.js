@@ -167,13 +167,7 @@ app.get("/manager/pedidos-autocadastro", (_req, res) => {
 //Listar contas (para R14 - Melhores Clientes e Dashboard) ---------
 app.get("/contas", (_req, res) => {
   const contas = getData("contas");
-  const contasComSaldo = contas.map((conta) => ({
-    cpf: conta.holderDocument,
-    nome: conta.holderName,
-    saldoPositivo: conta.availableBalance > 0 ? conta.availableBalance : 0,
-    saldoNegativo: Math.abs(Math.min(0, -(conta.limit - conta.availableBalance))),
-  }));
-  res.json(contasComSaldo);
+  res.json(contas);
 });
 
 //Listar clientes (para R14 - Melhores Clientes e Dashboard) ------

@@ -173,7 +173,7 @@
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: #6750a4;
+  accent-color: #1b5a4e;
 }
 
 .painel-filtros__label {
@@ -217,9 +217,9 @@
 
 .barra-pesquisa__input:focus {
   outline: none;
-  border-color: #6750a4;
+  border-color: #1b5a4e;
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.1);
+  box-shadow: 0 0 0 3px rgba(27, 90, 78, 0.1);
 }
 
 .barra-pesquisa__input::placeholder {

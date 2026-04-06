@@ -8,9 +8,9 @@ import { DashboardEstatisticas } from '../../../shared/models/dashboard-estatist
 import { Gerente } from '../../../shared/models/gerente';
 
 interface BankAccount {
-  cpf: string;
-  saldoPositivo: number;
-  saldoNegativo: number;
+  holderDocument: string;
+  availableBalance: number;
+  limit: number;
 }
 
 interface Cliente {
@@ -19,9 +19,9 @@ interface Cliente {
 }
 
 interface Conta {
-  cpf: string;
-  saldoPositivo: number;
-  saldoNegativo: number;
+  holderDocument: string;
+  availableBalance: number;
+  limit: number;
 }
 
 @Injectable({
@@ -45,38 +45,36 @@ export class GerentesDashboardService {
         const totalGerentesPositivos = gerentes.filter((g) => {
           const clientesGerente = clientes.filter((c) => c.cpfGerente === g.cpf);
           const contasGerente = contas.filter((conta) =>
-            clientesGerente.some((cliente) => cliente.cpf === conta.cpf)
+            clientesGerente.some((cliente) => cliente.cpf === conta.holderDocument)
           );
 
           const saldoPositivoTotal = contasGerente.reduce(
-            (acc, conta) => acc + conta.saldoPositivo,
+            (acc, conta) => acc + Math.max(0, conta.availableBalance),
             0
           );
           const saldoNegativoTotal = contasGerente.reduce(
-            (acc, conta) => acc + conta.saldoNegativo,
+            (acc, conta) => acc + Math.max(0, -conta.availableBalance),
             0
           );
 
-          // Se saldoNegativo <= saldoPositivo (resultado >= 0), gerente é positivo
           return saldoNegativoTotal <= saldoPositivoTotal;
         }).length;
 
         const totalGerentesNegativos = gerentes.filter((g) => {
           const clientesGerente = clientes.filter((c) => c.cpfGerente === g.cpf);
           const contasGerente = contas.filter((conta) =>
-            clientesGerente.some((cliente) => cliente.cpf === conta.cpf)
+            clientesGerente.some((cliente) => cliente.cpf === conta.holderDocument)
           );
 
           const saldoPositivoTotal = contasGerente.reduce(
-            (acc, conta) => acc + conta.saldoPositivo,
+            (acc, conta) => acc + Math.max(0, conta.availableBalance),
             0
           );
           const saldoNegativoTotal = contasGerente.reduce(
-            (acc, conta) => acc + conta.saldoNegativo,
+            (acc, conta) => acc + Math.max(0, -conta.availableBalance),
             0
           );
 
-          // Se saldoNegativo > saldoPositivo, gerente é negativo
           return saldoNegativoTotal > saldoPositivoTotal;
         }).length;
 
@@ -102,18 +100,18 @@ export class GerentesDashboardService {
             (c) => c.cpfGerente === gerente.cpf,
           );
           const contasGerente = contas.filter((conta) =>
-            clientesGerente.some((cliente) => cliente.cpf === conta.cpf),
+            clientesGerente.some((cliente) => cliente.cpf === conta.holderDocument),
           );
 
           return {
             ...gerente,
             totalClientes: clientesGerente.length,
             totalSaldoPositivo: contasGerente.reduce(
-              (acc, c) => acc + (c.saldoPositivo || 0),
+              (acc, c) => acc + Math.max(0, c.availableBalance),
               0,
             ),
             totalSaldoNegativo: contasGerente.reduce(
-              (acc, c) => acc + (c.saldoNegativo || 0),
+              (acc, c) => acc + Math.max(0, -c.availableBalance),
               0,
             ),
           };

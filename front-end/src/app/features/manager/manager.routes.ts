@@ -10,6 +10,10 @@ export const managerRoutes: Routes = [
     component: ConsultarClientesComponent,
   },
   {
+    path: 'consultar-cliente',
+    component: ConsultarClienteComponent,
+  },
+  {
     path: 'consultar-cliente/:cpf',
     component: ConsultarClienteComponent,
   },

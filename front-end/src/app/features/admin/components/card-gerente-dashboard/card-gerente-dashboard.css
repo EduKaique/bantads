@@ -31,8 +31,8 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #eaddff;
-  color: #6750a4;
+  background: #1b5a4e;
+  color: #ffffff;
   font-weight: 600;
   font-size: 14px;
   flex-shrink: 0;
@@ -106,10 +106,10 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  border: 1px solid #cac4d0;
+  border: 2px solid #1b5a4e;
   border-radius: 24px;
   background: transparent;
-  color: #1d1b20;
+  color: #1b5a4e;
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
@@ -117,8 +117,9 @@
 }
 
 .card-gerente-dashboard__botao:hover {
-  border-color: #6750a4;
-  color: #6750a4;
+  border-color: #0d3d37;
+  color: #0d3d37;
+  background: #f0f0f0;
 }
 
 .card-gerente-dashboard__icone {
