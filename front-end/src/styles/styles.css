@@ -9,7 +9,7 @@
 
 html, body {
     height: 100%;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-family-secondary);
     background: var(--color-background);
 }
 

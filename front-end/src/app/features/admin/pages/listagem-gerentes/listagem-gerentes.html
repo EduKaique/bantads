@@ -151,10 +151,12 @@
   }
 
   <app-success-modal
-    [(mostrar)]="showModal"
-    [titulo]="tituloModalSucesso"
-    textoBotao="Voltar"
-    [rotaDestino]="''">
+    [mostrar]="mostrarModalSucesso()"
+    (mostrarChange)="mostrarModalSucesso.set($event)"
+    [titulo]="tituloModalSucesso()"
+    [textoBotao]="'Voltar'"
+    [rotaDestino]="''"
+    [dadosAdicionais]="[]">
   </app-success-modal>
   
   @if (erroAcao()) {

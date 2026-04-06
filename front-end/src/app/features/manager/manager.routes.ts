@@ -14,6 +14,10 @@ export const managerRoutes: Routes = [
     component: ConsultarClienteComponent,
   },
   {
+    path: 'consultar-cliente/:cpf',
+    component: ConsultarClienteComponent,
+  },
+  {
     path: 'pedidos-autocadastro',
     component: TelaInicialGerenteComponent,
   },

@@ -36,10 +36,10 @@ export class HeaderComponent implements OnInit {
       { label: 'Home (Pedidos)', route: '/gerente/pedidos-autocadastro' },
       { label: 'Listar Clientes', route: '/gerente/consultar-clientes' },
       { label: 'Consultar Cliente', route: '/gerente/consultar-cliente' },
-      { label: 'Melhores Clientes', route: '/gerente/melhores-clientes' } // Puxado direto das suas rotas!
+      { label: 'Melhores Clientes', route: '/gerente/melhores-clientes' }
     ],
     ADMINISTRADOR: [
-      { label: 'Home', route: '/admin/home' },
+      { label: 'Home', route: '/admin/dashboard' },
       { label: 'Lista de Gerentes', route: '/admin/listar-gerentes' },
       { label: 'Relatório de Clientes', route: '/admin/relatorio-clientes' }
     ]
@@ -62,6 +62,6 @@ export class HeaderComponent implements OnInit {
 
   editProfile() {
     this.isMenuOpen.set(false);
-    this.router.navigate([`/cliente/perfil/${this.user?.id}`]); 
+    this.router.navigate([`/cliente/alteracao-perfil/${this.user?.cpf}`]); 
   }
 }

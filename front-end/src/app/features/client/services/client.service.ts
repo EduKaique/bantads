@@ -9,6 +9,7 @@ interface UpdateUserResponseApi {
   balance: number;
   managerName: string;
   cliente?: any;
+  limit: number;
 }
 
 @Injectable({
@@ -25,7 +26,7 @@ export class ClientService {
 
   atualizaUsuario(cpf: string, data: any): Observable<UpdateUserResponseApi> {
     return this.http.put<UpdateUserResponseApi>(
-      `${this.apiUrl}/cliente/atualizaPerfil/${cpf}`,
+      `${this.apiUrl}/cliente/alteracao-perfil/${cpf}`,
       data
     );
   }

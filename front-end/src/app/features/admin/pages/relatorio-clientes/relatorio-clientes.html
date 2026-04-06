@@ -1,0 +1,95 @@
+<main class="relatorio-clientes">
+  <section class="painel-relatorio">
+    <header class="painel-relatorio__cabecalho">
+      <h1 class="heading_3">Relatório de Clientes</h1>
+      <p class="body_medium color-muted-foreground mt-2">
+        Análise detalhada da base de clientes, saldos e limites de crédito segmentados.
+      </p>
+    </header>
+
+    @if (mensagemErro()) {
+      <p class="mensagem-status mensagem-status--erro body_medium">
+        {{ mensagemErro() }}
+      </p>
+    } @else if (carregando()) {
+      <p class="mensagem-status body_medium">Gerando relatório de clientes...</p>
+    } @else {
+      <div class="tabela-bloco">
+        <div class="tabela-container">
+          <table
+            mat-table
+            [dataSource]="fonteDados"
+            matSort
+            matSortActive="nomeCliente"
+            matSortDirection="asc"
+            matSortDisableClear
+            class="tabela-relatorio"
+          >
+            <ng-container matColumnDef="cpfCliente">
+              <th mat-header-cell *matHeaderCellDef>CPF DO CLIENTE</th>
+              <td mat-cell *matCellDef="let row">{{ formatarCpf(row.cpfCliente) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="nomeCliente">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>NOME DO CLIENTE</th>
+              <td mat-cell *matCellDef="let row" class="text-highlight-green">{{ row.nomeCliente }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="emailCliente">
+              <th mat-header-cell *matHeaderCellDef>E-MAIL DO CLIENTE</th>
+              <td mat-cell *matCellDef="let row">{{ row.emailCliente }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="salario">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>SALÁRIO</th>
+              <td mat-cell *matCellDef="let row">{{ row.salario | currency:'BRL':'symbol':'1.2-2' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="numeroConta">
+              <th mat-header-cell *matHeaderCellDef>NÚMERO DA CONTA</th>
+              <td mat-cell *matCellDef="let row">{{ row.numeroConta }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="saldo">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>SALDO</th>
+              <td mat-cell *matCellDef="let row" 
+                  [ngClass]="row.saldo >= 0 ? 'text-highlight-green' : 'text-highlight-red'">
+                {{ row.saldo | currency:'BRL':'symbol':'1.2-2' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="limite">
+              <th mat-header-cell *matHeaderCellDef>LIMITE DO CLIENTE</th>
+              <td mat-cell *matCellDef="let row">{{ row.limite | currency:'BRL':'symbol':'1.2-2' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="cpfGerente">
+              <th mat-header-cell *matHeaderCellDef>CPF DO GERENTE</th>
+              <td mat-cell *matCellDef="let row">{{ formatarCpf(row.cpfGerente) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="nomeGerente">
+              <th mat-header-cell *matHeaderCellDef>NOME DO GERENTE</th>
+              <td mat-cell *matCellDef="let row">{{ row.nomeGerente }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
+            <tr mat-row *matRowDef="let row; columns: colunasExibidas"></tr>
+            
+            <tr *matNoDataRow>
+              <td class="sem-dados body_medium" [attr.colspan]="colunasExibidas.length">
+                Nenhum dado encontrado para o relatório.
+              </td>
+            </tr>
+          </table>
+        </div>
+        
+        <div class="rodape-tabela">
+          <span class="body_small color-muted-foreground">
+            Exibindo {{ fonteDados.data.length }} registros
+          </span>
+        </div>
+      </div>
+    }
+  </section>
+</main>

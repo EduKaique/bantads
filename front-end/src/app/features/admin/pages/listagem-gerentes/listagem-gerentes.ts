@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { startWith } from 'rxjs';
@@ -40,12 +41,10 @@ import { WarningDialogComponent } from '../../../../shared/components/warning-di
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListagemGerentesComponent implements OnInit, AfterViewInit {
-  showModal = false;
-  tituloModalSucesso = 'Operação realizada com sucesso!';
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly gerentesService = inject(GerentesService);
-  //private readonly dialog = inject(MatDialog);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   @ViewChild(MatSort) private ordenador!: MatSort;
 
@@ -59,12 +58,29 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
   readonly mostrarModalInserir = signal(false);
   readonly mostrarModalAtualizar = signal(false);
   readonly mostrarModalRemover = signal(false);
+  readonly mostrarModalSucesso = signal(false);
+  readonly tituloModalSucesso = signal('Operação realizada com sucesso!');
   readonly fonteDados = new MatTableDataSource<Gerente>([]);
   readonly gerenteSelecionado = signal<Gerente | null>(null);
 
   ngOnInit(): void {
     this.configurarFiltro();
     this.carregarGerentes();
+    this.escutarParametrosEdicao();
+  }
+
+  private escutarParametrosEdicao(): void {
+    this.activatedRoute.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const cpfParaEditar = params['editar'];
+        if (cpfParaEditar) {
+          const gerente = this.fonteDados.data.find((g) => g.cpf === cpfParaEditar);
+          if (gerente) {
+            this.abrirModalAtualizar(gerente);
+          }
+        }
+      });
   }
 
   ngAfterViewInit(): void {
@@ -164,8 +180,8 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
         next: () => {
           this.fecharModalAtualizar();
           this.carregarGerentes();
-          this.tituloModalSucesso = 'Gerente atualizado com sucesso!';
-          this.showModal = true;
+          this.tituloModalSucesso.set('Gerente atualizado com sucesso!');
+          this.mostrarModalSucesso.set(true);
         },
         error: () => {
           this.mensagemErro.set('Erro ao atualizar gerente.');
@@ -177,7 +193,7 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
   abrirModalRemover(gerente: Gerente): void {
     this.gerenteSelecionado.set(gerente);
     this.mostrarModalRemover.set(true);
-    this.erroAcao.set(''); // Limpa erros antigos
+    this.erroAcao.set('');
   }
 
   fecharModalRemover(): void {
@@ -197,11 +213,10 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (resposta) => {
           this.carregarGerentes(); 
-          this.tituloModalSucesso = resposta.message || 'Gerente removido com sucesso!'; 
-          this.showModal = true;
+          this.tituloModalSucesso.set(resposta.message || 'Gerente removido com sucesso!'); 
+          this.mostrarModalSucesso.set(true);
         },
         error: (erro) => {
-          // Preenche a nova variável que NÃO esconde a tabela!
           this.erroAcao.set(erro.error?.message || 'Erro ao remover o gerente.');
           this.carregando.set(false);
           

@@ -14,10 +14,19 @@ const PATHS = {
   clientes: path.join(__dirname, "mock/clientes.json"),
   gerentes: path.join(__dirname, "mock/gerentes.json"),
   solicitacoes: path.join(__dirname, "mock/solicitacoes.json"),
-  contas: path.join(__dirname, "mock/conta-banco.json")
+  contas: path.join(__dirname, "mock/conta-banco.json"),
+  transacoes: path.join(__dirname, "mock/transacoes.json")
 };
 
-const getData = (file) => JSON.parse(fs.readFileSync(PATHS[file], "utf-8"));
+const getData = (file) => {
+  try {
+    const rawData = fs.readFileSync(PATHS[file], "utf-8");
+    return JSON.parse(rawData);
+  } catch (error) {
+    console.error(`Erro ao ler o arquivo ${file}:`, error);
+    return [];
+  }
+};
 const saveData = (file, data) =>
   fs.writeFileSync(PATHS[file], JSON.stringify(data, null, 2));
 
@@ -163,13 +172,20 @@ app.get("/manager/pedidos-autocadastro", (_req, res) => {
   res.json(pedidos);
 });
 
-//Listar contas (para R14 - Melhores Clientes) ---------
+//Listar contas (para R14 - Melhores Clientes e Dashboard) ---------
 app.get("/contas", (_req, res) => {
   const contas = getData("contas");
-  res.json(contas);
+  const contasComSaldo = contas.map((conta) => ({
+    ...conta,
+    cpf: conta.holderDocument,
+    nome: conta.holderName,
+    saldoPositivo: conta.availableBalance > 0 ? conta.availableBalance : 0,
+    saldoNegativo: Math.abs(Math.min(0, -(conta.limit - conta.availableBalance))),
+  }));
+  res.json(contasComSaldo);
 });
 
-//Listar clientes (para R14 - Melhores Clientes) ------
+//Listar clientes (para R14 - Melhores Clientes e Dashboard) ------
 app.get("/clientes", (_req, res) => {
   const clientes = getData("clientes");
   res.json(clientes);
@@ -177,11 +193,11 @@ app.get("/clientes", (_req, res) => {
 
 
 //Aprovação de clientes ---------------------------------
-app.get("/admin/gerentes", (_req, res) => {
-  const gerentes = getData("gerentes");
-
-  res.json(gerentes);
-});
+//app.get("/admin/gerentes", (_req, res) => {
+//  const gerentes = getData("gerentes");
+//
+//  res.json(gerentes);
+//});
 
 app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
 
@@ -271,7 +287,7 @@ app.get("/cliente/perfil/:cpf", (req, res) => {
 });
 
 //Alteração de perfil clientes ----------------------
-app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
+app.put("/cliente/alteracao-perfil/:cpf", (req, res) => {
   const cpf = req.params.cpf;
   const dadosAtualizados = req.body;
 
@@ -328,7 +344,109 @@ app.put("/cliente/atualizaPerfil/:cpf", (req, res) => {
   res.json({
     balance: contas[contaIndex]?.availableBalance || 0,
     managerName: contas[contaIndex]?.manager,
-    cliente: clienteAtualizado
+    cliente: clienteAtualizado,
+    limit: contas[contaIndex]?.limit
+  });
+});
+
+app.get("/manager/clientes", (req, res) => {
+  const clientes = getData("clientes");
+  const contas = getData("contas");
+
+  const clientesFormatados = clientes.map((cliente) => {
+    const conta = contas.find((c) => c.holderDocument === cliente.cpf);
+
+    return {
+      id: cliente.cpf, 
+      cpf: cliente.cpf,
+      nome: cliente.nome,
+      cidade: cliente.endereco?.cidade || "N/A",
+      estado: cliente.endereco?.uf || "N/A",
+      saldo: conta ? conta.availableBalance : 0,
+      limite: conta ? conta.limit : 0,
+      numeroConta: conta ? conta.accountNumber : "N/A"
+    };
+  });
+
+  res.json(clientesFormatados);
+});
+
+app.get("/contas/:numeroConta", (req, res) => {
+  const { numeroConta } = req.params;
+  const contas = getData("contas");
+  const clientes = getData("clientes");
+
+  const contaDestino = contas.find(c => c.accountNumber === numeroConta);
+
+  if (!contaDestino) {
+    return res.status(404).json({ message: "Conta não encontrada" });
+  }
+
+  const cliente = clientes.find(c => c.cpf === contaDestino.holderDocument);
+
+  res.json({
+    numeroConta: contaDestino.accountNumber,
+    nome: cliente ? cliente.nome : contaDestino.holderName,
+    cpf: contaDestino.holderDocument,
+    saldoDisponivel: contaDestino.availableBalance
+  });
+});
+
+app.post("/transacoes/transferir", (req, res) => {
+  const { contaOrigem, contaDestino, valor } = req.body;
+  const contas = getData("contas");
+  let transacoes = getData("transacoes");
+
+  const idxOrigem = contas.findIndex(c => c.accountNumber === contaOrigem);
+  const idxDestino = contas.findIndex(c => c.accountNumber === contaDestino);
+
+  if (idxDestino === -1) {
+    return res.status(404).json({ message: "Conta de destino não encontrada." });
+  }
+
+  if (idxOrigem !== -1) { 
+    if (contas[idxOrigem].availableBalance + contas[idxOrigem].limit < valor) {
+        return res.status(400).json({ message: "Saldo insuficiente." });
+    }
+    contas[idxOrigem].availableBalance -= valor;
+  }
+
+  contas[idxDestino].availableBalance += valor;
+
+  saveData("contas", contas);
+
+  const novaTransacao = {
+    id: Math.random().toString(36).substring(2, 10),
+    dataHora: new Date().toISOString(),
+    contaOrigem: contaOrigem,
+    nomeOrigem: idxOrigem !== -1 ? contas[idxOrigem].holderName : "Sistema/Depósito",
+    contaDestino: contaDestino,
+    nomeDestino: contas[idxDestino].holderName,
+    valor: valor
+  };
+  transacoes.push(novaTransacao);
+  saveData("transacoes", transacoes);
+
+  res.json({ 
+    message: "Transferência realizada com sucesso!",
+    novoSaldoOrigem: idxOrigem !== -1 ? contas[idxOrigem].availableBalance : null
+  });
+});
+
+// Rota para buscar a conta e o saldo pelo CPF do usuário logado
+app.get("/contas/cpf/:cpf", (req, res) => {
+  const { cpf } = req.params;
+  const contas = getData("contas");
+  
+  const contaOrigem = contas.find(c => c.holderDocument === cpf);
+
+  if (!contaOrigem) {
+    return res.status(404).json({ message: "Conta não encontrada para este CPF." });
+  }
+
+  res.json({
+    numeroConta: contaOrigem.accountNumber,
+    saldoDisponivel: contaOrigem.availableBalance
   });
 });
 
@@ -405,63 +523,66 @@ app.put("/admin/atualizaPerfil/:cpf", (req, res) => {
 
   //Remoção de Gerente ----------------------
   app.delete('/admin/gerentes/:cpf', (req, res) => {
-  const { cpf } = req.params;
-
-  let gerentes = JSON.parse(fs.readFileSync(PATHS.gerentes, 'utf-8'));
-  let contas = JSON.parse(fs.readFileSync(PATHS.contas, 'utf-8'));
-  let auth = JSON.parse(fs.readFileSync(PATHS.auth, 'utf-8'));
-
-  const indexGerente = gerentes.findIndex(g => g.cpf === cpf);
+  const cpfExcluido = req.params.cpf.replace(/\D/g, ''); // Garante que pegamos só os números
   
-  if (indexGerente === -1) {
-    return res.status(404).json({ message: 'Gerente não encontrado' });
+  // Lê os arquivos atualizados
+  let gerentes = JSON.parse(fs.readFileSync('./mock/gerentes.json', 'utf8'));
+  let contas = JSON.parse(fs.readFileSync('./mock/conta-banco.json', 'utf8'));
+
+  const gerenteIndex = gerentes.findIndex(g => (g.cpf ? g.cpf.replace(/\D/g, '') : '') === cpfExcluido);
+
+  if (gerenteIndex === -1) {
+    return res.status(404).json({ message: 'Gerente não encontrado.' });
   }
 
-  if (gerentes.length <= 1) {
-    return res.status(400).json({ message: 'Não é possível remover o único gerente do sistema.' });
+  // Separa apenas os gerentes que VÃO SOBRAR na empresa
+  const gerentesRestantes = gerentes.filter((g, index) => index !== gerenteIndex);
+
+  if (gerentesRestantes.length === 0) {
+    return res.status(400).json({ message: 'Não é possível excluir o único gerente do sistema.' });
   }
 
-  gerentes.splice(indexGerente, 1);
-  fs.writeFileSync(PATHS.gerentes, JSON.stringify(gerentes, null, 2));
+  let gerenteDestino = gerentesRestantes[0];
+  let menorQtd = contas.filter(c => (c.managerDocument ? c.managerDocument.replace(/\D/g, '') : '') === gerenteDestino.cpf.replace(/\D/g, '')).length;
 
-  auth = auth.filter(u => u.cpf !== cpf);
-  fs.writeFileSync(PATHS.auth, JSON.stringify(auth, null, 2));
-
-  //Conta quantas contas cada gerente restante possui
-  const contasPorGerente = contas.reduce((acc, conta) => {
-    acc[conta.manager] = (acc[conta.manager] || 0) + 1;
-    return acc;
-  }, {});
-
-  let gerenteMenosClientes = gerentes[0];
-  let minContas = contasPorGerente[gerenteMenosClientes.cpf] || 0;
-
-  gerentes.forEach(g => {
-    const totalContas = contasPorGerente[g.cpf] || 0;
-    if (totalContas < minContas) {
-      minContas = totalContas;
-      gerenteMenosClientes = g;
+  for (let i = 1; i < gerentesRestantes.length; i++) {
+    const atual = gerentesRestantes[i];
+    const qtdAtual = contas.filter(c => (c.managerDocument ? c.managerDocument.replace(/\D/g, '') : '') === atual.cpf.replace(/\D/g, '')).length;
+    
+    if (qtdAtual < menorQtd) {
+      gerenteDestino = atual;
+      menorQtd = qtdAtual;
     }
-  });
+  }
 
-  // Reatribui as contas do gerente excluído para o CPF do novo gerente escolhido
-  let contasAtualizadas = false;
+  let contasAlteradas = false;
   contas = contas.map(conta => {
-    if (conta.manager === cpf) {
-      conta.manager = gerenteMenosClientes.cpf;
-      contasAtualizadas = true;
+    const managerDocNorm = conta.managerDocument ? conta.managerDocument.replace(/\D/g, '') : '';
+    
+    if (managerDocNorm === cpfExcluido) {
+      conta.managerDocument = gerenteDestino.cpf;
+      conta.manager = gerenteDestino.nome;
+      contasAlteradas = true;
     }
     return conta;
   });
 
-  if (contasAtualizadas) {
-    fs.writeFileSync(PATHS.contas, JSON.stringify(contas, null, 2));
+  gerentes.splice(gerenteIndex, 1);
+  fs.writeFileSync('./mock/gerentes.json', JSON.stringify(gerentes, null, 2), 'utf8');
+
+  if (contasAlteradas) {
+    fs.writeFileSync('./mock/conta-banco.json', JSON.stringify(contas, null, 2), 'utf8');
   }
 
   res.status(200).json({ 
-    message: 'Gerente removido com sucesso.',
-    reatribuidoPara: gerenteMenosClientes.nome
+    message: `Gerente removido! Contas transferidas para ${gerenteDestino.nome}.` 
   });
+});
+
+//Listar gerentes ---------
+app.get("/gerentes", (_req, res) => {
+  const gerentes = getData("gerentes");
+  res.json(gerentes);
 });
 
 app.listen(PORT, () => {

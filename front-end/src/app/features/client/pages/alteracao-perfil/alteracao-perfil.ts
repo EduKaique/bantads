@@ -27,7 +27,6 @@ import { formatCep, formatCpf, formatCurrency, formatPhone, removeNonDigits } fr
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AlteracaoPerfilComponent implements OnInit {
-
   firstFormGroup!: FormGroup;
   secondFormGroup!: FormGroup;
 
@@ -41,6 +40,17 @@ export class AlteracaoPerfilComponent implements OnInit {
   balance!: number;
   managerName!: string;
   endereco?: Endereco;
+  limit!: number;
+
+  isEditMode = false;
+
+  toggleEdit() {
+    this.isEditMode = !this.isEditMode;
+
+    if (!this.isEditMode) {
+      this.loadClientData();
+    }
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -70,7 +80,8 @@ export class AlteracaoPerfilComponent implements OnInit {
       cpfUser: [{ value: '', disabled: true }],
       phoneUser: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      salary: ['', [Validators.required]]
+      salary: ['', [Validators.required]],
+      limit: [{ value: '', disabled: true }]
     });
 
     this.secondFormGroup = this.fb.group({
@@ -94,7 +105,7 @@ export class AlteracaoPerfilComponent implements OnInit {
           cpfUser: formatCpf(cliente.cpf),
           phoneUser: formatPhone(cliente.phoneNumber),
           email: cliente.email,
-          salary: formatCurrency(cliente.salary)
+          salary: formatCurrency(cliente.salary),
         });
 
         this.secondFormGroup.patchValue({
@@ -116,7 +127,6 @@ export class AlteracaoPerfilComponent implements OnInit {
   onSubmit() {
     this.updateError = null;
     this.isLoading = true;
-
     if (this.firstFormGroup.invalid || this.secondFormGroup.invalid) {
       this.firstFormGroup.markAllAsTouched();
       this.secondFormGroup.markAllAsTouched();
@@ -151,6 +161,11 @@ export class AlteracaoPerfilComponent implements OnInit {
       next: (response) => {
         this.balance = response.balance;
         this.managerName = response.managerName;
+
+        this.firstFormGroup.patchValue({
+          limit: formatCurrency(response.limit)
+        });
+
         this.showModal = true;
         this.isLoading = false;
         this.cdr.markForCheck();
