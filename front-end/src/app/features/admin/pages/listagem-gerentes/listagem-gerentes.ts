@@ -21,7 +21,7 @@ import { GerentesService } from '../../services/gerentes';
 import { ModalInserirGerenteComponent } from '../../components/modal-inserir-gerente/modal-inserir-gerente';
 import { ModalAtualizarGerente } from '../../components/modal-atualizar-gerente/modal-atualizar-gerente';
 import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
-import { MatDialog } from '@angular/material/dialog';
+//import { MatDialog } from '@angular/material/dialog';
 import { WarningDialogComponent } from '../../../../shared/components/warning-dialog/warning-dialog.component';
 import { MatIcon } from "@angular/material/icon";
 
@@ -43,12 +43,9 @@ import { MatIcon } from "@angular/material/icon";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListagemGerentesComponent implements OnInit, AfterViewInit {
-  showModal = false;
-  tituloModalSucesso = 'Operação realizada com sucesso!';
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly gerentesService = inject(GerentesService);
-  private readonly dialog = inject(MatDialog);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   @ViewChild(MatSort) private ordenador!: MatSort;
@@ -59,8 +56,12 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
   });
   readonly carregando = signal(true);
   readonly mensagemErro = signal('');
+  readonly erroAcao = signal('');
   readonly mostrarModalInserir = signal(false);
   readonly mostrarModalAtualizar = signal(false);
+  readonly mostrarModalRemover = signal(false);
+  readonly mostrarModalSucesso = signal(false);
+  readonly tituloModalSucesso = signal('Operação realizada com sucesso!');
   readonly fonteDados = new MatTableDataSource<Gerente>([]);
   readonly gerenteSelecionado = signal<Gerente | null>(null);
 
@@ -181,8 +182,8 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
         next: () => {
           this.fecharModalAtualizar();
           this.carregarGerentes();
-          this.tituloModalSucesso = 'Gerente atualizado com sucesso!';
-          this.showModal = true;
+          this.tituloModalSucesso.set('Gerente atualizado com sucesso!');
+          this.mostrarModalSucesso.set(true);
         },
         error: () => {
           this.mensagemErro.set('Erro ao atualizar gerente.');
@@ -191,34 +192,41 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  processarRemocao(gerente: Gerente): void {
-    const dialogRef = this.dialog.open(WarningDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Excluir Gerente',
-        message: `Tem certeza que deseja remover o gerente ${gerente.nome}? Esta ação transferirá as contas dele para outro gerente.`
-      }
-    });
+  abrirModalRemover(gerente: Gerente): void {
+    this.gerenteSelecionado.set(gerente);
+    this.mostrarModalRemover.set(true);
+    this.erroAcao.set('');
+  }
 
-    dialogRef.afterClosed().subscribe(confirmado => {
-      
-      if (confirmado) {
-        this.carregando.set(true);
-        
-        this.gerentesService.remover(gerente.cpf)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: (resposta) => {
-              this.carregarGerentes(); 
-              this.tituloModalSucesso = resposta.message || 'Gerente removido com sucesso!'; 
-              this.showModal = true;
-            },
-            error: (erro) => {
-              this.mensagemErro.set(erro.error?.message || 'Erro ao remover o gerente.');
-              this.carregando.set(false);
-            }
-          });
-      }
-    });
+  fecharModalRemover(): void {
+    this.mostrarModalRemover.set(false);
+    this.gerenteSelecionado.set(null);
+  }
+
+  processarRemocao(): void {
+    const gerente = this.gerenteSelecionado();
+    if (!gerente) return;
+
+    this.carregando.set(true);
+    this.fecharModalRemover();
+    
+    this.gerentesService.remover(gerente.cpf)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resposta) => {
+          this.carregarGerentes(); 
+          this.tituloModalSucesso.set(resposta.message || 'Gerente removido com sucesso!'); 
+          this.mostrarModalSucesso.set(true);
+        },
+        error: (erro) => {
+          this.erroAcao.set(erro.error?.message || 'Erro ao remover o gerente.');
+          this.carregando.set(false);
+          
+          // Apaga o erro automaticamente após 5 segundos
+          setTimeout(() => {
+             this.erroAcao.set('');
+          }, 5000);
+        }
+      });
   }
 }

@@ -19,5 +19,13 @@
     "email": "ger3@bantads.com.br",
     "celular": "41999990005",
     "tipo": "GERENTE"
+  },
+  {
+    "nome": "Debilolson Silva",
+    "cpf": "33427040046",
+    "email": "debi@bantads.com",
+    "celular": "(41) 99222-9992",
+    "senha": "tadssss",
+    "tipo": "GERENTE"
   }
 ]
