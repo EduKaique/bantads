@@ -140,22 +140,6 @@
   cursor: pointer;
 }
 
-.acao-visual__imagem {
-  display: block;
-  max-width: none;
-  object-fit: contain;
-}
-
-.acao-visual__imagem--editar {
-  width: 23px;
-  height: 23px;
-}
-
-.acao-visual__imagem--remover {
-  width: 25px;
-  height: 25px;
-}
-
 .mensagem-status {
   padding: 20px 24px;
   border: 1px solid var(--color-border, #cdd4d1);
