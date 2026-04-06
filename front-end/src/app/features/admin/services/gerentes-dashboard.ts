@@ -31,11 +31,15 @@ export class GerentesDashboardService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = inject(API_URL);
 
+  private normalizarCpf(cpf: string): string {
+    return cpf ? cpf.replace(/\D/g, '') : '';
+  }
+
   obterEstatisticas(): Observable<DashboardEstatisticas> {
     return forkJoin({
       gerentes: this.http.get<Gerente[]>(`${this.apiUrl}/gerentes`),
-      contas: this.http.get<Conta[]>(`${this.apiUrl}/contas`),
-      clientes: this.http.get<Cliente[]>(`${this.apiUrl}/clientes`),
+      contas: this.http.get<any[]>(`${this.apiUrl}/contas`),
+      clientes: this.http.get<any[]>(`${this.apiUrl}/clientes`),
     }).pipe(
       map(({ gerentes, contas, clientes }) => {
         const totalGerentes = gerentes.length;
@@ -91,10 +95,10 @@ export class GerentesDashboardService {
   obterGerentesComDados(): Observable<GerenteDashboard[]> {
     return forkJoin({
       gerentes: this.http.get<Gerente[]>(`${this.apiUrl}/gerentes`),
-      contas: this.http.get<Conta[]>(`${this.apiUrl}/contas`),
-      clientes: this.http.get<Cliente[]>(`${this.apiUrl}/clientes`),
+      contas: this.http.get<any[]>(`${this.apiUrl}/contas`),
+      clientes: this.http.get<any[]>(`${this.apiUrl}/clientes`),
     }).pipe(
-      map(({ gerentes, contas, clientes }) => {
+      map(({ gerentes, contas }) => {
         return gerentes.map((gerente) => {
           const clientesGerente = clientes.filter(
             (c) => c.cpfGerente === gerente.cpf,
@@ -115,11 +119,8 @@ export class GerentesDashboardService {
               0,
             ),
           };
-        }).sort(
-          (a, b) => b.totalSaldoPositivo - a.totalSaldoPositivo,
-        );
+        }).sort((a, b) => b.totalSaldoPositivo - a.totalSaldoPositivo);
       }),
     );
   }
 }
-
