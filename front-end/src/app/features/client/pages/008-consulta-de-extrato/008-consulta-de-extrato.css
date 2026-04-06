@@ -1,3 +1,7 @@
+input {
+  caret-color: transparent;
+}
+
 .extrato-main {
   background-color: transparent;
   min-height: 100%;
@@ -17,7 +21,7 @@
   flex-direction: column;
   max-height: 85vh;
   overflow-y: auto;
-  overflow-x: visible;
+  overflow-x: hidden;
   box-sizing: border-box;
   scrollbar-gutter: stable;
   padding-right: 36px;
@@ -46,10 +50,10 @@
 
 .header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 24px;
   margin-bottom: 40px;
-  gap: 40px;
+  width: 100%;
 }
 
 .title {
@@ -58,24 +62,57 @@
   font-weight: 500;
   line-height: 28px;
   letter-spacing: -0.2px;
-  color: #414946;
+  color: #242827;
   margin: 0;
-  white-space: nowrap;
+  user-select: text;
+}
+
+.balance-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 32px;
+  background: linear-gradient(135deg, #087448 0%, #05543a 100%);
+  border-radius: 12px;
+  border: none;
+  max-width: 280px;
+  user-select: text;
+}
+
+.balance-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.4px;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+}
+
+.balance-amount {
+  font-family: 'Sora', sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 40px;
+  margin: 0;
 }
 
 
 .date-filters {
-  display: flex;
-  gap: 30px;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
   position: relative;
-  z-index: 100;
+  z-index: 10;
+  max-width: 500px;
 }
 
 .date-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  flex: 0 0 auto;
 }
 
 .date-label {
@@ -86,16 +123,16 @@
   letter-spacing: 0.4px;
   color: #087448;
   text-transform: capitalize;
+  user-select: text;
 }
 
 .input-wrapper {
   display: flex;
   align-items: center;
-  border: 3px solid #087448;
-  border-radius: 4px;
+  border: 2px solid #087448;
+  border-radius: 6px;
   background-color: white;
-  overflow: visible;
-  height: 56px;
+  height: 48px;
   position: relative;
   z-index: 1;
 }
@@ -111,10 +148,13 @@
   letter-spacing: 0.5px;
   color: #1d1b20;
   background-color: transparent;
+  caret-color: transparent;
+  user-select: text;
 }
 
 .date-input:focus {
   outline: none;
+  caret-color: transparent;
 }
 
 .date-input:disabled {
@@ -151,8 +191,30 @@
 }
 
 
+::ng-deep .mat-mdc-menu-panel {
+  z-index: 10001 !important;
+}
+
 ::ng-deep .mat-datepicker-container {
-  z-index: 10000 !important;
+  z-index: 10001 !important;
+  max-height: 100vh;
+}
+
+::ng-deep .cdk-overlay-pane {
+  z-index: 10001 !important;
+}
+
+.mat-datepicker-hidden-input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 
 
@@ -160,6 +222,25 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  text-align: center;
+  color: #999;
+}
+
+.empty-message {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #999;
+  margin: 0;
+  user-select: text;
 }
 
 .date-group {
@@ -177,6 +258,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  user-select: text;
 }
 
 .date-text {
@@ -187,6 +269,7 @@
   letter-spacing: 0px;
   color: #56645f;
   margin: 0;
+  user-select: text;
 }
 
 .balance-text {
@@ -197,6 +280,7 @@
   letter-spacing: 0px;
   color: #56645f;
   margin: 0;
+  user-select: text;
 }
 
 
@@ -228,6 +312,7 @@
   flex: 1;
   gap: 120px;
   align-items: center;
+  user-select: text;
 }
 
 
@@ -245,6 +330,7 @@
   gap: 4px;
   flex-shrink: 0;
   width: 180px;
+  user-select: text;
 }
 
 
@@ -289,6 +375,7 @@
   gap: 4px;
   flex-shrink: 0;
   width: 110px;
+  user-select: text;
 }
 
 .transaction-type {
@@ -346,6 +433,7 @@
   color: #5c4bb7;
   white-space: nowrap;
   flex-shrink: 0;
+  user-select: text;
 }
 
 .transaction-amount.negative {

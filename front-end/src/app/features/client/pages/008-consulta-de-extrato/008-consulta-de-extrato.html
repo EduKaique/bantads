@@ -4,6 +4,10 @@
     <div class="header">
       <h1 class="title">Histórico de Transações</h1>
       
+      <div class="balance-section">
+        <span class="balance-label">Saldo Atual</span>
+        <h2 class="balance-amount">{{ saldoAtual() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</h2>
+      </div>
 
       <div class="date-filters">
         <div class="date-field">
@@ -23,7 +27,7 @@
             <input matInput 
               [matDatepicker]="pickerInicio" 
               (dateChange)="onDataInicioChange($event)"
-              hidden>
+              class="mat-datepicker-hidden-input">
           </div>
         </div>
 
@@ -44,7 +48,7 @@
             <input matInput 
               [matDatepicker]="pickerFim" 
               (dateChange)="onDataFimChange($event)"
-              hidden>
+              class="mat-datepicker-hidden-input">
           </div>
         </div>
       </div>
@@ -52,6 +56,10 @@
 
 
     <div class="transactions-list">
+      <div *ngIf="transacoesPorData.length === 0" class="empty-state">
+        <p class="empty-message">Selecione um intervalo de datas para visualizar seu extrato</p>
+      </div>
+
       <ng-container *ngFor="let grupo of transacoesPorData">
 
         <div class="date-group">
@@ -79,7 +87,7 @@
                     </mat-icon>
                   </div>
                   <div class="operation-info">
-                    <p class="transaction-type">{{ transacao.operacao }}</p>
+                    <p class="transaction-type">{{ transacao.operacao }} <span *ngIf="transacao.hora">- {{ transacao.hora }}</span></p>
                     <p class="transaction-name">{{ transacao.remetenteDestinatario }}</p>
                   </div>
                 </div>
