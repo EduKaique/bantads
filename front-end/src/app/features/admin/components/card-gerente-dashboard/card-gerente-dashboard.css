@@ -1,11 +1,11 @@
 .card-gerente-dashboard {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-  border: 1px solid #cac4d0;
-  border-radius: 12px;
-  background: #fef7ff;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-sm);
+  background: var(--color-card);
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 280px;
@@ -13,14 +13,14 @@
 }
 
 .card-gerente-dashboard:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-color: #d4cfdb;
+  box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
+  border-color: var(--color-border-alternative);
 }
 
 .card-gerente-dashboard__cabecalho {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-2xs);
   justify-content: space-between;
 }
 
@@ -31,10 +31,10 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #1b5a4e;
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 14px;
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
   flex-shrink: 0;
 }
 
@@ -45,15 +45,16 @@
 
 .card-gerente-dashboard__nome {
   margin: 0;
-  color: #1d1b20;
+  color: var(--color-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.card-gerente-dashboard__cargo {
+.card-gerente-dashboard__cargo,
+.card-gerente-dashboard__label {
   margin: 4px 0 0;
-  color: #49454f;
+  color: var(--color-muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -64,89 +65,57 @@
   border: none;
   font-size: 20px;
   cursor: pointer;
-  padding: 8px;
-  color: #49454f;
+  padding: var(--spacing-4xs);
+  color: var(--color-muted-foreground);
   transition: color 0.2s;
 }
 
-.card-gerente-dashboard__menu:hover {
-  color: #1d1b20;
+.card-gerente-dashboard__menu:hover,
+.card-gerente-dashboard__valor {
+  color: var(--color-foreground);
 }
 
-.card-gerente-dashboard__corpo {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
+.card-gerente-dashboard__corpo,
 .card-gerente-dashboard__stat {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
-.card-gerente-dashboard__label {
-  color: #49454f;
-  margin: 0;
+.card-gerente-dashboard__corpo {
+  gap: var(--spacing-2xs);
 }
 
-.card-gerente-dashboard__valor {
-  color: #1d1b20;
-  margin: 0;
+.card-gerente-dashboard__stat {
+  gap: var(--spacing-5xs);
 }
 
 .card-gerente-dashboard__rodape {
   display: flex;
   justify-content: center;
-  padding-top: 8px;
+  padding-top: var(--spacing-4xs);
 }
 
 .card-gerente-dashboard__botao {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-3xs);
   padding: 12px 24px;
-  border: 2px solid #1b5a4e;
-  border-radius: 24px;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-pill);
   background: transparent;
-  color: #1b5a4e;
-  font-weight: 600;
-  font-size: 14px;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .card-gerente-dashboard__botao:hover {
-  border-color: #0d3d37;
-  color: #0d3d37;
-  background: #f0f0f0;
+  border-color: var(--color-green-900);
+  color: var(--color-green-900);
+  background: var(--color-neutral-50);
 }
 
 .card-gerente-dashboard__icone {
   font-size: 16px;
-}
-
-/* Tipografia */
-.label_large {
-  font-family: 'Sora', sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 20px;
-  letter-spacing: 0;
-}
-
-.body_small {
-  font-family: 'Sora', sans-serif;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: 0.4px;
-}
-
-.heading_5 {
-  font-family: 'Sora', sans-serif;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 28px;
-  letter-spacing: 0;
 }
