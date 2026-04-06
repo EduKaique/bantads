@@ -68,20 +68,38 @@ export class TelaInicialGerenteComponent implements OnInit {
   private carregarPedidosAutocadastro(): void {
     this.carregando.set(true);
     this.mensagemErro.set('');
+    
+    const userJson = localStorage.getItem('currentUser');
 
-    this.pedidosAutocadastroService
-      .listar()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (pedidos) => {
-          this.pedidosAutocadastro.set(pedidos);
-          this.carregando.set(false);
-        },
-        error: () => {
-          this.mensagemErro.set('Não foi possível carregar os pedidos de autocadastro.');
-          this.carregando.set(false);
-        },
-      });
+    if (!userJson) {
+      this.mensagemErro.set('Sessão inválida. Por favor, faça login novamente.');
+      this.carregando.set(false);
+      return;
+    }
+
+    try {
+      const currentUser = JSON.parse(userJson);
+      const cpfGerente = currentUser.cpf;
+
+      this.pedidosAutocadastroService
+        .listar(cpfGerente) 
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (pedidos) => {
+            this.pedidosAutocadastro.set(pedidos);
+            this.carregando.set(false);
+          },
+          error: () => {
+            this.mensagemErro.set('Não foi possível carregar os pedidos de autocadastro.');
+            this.carregando.set(false);
+          },
+        });
+        
+    } catch (error) {
+      console.error('Erro ao ler dados do usuário do localStorage', error);
+      this.mensagemErro.set('Erro ao validar sessão. Tente logar novamente.');
+      this.carregando.set(false);
+    }
   }
 
   private normalizarCpf(valor: string): string {
