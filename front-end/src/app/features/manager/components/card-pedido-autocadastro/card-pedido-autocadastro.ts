@@ -16,7 +16,6 @@ export class CardPedidoAutocadastroComponent {
   @Output() aprovar = new EventEmitter<PedidoAutocadastro>();
   @Output() rejeitar = new EventEmitter<PedidoAutocadastro>();
 
-  // 👇 agora vem do formatter
   readonly formatCpf = formatCpf;
   readonly formatDateBR = formatDateBR;
 

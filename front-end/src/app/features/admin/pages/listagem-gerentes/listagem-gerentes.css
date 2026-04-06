@@ -4,7 +4,7 @@
 
 .listagem-gerentes {
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 80px);
   padding: 52px 0 48px;
   background: var(--color-background, #e5e8e6);
 }
@@ -138,22 +138,6 @@
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-}
-
-.acao-visual__imagem {
-  display: block;
-  max-width: none;
-  object-fit: contain;
-}
-
-.acao-visual__imagem--editar {
-  width: 23px;
-  height: 23px;
-}
-
-.acao-visual__imagem--remover {
-  width: 25px;
-  height: 25px;
 }
 
 .mensagem-status {

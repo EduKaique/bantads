@@ -51,6 +51,7 @@
   height: 44px;
   border: 0;
   border-radius: var(--radius-sm, 8px);
+  cursor: pointer;
   color: #f3fafa;
   font-family: var(--font-family-primary);
   font-size: 18px;
