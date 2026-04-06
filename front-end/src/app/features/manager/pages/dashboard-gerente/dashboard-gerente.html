@@ -1,0 +1,41 @@
+<main id="manager-dashboard-page">
+  <div class="container">
+    <div class="hero-section">
+      <h2 class="heading_2 color-primary-foreground">
+        {{ tituloBoasVindas() }}
+      </h2>
+      <div class="texto-destaque">
+        <span class="heading_6 color-primary-foreground">Painel do gerente</span>
+        <p class="body_large color-primary-foreground descricao-home">
+          Acompanhe os pedidos de autocadastro, consulte a base de clientes e
+          acesse rapidamente os destaques do banco.
+        </p>
+      </div>
+      <div>
+        <img
+          class="ilustracao-marca"
+          src="assets/illustrations/brand-illustration.svg"
+          alt=""
+        />
+      </div>
+    </div>
+
+    <div class="menu-cards">
+      <app-card-menu
+        icon="how_to_reg"
+        label="Autocadastros"
+        (cardClick)="irPara('pedidos-autocadastro')"
+      ></app-card-menu>
+      <app-card-menu
+        icon="groups"
+        label="Clientes"
+        (cardClick)="irPara('consultar-clientes')"
+      ></app-card-menu>
+      <app-card-menu
+        icon="workspace_premium"
+        label="Melhores Clientes"
+        (cardClick)="irPara('melhores-clientes')"
+      ></app-card-menu>
+    </div>
+  </div>
+</main>

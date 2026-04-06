@@ -9,6 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { finalize } from 'rxjs';
+import { Router } from '@angular/router';
 
 import { DepositRequest } from '../../../shared/models/deposit-request';
 import { DepositConfirmationModalComponent } from '../components/deposit-confirmation-modal.component';
@@ -55,6 +56,7 @@ const depositAmountValidator: ValidatorFn = (
 export class DepositPageComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly clientAccountService = inject(ClientAccountService);
+  private readonly router = inject(Router);
   readonly formatCurrency = formatCurrency;
   readonly account$ = this.clientAccountService.getCurrentAccount();
 
@@ -175,6 +177,16 @@ export class DepositPageComponent {
 
   get pendingAmountLabel(): string {
     return formatCurrency(this.pendingDeposit?.amount ?? 0);
+  }
+
+  voltarAoInicio(): void {
+    this.router.navigate(['/cliente/home']);
+  }
+
+  novoDeposito(): void {
+    this.successfulDepositTimestamp = '';
+    this.submissionError = '';
+    this.depositForm.reset({ amount: '' });
   }
 
   private parseAmount(rawValue: string): number {

@@ -11,6 +11,7 @@ html, body {
     height: 100%;
     font-family: var(--font-family-secondary);
     background: var(--color-background);
+    overflow-x: hidden;
 }
 
 .main-layout {
@@ -20,13 +21,16 @@ html, body {
 .main-section {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: calc(100vh - 80px);
+    height: auto;
     width: 100%;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 main {
-    height: 100vh;
+    min-height: calc(100vh - 80px);
+    height: auto;
     width: 100%;
     padding: 0 var(--spacing-xl);
 }
@@ -65,6 +69,11 @@ a:hover {
     background-color: var(--color-green-700, #087448);
     border: 0;
     color: var(--color-primary-foreground);
+    font-family: var(--label-large-font-family);
+    font-size: var(--label-large-font-size);
+    line-height: var(--label-large-line-height);
+    font-weight: var(--label-large-font-weight);
+    letter-spacing: var(--label-large-letter-spacing);
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
@@ -90,6 +99,11 @@ button:disabled, .button-primary:disabled {
     background: none;
     border: 2.5px solid var(--color-green-700, #087448);
     color: var(--color-green-700, #087448);
+    font-family: var(--label-large-font-family);
+    font-size: var(--label-large-font-size);
+    line-height: var(--label-large-line-height);
+    font-weight: var(--label-large-font-weight);
+    letter-spacing: var(--label-large-letter-spacing);
     cursor: pointer;
 }
 

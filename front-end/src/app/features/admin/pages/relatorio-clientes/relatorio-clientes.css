@@ -4,7 +4,7 @@
 
 .relatorio-clientes {
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 80px);
   padding: 52px 0 48px;
   background: var(--color-background, #e5e8e6);
 }
