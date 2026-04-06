@@ -67,6 +67,57 @@ export class ClientAccountService {
     }
   }
 
+  withdrawFromCurrentAccount(request: { amount: number; description?: string }): Observable<BankAccount> {
+    const currentUser = this.authService.currentUserValue;
+
+    if (currentUser && currentUser.tipo !== 'cliente') {
+      return throwError(
+        () => new Error('Apenas clientes podem realizar saques.')
+      );
+    }
+
+    try {
+      const amount = this.validateAmount(request.amount);
+      const currentAccount = this.accountStateSubject.value;
+      const limit = (currentAccount as any).limit || 0;
+      const availableToWithdraw = currentAccount.availableBalance + limit;
+
+      if (amount > availableToWithdraw) {
+        return throwError(() => new Error('Saldo insuficiente para este saque.'));
+      }
+
+      const balanceAfter = this.roundCurrency(
+        currentAccount.availableBalance - amount
+      );
+
+      const transaction: AccountTransaction = {
+        id: Math.random().toString(36).substring(2, 10),
+        type: 'withdrawal',
+        amount: amount,
+        description: request.description?.trim() || 'Saque em conta',
+        performedAt: new Date().toISOString(),
+        balanceAfter: balanceAfter
+      } as AccountTransaction;
+
+      const updatedAccount: BankAccount = {
+        ...currentAccount,
+        availableBalance: balanceAfter,
+        transactions: [transaction, ...currentAccount.transactions],
+      };
+
+      this.persistAccountState(updatedAccount);
+      this.accountStateSubject.next(updatedAccount);
+
+      return of(updatedAccount);
+    } catch (error) {
+      return throwError(() =>
+        error instanceof Error
+          ? error
+          : new Error('Nao foi possivel processar o saque.')
+      );
+    }
+  }
+
   private loadAccountState(): BankAccount {
     const storageKey = this.buildStorageKey();
     const persistedState = localStorage.getItem(storageKey);
@@ -172,7 +223,7 @@ export class ClientAccountService {
 
     return (
       typeof transaction.id === 'string' &&
-      transaction.type === 'deposit' &&
+      (transaction.type === 'deposit' || transaction.type === 'withdrawal') &&
       typeof transaction.amount === 'number' &&
       typeof transaction.description === 'string' &&
       typeof transaction.performedAt === 'string' &&
