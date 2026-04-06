@@ -43,7 +43,7 @@ app.post("/auth/login", (req, res) => {
     token_type: "bearer",
     tipo: (user.tipo).toUpperCase(), 
     usuario: {
-      nome: user.nome || "Usuário",
+      nome: user.nome,
       email: user.email,
       cpf: user.cpf
     }
@@ -197,6 +197,7 @@ app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
   const solicitacoes = getData("solicitacoes");
   const clientes = getData("clientes");
   const contas = getData("contas");
+  const auth = getData("auth");
   const pedido = solicitacoes.find((s) => s.cpf === cpf);
 
   if (!pedido) {
@@ -205,14 +206,8 @@ app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
       .json({ message: "Pedido não encontrado" });
   }
 
-  const novoId =
-  clientes.length > 0
-    ? Math.max(...clientes.map(c => c.id)) + 1
-    : 1;
-
   const novoCliente = {
-    ...pedido,
-    id: novoId
+    ...pedido
   };
 
   clientes.push(novoCliente);
@@ -237,7 +232,16 @@ app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
     transactions: []
   });
 
+  auth.push({
+    nome: pedido.nome,
+    cpf: pedido.cpf,
+    email: pedido.email,
+    senha: senha,
+    tipo: "CLIENTE" 
+  });
+
   saveData("contas", contas);
+  saveData("auth", auth);
 
   const novasSolicitacoes =
     solicitacoes.filter((s) => s.cpf !== cpf);
@@ -348,7 +352,6 @@ app.get("/manager/clientes", (req, res) => {
     const conta = contas.find((c) => c.holderDocument === cliente.cpf);
 
     return {
-      id: cliente.cpf, 
       cpf: cliente.cpf,
       nome: cliente.nome,
       cidade: cliente.endereco?.cidade || "N/A",

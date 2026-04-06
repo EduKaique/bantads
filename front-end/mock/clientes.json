@@ -1,155 +1,36 @@
 [
   {
-    "cpf": "12912861012",
-    "nome": "Catharyna",
-    "email": "cli1@bantads.com.br",
-    "celular": "41999990000",
-    "salario": 10000,
+    "cpf": "76179646090",
+    "nome": "Coândrya",
+    "email": "cli5@bantads.com.br",
+    "celular": "13996762377",
+    "salario": "R$ 1.500",
     "endereco": {
-      "cep": "80020000",
-      "logradouro": "Rua XV de Novembro",
-      "numero": "1291",
-      "complemento": "Apto 101",
-      "bairro": "Centro",
-      "cidade": "Curitiba",
-      "uf": "PR"
-    },
-    "dataSolicitacao": "2026-03-14T10:00:00.000Z",
-    "id": 1,
-    "cpfGerente": "64065268052"
-  },
-  {
-    "cpf": "85733854057",
-    "nome": "Catianna a",
-    "email": "cli3@bantads.com.br",
-    "celular": "41999990003",
-    "salario": 8000,
-    "endereco": {
-      "cep": "80020100",
-      "logradouro": "Praça Tiradentes",
-      "numero": "8570",
-      "complemento": "Bloco B",
-      "bairro": "Centro",
-      "cidade": "Curitiba",
-      "uf": "PR",
-      "estado": "PR"
-    },
-    "dataSolicitacao": "2026-03-14T10:10:00.000Z",
-    "id": 2,
-    "cpfGerente": "23862179060"
-  },
-  {
-    "cpf": "09506382000",
-    "nome": "Cleuddônio",
-    "email": "cli2@bantads.com.br",
-    "celular": "41999990002",
-    "salario": 20000,
-    "endereco": {
-      "cep": "80230010",
-      "logradouro": "Avenida Sete de Setembro",
-      "numero": "950",
+      "cep": "11900000",
+      "logradouro": "Rua rui prado de mendonça",
+      "numero": "755",
       "complemento": "",
-      "bairro": "Rebouças",
-      "cidade": "Curitiba",
-      "uf": "PR"
-    },
-    "dataSolicitacao": "2026-03-14T10:05:00.000Z",
-    "id": 3,
-    "cpfGerente": "42960554884"
-  },
-  {
-    "cpf": "44636173910",
-    "nome": "Eduardo Kaique",
-    "email": "edu.kaique@bantads.com.br",
-    "celular": "41999990004",
-    "salario": 6000,
-    "endereco": {
-      "cep": "80040070",
-      "logradouro": "Rua Coronel Enéas",
-      "numero": "44",
-      "complemento": "Sala 202",
-      "bairro": "Bom Retiro",
-      "cidade": "Cianorte",
-      "uf": "PR"
-    },
-    "dataSolicitacao": "2026-03-15T08:00:00.000Z",
-    "id": 4,
-    "cpfGerente": "11122233344"
-  },
-  {
-    "cpf": "11944108980",
-    "nome": "Rafael Pomponio",
-    "email": "rafael.pomp@bantads.com.br",
-    "celular": "41999990005",
-    "salario": 15000,
-    "endereco": {
-      "cep": "80410130",
-      "logradouro": "Rua Professor Algacyr Munhoz Mader",
-      "numero": "119",
-      "complemento": "",
-      "bairro": "Vila das Flores",
-      "cidade": "São Carlos",
+      "bairro": "Alai correa",
+      "cidade": "Registro",
       "uf": "SP"
     },
-    "dataSolicitacao": "2026-03-15T09:00:00.000Z",
-    "id": 5,
-    "cpfGerente": "22233344455"
+    "dataSolicitacao": "2026-04-06T00:29:47.344Z"
   },
   {
-    "cpf": "07070656076",
-    "nome": "Beatriz Costa",
-    "email": "beatriz.costa@bantads.com.br",
-    "celular": "41999990006",
-    "salario": 9500,
+    "cpf": "58872160006",
+    "nome": "Cutardo",
+    "email": "cli4@bantads.com.br",
+    "celular": "13996762377",
+    "salario": "R$ 500",
     "endereco": {
-      "cep": "80320060",
-      "logradouro": "Rua das Flores",
-      "numero": "765",
-      "complemento": "Apto 504",
-      "bairro": "Mercês",
-      "cidade": "Curitiba",
-      "uf": "PR"
+      "cep": "11900000",
+      "logradouro": "Rua rui prado de mendonça",
+      "numero": "755",
+      "complemento": "",
+      "bairro": "Alai correa",
+      "cidade": "Registro",
+      "uf": "SP"
     },
-    "dataSolicitacao": "2026-03-15T10:00:00.000Z",
-    "id": 6,
-    "cpfGerente": "33344455566"
-  },
-  {
-    "cpf": "55544433322",
-    "nome": "Carlosinho Banana",
-    "email": "carlosinho@bantads.com.br",
-    "celular": "41999990007",
-    "salario": 3000,
-    "endereco": {
-      "cep": "80010000",
-      "logradouro": "Avenida Getúlio Vargas",
-      "numero": "555",
-      "complemento": "Apto 301",
-      "bairro": "Centro",
-      "cidade": "Curitiba",
-      "uf": "PR"
-    },
-    "dataSolicitacao": "2026-03-16T11:00:00.000Z",
-    "id": 7,
-    "cpfGerente": "64065268052"
-  },
-  {
-    "cpf": "99988877766",
-    "nome": "Fernanda Pobre",
-    "email": "fernanda.neg@bantads.com.br",
-    "celular": "41999990008",
-    "salario": 4500,
-    "endereco": {
-      "cep": "80010000",
-      "logradouro": "Avenida Getúlio Vargas",
-      "numero": "999",
-      "complemento": "Apto 801",
-      "bairro": "Centro",
-      "cidade": "Curitiba",
-      "uf": "PR"
-    },
-    "dataSolicitacao": "2026-03-16T14:00:00.000Z",
-    "id": 8,
-    "cpfGerente": "23862179060"
+    "dataSolicitacao": "2026-04-06T00:29:10.807Z"
   }
 ]

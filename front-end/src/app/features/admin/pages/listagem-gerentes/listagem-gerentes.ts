@@ -23,6 +23,7 @@ import { ModalAtualizarGerente } from '../../components/modal-atualizar-gerente/
 import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
 import { MatDialog } from '@angular/material/dialog';
 import { WarningDialogComponent } from '../../../../shared/components/warning-dialog/warning-dialog.component';
+import { MatIcon } from "@angular/material/icon";
 
 @Component({
   selector: 'app-listagem-gerentes',
@@ -34,8 +35,9 @@ import { WarningDialogComponent } from '../../../../shared/components/warning-di
     InputPrimaryComponent,
     ModalInserirGerenteComponent,
     ModalAtualizarGerente,
-    AppSuccessModalComponent  
-  ],
+    AppSuccessModalComponent,
+    MatIcon
+],
   templateUrl: './listagem-gerentes.html',
   styleUrl: './listagem-gerentes.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

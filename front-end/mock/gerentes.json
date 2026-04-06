@@ -1,43 +1,23 @@
 [
   {
+    "nome": "Geniéve",
+    "cpf": "98574307084",
+    "email": "ger1@bantads.com.br",
+    "celular": "41999990003",
+    "tipo": "GERENTE"
+  },
+  {
+    "nome": "Godophredo",
     "cpf": "64065268052",
-    "nome": "Godophredo ",
     "email": "ger2@bantads.com.br",
-    "celular": "(41) 8888-0002"
+    "celular": "41999990004",
+    "tipo": "GERENTE"
   },
   {
-    "cpf": "23862179060",
     "nome": "Gyândula",
+    "cpf": "23862179060",
     "email": "ger3@bantads.com.br",
-    "celular": "(41) 8888-0003"
-  },
-  {
-    "nome": "Anna Linda",
-    "cpf": "42960554884",
-    "email": "marianoannaluiza@gmail.com",
-    "celular": "(13) 99676-2377",
-    "senha": "123456",
-    "tipo": "GERENTE"
-  },
-  {
-    "nome": "Claudineu Silva",
-    "cpf": "11122233344",
-    "email": "claudineu@bantads.com.br",
-    "celular": "(41) 99999-0001",
-    "tipo": "GERENTE"
-  },
-  {
-    "nome": "Baitcha Mendes",
-    "cpf": "22233344455",
-    "email": "baitcha@bantads.com.br",
-    "celular": "(41) 99999-0002",
-    "tipo": "GERENTE"
-  },
-  {
-    "nome": "Boróvis Costa",
-    "cpf": "33344455566",
-    "email": "borovis@bantads.com.br",
-    "celular": "(41) 99999-0003",
+    "celular": "41999990005",
     "tipo": "GERENTE"
   }
 ]
