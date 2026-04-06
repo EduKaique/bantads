@@ -14,20 +14,17 @@
           <label class="date-label">Data Inicial</label>
           <div class="input-wrapper">
             <input
-              type="text"
-              [(ngModel)]="dataInicio"
-              placeholder="DD/MM/YYYY"
-              class="date-input"
-              disabled
-            />
-            <button class="calendar-btn" (click)="pickerInicio.open()" aria-label="Selecionar data inicial">
-              <mat-icon>calendar_today</mat-icon>
-            </button>
-            <mat-datepicker #pickerInicio></mat-datepicker>
-            <input matInput 
-              [matDatepicker]="pickerInicio" 
+              matInput
+              [matDatepicker]="pickerInicio"
+              [value]="dataSelecionadaInicio"
               (dateChange)="onDataInicioChange($event)"
-              class="mat-datepicker-hidden-input">
+              (click)="pickerInicio.open()"
+              class="date-input"
+              placeholder="DD/MM/YYYY"
+              readonly
+            />
+            <mat-datepicker-toggle [for]="pickerInicio" class="calendar-toggle"></mat-datepicker-toggle>
+            <mat-datepicker #pickerInicio></mat-datepicker>
           </div>
         </div>
 
@@ -35,20 +32,17 @@
           <label class="date-label">Data Final</label>
           <div class="input-wrapper">
             <input
-              type="text"
-              [(ngModel)]="dataFim"
-              placeholder="DD/MM/YYYY"
-              class="date-input"
-              disabled
-            />
-            <button class="calendar-btn" (click)="pickerFim.open()" aria-label="Selecionar data final">
-              <mat-icon>calendar_today</mat-icon>
-            </button>
-            <mat-datepicker #pickerFim></mat-datepicker>
-            <input matInput 
-              [matDatepicker]="pickerFim" 
+              matInput
+              [matDatepicker]="pickerFim"
+              [value]="dataSelecionadaFim"
               (dateChange)="onDataFimChange($event)"
-              class="mat-datepicker-hidden-input">
+              (click)="pickerFim.open()"
+              class="date-input"
+              placeholder="DD/MM/YYYY"
+              readonly
+            />
+            <mat-datepicker-toggle [for]="pickerFim" class="calendar-toggle"></mat-datepicker-toggle>
+            <mat-datepicker #pickerFim></mat-datepicker>
           </div>
         </div>
       </div>

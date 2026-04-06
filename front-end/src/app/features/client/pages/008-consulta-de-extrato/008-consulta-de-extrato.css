@@ -150,6 +150,7 @@ input {
   background-color: transparent;
   caret-color: transparent;
   user-select: text;
+  cursor: pointer;
 }
 
 .date-input:focus {
@@ -157,17 +158,20 @@ input {
   caret-color: transparent;
 }
 
-.date-input:disabled {
-  background-color: #f5f5f5;
-  color: #999;
-  cursor: not-allowed;
-}
-
 .date-input::placeholder {
   color: #b3b1b6;
 }
 
-.calendar-btn {
+.calendar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: #56645f;
+}
+
+.calendar-toggle ::ng-deep button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -180,11 +184,11 @@ input {
   transition: background-color 0.2s ease;
 }
 
-.calendar-btn:hover {
+.calendar-toggle ::ng-deep button:hover {
   background-color: rgba(73, 69, 79, 0.08);
 }
 
-.calendar-btn mat-icon {
+.calendar-toggle ::ng-deep .mat-icon {
   font-size: 24px;
   width: 24px !important;
   height: 24px !important;
@@ -202,19 +206,6 @@ input {
 
 ::ng-deep .cdk-overlay-pane {
   z-index: 10001 !important;
-}
-
-.mat-datepicker-hidden-input {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  pointer-events: none;
-  border: none;
-  padding: 0;
-  margin: 0;
 }
 
 

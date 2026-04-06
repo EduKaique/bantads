@@ -32,6 +32,8 @@ export class ConsultaExtratoPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
 
   readonly saldoAtual = signal(0);
+  private readonly chavePrimeiroAcessoNaSessao = 'extrato-primeiro-acesso';
+  private readonly chaveFiltroExtratoNaSessao = 'extrato-filtro';
 
   dataInicio = '01/01/2026';
   dataFim = '31/12/2026';
@@ -43,8 +45,9 @@ export class ConsultaExtratoPageComponent implements OnInit {
   transacoesPorData: GrupoTransacoes[] = [];
 
   ngOnInit(): void {
-    this.carregarSaldoAtual();
+    this.configurarFiltroInicialDaSessao();
     this.carregarTransacoesDoLocalStorage();
+    this.carregarSaldoAtual();
   }
 
   private buildStorageKey(): string {
@@ -53,6 +56,80 @@ export class ConsultaExtratoPageComponent implements OnInit {
       ? this.normalizeStorageKeySegment(currentUser.email || currentUser.nome || 'cliente')
       : 'local-demo';
     return `client-account-state:${sessionKey}`;
+  }
+
+  private buildSessionStorageKey(): string {
+    const currentUser = this.authService.currentUserValue;
+    const sessionKey = currentUser?.tipo === 'cliente'
+      ? this.normalizeStorageKeySegment(currentUser.email || currentUser.nome || 'cliente')
+      : 'local-demo';
+    return `${this.chavePrimeiroAcessoNaSessao}:${sessionKey}`;
+  }
+
+  private buildSessionFilterStorageKey(): string {
+    const currentUser = this.authService.currentUserValue;
+    const sessionKey = currentUser?.tipo === 'cliente'
+      ? this.normalizeStorageKeySegment(currentUser.email || currentUser.nome || 'cliente')
+      : 'local-demo';
+    return `${this.chaveFiltroExtratoNaSessao}:${sessionKey}`;
+  }
+
+  private configurarFiltroInicialDaSessao(): void {
+    const chavePrimeiroAcesso = this.buildSessionStorageKey();
+    const chaveFiltro = this.buildSessionFilterStorageKey();
+    const jaAcessouExtratoNaSessao = sessionStorage.getItem(chavePrimeiroAcesso);
+    const filtroPersistido = sessionStorage.getItem(chaveFiltro);
+
+    if (filtroPersistido) {
+      this.aplicarFiltroPersistido(filtroPersistido);
+      return;
+    }
+
+    if (jaAcessouExtratoNaSessao) {
+      return;
+    }
+
+    const hoje = new Date();
+    const dataAtualFormatada = this.formatarDataParaInput(hoje);
+
+    this.dataSelecionadaInicio = hoje;
+    this.dataSelecionadaFim = hoje;
+    this.dataInicio = dataAtualFormatada;
+    this.dataFim = dataAtualFormatada;
+
+    sessionStorage.setItem(chavePrimeiroAcesso, 'true');
+    this.persistirFiltroDaSessao();
+  }
+
+  private aplicarFiltroPersistido(filtroPersistido: string): void {
+    try {
+      const filtro = JSON.parse(filtroPersistido) as {
+        dataInicio?: string;
+        dataFim?: string;
+      };
+
+      if (!filtro.dataInicio || !filtro.dataFim) {
+        return;
+      }
+
+      this.dataInicio = filtro.dataInicio;
+      this.dataFim = filtro.dataFim;
+      this.dataSelecionadaInicio = this.converterStringParaDate(filtro.dataInicio);
+      this.dataSelecionadaFim = this.converterStringParaDate(filtro.dataFim);
+    } catch {
+      sessionStorage.removeItem(this.buildSessionFilterStorageKey());
+    }
+  }
+
+  private persistirFiltroDaSessao(): void {
+    const chaveFiltro = this.buildSessionFilterStorageKey();
+    sessionStorage.setItem(
+      chaveFiltro,
+      JSON.stringify({
+        dataInicio: this.dataInicio,
+        dataFim: this.dataFim,
+      }),
+    );
   }
 
   private normalizeStorageKeySegment(value: string): string {
@@ -124,6 +201,7 @@ export class ConsultaExtratoPageComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((account) => {
         this.saldoAtual.set(account.availableBalance);
+        this.filtrarEAgruparTransacoes();
       });
   }
 
@@ -278,6 +356,8 @@ export class ConsultaExtratoPageComponent implements OnInit {
   onDataInicioChange(event: any): void {
     if (event.value) {
       this.dataInicio = this.formatarDataParaInput(event.value);
+      this.dataSelecionadaInicio = event.value;
+      this.persistirFiltroDaSessao();
       this.filtrarEAgruparTransacoes();
     }
   }
@@ -285,6 +365,8 @@ export class ConsultaExtratoPageComponent implements OnInit {
   onDataFimChange(event: any): void {
     if (event.value) {
       this.dataFim = this.formatarDataParaInput(event.value);
+      this.dataSelecionadaFim = event.value;
+      this.persistirFiltroDaSessao();
       this.filtrarEAgruparTransacoes();
     }
   }

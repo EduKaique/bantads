@@ -30,6 +30,8 @@ export type UserState = {
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly chaveSessaoExtrato = 'extrato-primeiro-acesso:';
+  private readonly chaveFiltroExtrato = 'extrato-filtro:';
   private http = inject(HttpClient);
   private apiBaseUrl = inject(API_URL);
   private router = inject(Router);
@@ -100,8 +102,26 @@ export class AuthService {
   public logout(): void {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('token');
+    this.limparMarcadoresDeSessaoDoExtrato();
     this.userSignal.set(null);
     this.router.navigate(['/login']);
+  }
+
+  private limparMarcadoresDeSessaoDoExtrato(): void {
+    const chavesParaRemover: string[] = [];
+
+    for (let indice = 0; indice < sessionStorage.length; indice++) {
+      const chave = sessionStorage.key(indice);
+
+      if (
+        chave?.startsWith(this.chaveSessaoExtrato) ||
+        chave?.startsWith(this.chaveFiltroExtrato)
+      ) {
+        chavesParaRemover.push(chave);
+      }
+    }
+
+    chavesParaRemover.forEach((chave) => sessionStorage.removeItem(chave));
   }
 
   /**
