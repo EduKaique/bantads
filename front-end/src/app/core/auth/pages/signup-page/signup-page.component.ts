@@ -77,11 +77,17 @@ export class SignupPageComponent {
 
       const removeNonDigits = (value: string) => value.replace(/\D/g, '');
 
+      const parseCurrency = (value: any): number => {
+        if (!value) return 0;
+        const cleanString = value.toString().replace(/[R$\s\.]/g, '').replace(',', '.');
+        return parseFloat(cleanString);
+      };
+
       const requestData: RegisterRequest = {
         nome: personalData.nameUser,
         cpf: removeNonDigits(personalData.cpfUser),
         email: personalData.email,
-        salario: personalData.salary,
+        salario: parseCurrency(personalData.salary),
         celular: removeNonDigits(personalData.phoneUser),
         cep: removeNonDigits(addressData.cep),
         logradouro: addressData.address,
