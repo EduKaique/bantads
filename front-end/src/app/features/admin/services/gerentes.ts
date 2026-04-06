@@ -20,7 +20,7 @@ export class GerentesService {
 
   listar(): Observable<Gerente[]> {
     return this.http
-      .get<GerenteResposta[]>(`${this.apiUrl}/admin/gerentes`)
+      .get<GerenteResposta[]>(`${this.apiUrl}/gerentes`)
       .pipe(
         map((gerentes) =>
           gerentes

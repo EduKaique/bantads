@@ -18,7 +18,15 @@ const PATHS = {
   transacoes: path.join(__dirname, "mock/transacoes.json")
 };
 
-const getData = (file) => JSON.parse(fs.readFileSync(PATHS[file], "utf-8"));
+const getData = (file) => {
+  try {
+    const rawData = fs.readFileSync(PATHS[file], "utf-8");
+    return JSON.parse(rawData);
+  } catch (error) {
+    console.error(`Erro ao ler o arquivo ${file}:`, error);
+    return [];
+  }
+};
 const saveData = (file, data) =>
   fs.writeFileSync(PATHS[file], JSON.stringify(data, null, 2));
 
@@ -168,6 +176,7 @@ app.get("/manager/pedidos-autocadastro", (_req, res) => {
 app.get("/contas", (_req, res) => {
   const contas = getData("contas");
   const contasComSaldo = contas.map((conta) => ({
+    ...conta,
     cpf: conta.holderDocument,
     nome: conta.holderName,
     saldoPositivo: conta.availableBalance > 0 ? conta.availableBalance : 0,
@@ -184,11 +193,11 @@ app.get("/clientes", (_req, res) => {
 
 
 //Aprovação de clientes ---------------------------------
-app.get("/admin/gerentes", (_req, res) => {
-  const gerentes = getData("gerentes");
-
-  res.json(gerentes);
-});
+//app.get("/admin/gerentes", (_req, res) => {
+//  const gerentes = getData("gerentes");
+//
+//  res.json(gerentes);
+//});
 
 app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
 
@@ -512,68 +521,61 @@ app.put("/admin/atualizaPerfil/:cpf", (req, res) => {
   });
 });
 
-//Remoção de Gerente ----------------------
-app.delete("/admin/gerentes/:cpf", (req, res) => {
-  const cpfRemover = req.params.cpf;
+  //Remoção de Gerente ----------------------
+  app.delete('/admin/gerentes/:cpf', (req, res) => {
+  const cpfExcluido = req.params.cpf.replace(/\D/g, ''); // Garante que pegamos só os números
+  
+  // Lê os arquivos atualizados
+  let gerentes = JSON.parse(fs.readFileSync('./mock/gerentes.json', 'utf8'));
+  let contas = JSON.parse(fs.readFileSync('./mock/conta-banco.json', 'utf8'));
 
-  let gerentes = getData("gerentes");
-  let auths = getData("auth");
-  let contas = getData("contas");
-
-  const gerenteIndex = gerentes.findIndex(g => g.cpf === cpfRemover);
+  const gerenteIndex = gerentes.findIndex(g => (g.cpf ? g.cpf.replace(/\D/g, '') : '') === cpfExcluido);
 
   if (gerenteIndex === -1) {
-    return res.status(404).json({ message: "Gerente não encontrado." });
+    return res.status(404).json({ message: 'Gerente não encontrado.' });
   }
 
-  if (gerenteIndex !== -1 && gerentes.length <= 1) {
-    return res.status(400).json({ 
-      message: "Operação negada. Não é possível remover o único gerente do banco." 
-    });
+  // Separa apenas os gerentes que VÃO SOBRAR na empresa
+  const gerentesRestantes = gerentes.filter((g, index) => index !== gerenteIndex);
+
+  if (gerentesRestantes.length === 0) {
+    return res.status(400).json({ message: 'Não é possível excluir o único gerente do sistema.' });
   }
 
-  const gerenteRemovido = gerentes[gerenteIndex];
+  let gerenteDestino = gerentesRestantes[0];
+  let menorQtd = contas.filter(c => (c.managerDocument ? c.managerDocument.replace(/\D/g, '') : '') === gerenteDestino.cpf.replace(/\D/g, '')).length;
 
-  // Remove o gerente da lista de gerentes e de autenticação
-  const gerentesRestantes = gerentes.filter(g => g.cpf !== cpfRemover);
-  const authsRestantes = auths.filter(a => a.cpf !== cpfRemover);
+  for (let i = 1; i < gerentesRestantes.length; i++) {
+    const atual = gerentesRestantes[i];
+    const qtdAtual = contas.filter(c => (c.managerDocument ? c.managerDocument.replace(/\D/g, '') : '') === atual.cpf.replace(/\D/g, '')).length;
+    
+    if (qtdAtual < menorQtd) {
+      gerenteDestino = atual;
+      menorQtd = qtdAtual;
+    }
+  }
 
-  const contagemContas = gerentesRestantes.map(gerente => {
-    return {
-      cpf: gerente.cpf,
-      nome: gerente.nome,
-      qtdContas: contas.filter(c => c.managerDocument === gerente.cpf || c.manager === gerente.nome).length
-    };
-  });
-
-  // Ordena do menor para o maior número de contas
-  contagemContas.sort((a, b) => a.qtdContas - b.qtdContas);
-  
-  const gerenteAlvo = contagemContas[0];
-
-  //Varre as contas e transfere as que eram do gerente excluído para o novo
-  let contasTransferidas = 0;
+  let contasAlteradas = false;
   contas = contas.map(conta => {
-    if (conta.managerDocument === cpfRemover || conta.manager === gerenteRemovido.nome) {
-      contasTransferidas++;
-      return { 
-        ...conta, 
-        managerDocument: gerenteAlvo.cpf,
-        manager: gerenteAlvo.nome
-      };
+    const managerDocNorm = conta.managerDocument ? conta.managerDocument.replace(/\D/g, '') : '';
+    
+    if (managerDocNorm === cpfExcluido) {
+      conta.managerDocument = gerenteDestino.cpf;
+      conta.manager = gerenteDestino.nome;
+      contasAlteradas = true;
     }
     return conta;
   });
 
-  saveData("gerentes", gerentesRestantes);
-  saveData("auth", authsRestantes);
-  saveData("contas", contas);
+  gerentes.splice(gerenteIndex, 1);
+  fs.writeFileSync('./mock/gerentes.json', JSON.stringify(gerentes, null, 2), 'utf8');
 
-  console.log(`Gerente ${gerenteRemovido.nome} removido. ${contasTransferidas} contas transferidas para ${gerenteAlvo.nome}.`);
-  
-  res.json({ 
-    message: "Gerente removido com sucesso e contas realocadas.",
-    contasRealocadas: contasTransferidas
+  if (contasAlteradas) {
+    fs.writeFileSync('./mock/conta-banco.json', JSON.stringify(contas, null, 2), 'utf8');
+  }
+
+  res.status(200).json({ 
+    message: `Gerente removido! Contas transferidas para ${gerenteDestino.nome}.` 
   });
 });
 

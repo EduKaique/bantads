@@ -48,7 +48,7 @@
             [routerLink]="['/gerente/consultar-cliente', cliente.cpf]" 
             style="cursor: pointer;"
           >
-            <td>{{ cliente.cpf }}</td>
+            <td>{{ formatarCpf(cliente.cpf) }}</td>
             <td>{{ cliente.nome }}</td>
             <td>{{ cliente.cidade }}</td>
             <td>{{ cliente.estado }}</td>
