@@ -1,11 +1,28 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
+
 import { API_URL } from '../../../core/configs/api.token';
-import { GerenteDashboard } from '../../../shared/models/gerente-dashboard';
 import { DashboardEstatisticas } from '../../../shared/models/dashboard-estatisticas';
 import { Gerente } from '../../../shared/models/gerente';
+import { GerenteDashboard } from '../../../shared/models/gerente-dashboard';
+
+interface ClienteResumo {
+  cpf: string;
+  cpfGerente: string;
+}
+
+interface ContaResumo {
+  holderDocument: string;
+  availableBalance: number;
+}
+
+interface DadosDashboard {
+  gerentes: Gerente[];
+  contas: ContaResumo[];
+  clientes: ClienteResumo[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -14,98 +31,108 @@ export class GerentesDashboardService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = inject(API_URL);
 
-  private normalizarCpf(cpf: string): string {
-    return cpf ? cpf.replace(/\D/g, '') : '';
-  }
-
   obterEstatisticas(): Observable<DashboardEstatisticas> {
-    return forkJoin({
-      gerentes: this.http.get<Gerente[]>(`${this.apiUrl}/gerentes`),
-      contas: this.http.get<any[]>(`${this.apiUrl}/contas`),
-      clientes: this.http.get<any[]>(`${this.apiUrl}/clientes`),
-    }).pipe(
-      map(({ gerentes, contas, clientes }) => {
-        const totalGerentes = gerentes.length;
-        const totalClientes = clientes.length;
+    return this.obterDadosDashboard().pipe(
+      map(({ gerentes, clientes, contas }) => {
+        const totalGerentesPositivos = gerentes.filter((gerente) => {
+          const resumo = this.calcularResumoFinanceiroGerente(
+            gerente.cpf,
+            clientes,
+            contas,
+          );
 
-        // Calcular saldo líquido de cada gerente
-        let totalGerentesPositivos = 0;
-        let totalGerentesNegativos = 0;
-
-        gerentes.forEach((g) => {
-          const cpfGerenteNorm = this.normalizarCpf(g.cpf);
-
-          const contasDoGerente = contas.filter((conta) => {
-             const managerNorm = this.normalizarCpf(conta.managerDocument);
-             return managerNorm === cpfGerenteNorm;
-          });
-
-          // Soma os saldos das contas do gerente
-          let saldoPositivoTotal = 0;
-          let saldoNegativoTotal = 0;
-
-          contasDoGerente.forEach(conta => {
-             const saldo = conta.availableBalance || 0;
-             if (saldo >= 0) {
-               saldoPositivoTotal += saldo;
-             } else {
-               saldoNegativoTotal += Math.abs(saldo);
-             }
-          });
-
-          // Se saldoNegativo <= saldoPositivo, gerente é positivo
-          if (saldoNegativoTotal <= saldoPositivoTotal) {
-             totalGerentesPositivos++;
-          } else {
-             totalGerentesNegativos++;
-          }
-        });
+          return resumo.saldoNegativo <= resumo.saldoPositivo;
+        }).length;
 
         return {
-          totalGerentes,
-          totalClientes,
+          totalGerentes: gerentes.length,
+          totalClientes: clientes.length,
           totalGerentesPositivos,
-          totalGerentesNegativos,
+          totalGerentesNegativos: gerentes.length - totalGerentesPositivos,
         };
       }),
     );
   }
 
   obterGerentesComDados(): Observable<GerenteDashboard[]> {
+    return this.obterDadosDashboard().pipe(
+      map(({ gerentes, clientes, contas }) =>
+        gerentes
+          .map((gerente) =>
+            this.mapearGerenteDashboard(gerente, clientes, contas),
+          )
+          .sort(
+            (gerenteA, gerenteB) =>
+              gerenteB.totalSaldoPositivo - gerenteA.totalSaldoPositivo,
+          ),
+      ),
+    );
+  }
+
+  private obterDadosDashboard(): Observable<DadosDashboard> {
     return forkJoin({
       gerentes: this.http.get<Gerente[]>(`${this.apiUrl}/gerentes`),
-      contas: this.http.get<any[]>(`${this.apiUrl}/contas`),
-      clientes: this.http.get<any[]>(`${this.apiUrl}/clientes`),
-    }).pipe(
-      map(({ gerentes, contas }) => {
-        return gerentes.map((gerente) => {
-          const cpfGerenteNorm = this.normalizarCpf(gerente.cpf);
+      contas: this.http.get<ContaResumo[]>(`${this.apiUrl}/contas`),
+      clientes: this.http.get<ClienteResumo[]>(`${this.apiUrl}/clientes`),
+    });
+  }
 
-          const contasGerente = contas.filter((conta) => {
-            const managerNorm = this.normalizarCpf(conta.managerDocument);
-            return managerNorm === cpfGerenteNorm;
-          });
-
-          let totalSaldoPositivo = 0;
-          let totalSaldoNegativo = 0;
-
-          contasGerente.forEach(conta => {
-             const saldo = conta.availableBalance || 0;
-             if (saldo >= 0) {
-               totalSaldoPositivo += saldo;
-             } else {
-               totalSaldoNegativo += Math.abs(saldo);
-             }
-          });
-
-          return {
-            ...gerente,
-            totalClientes: contasGerente.length,
-            totalSaldoPositivo,
-            totalSaldoNegativo,
-          };
-        }).sort((a, b) => b.totalSaldoPositivo - a.totalSaldoPositivo);
-      }),
+  private mapearGerenteDashboard(
+    gerente: Gerente,
+    clientes: ClienteResumo[],
+    contas: ContaResumo[],
+  ): GerenteDashboard {
+    const resumo = this.calcularResumoFinanceiroGerente(
+      gerente.cpf,
+      clientes,
+      contas,
     );
+
+    return {
+      ...gerente,
+      totalClientes: resumo.totalClientes,
+      totalSaldoPositivo: resumo.saldoPositivo,
+      totalSaldoNegativo: resumo.saldoNegativo,
+    };
+  }
+
+  private calcularResumoFinanceiroGerente(
+    cpfGerente: string,
+    clientes: ClienteResumo[],
+    contas: ContaResumo[],
+  ): {
+    totalClientes: number;
+    saldoPositivo: number;
+    saldoNegativo: number;
+  } {
+    const cpfsClientes = new Set(
+      clientes
+        .filter(
+          (cliente) =>
+            this.normalizarCpf(cliente.cpfGerente) ===
+            this.normalizarCpf(cpfGerente),
+        )
+        .map((cliente) => this.normalizarCpf(cliente.cpf)),
+    );
+
+    const contasGerente = contas.filter((conta) =>
+      cpfsClientes.has(this.normalizarCpf(conta.holderDocument)),
+    );
+
+    return {
+      totalClientes: cpfsClientes.size,
+      saldoPositivo: contasGerente.reduce(
+        (total, conta) => total + Math.max(0, conta.availableBalance),
+        0,
+      ),
+      saldoNegativo: contasGerente.reduce(
+        (total, conta) => total + Math.max(0, -conta.availableBalance),
+        0,
+      ),
+    };
+  }
+
+  private normalizarCpf(cpf: string): string {
+    return cpf ? cpf.replace(/\D/g, '') : '';
   }
 }

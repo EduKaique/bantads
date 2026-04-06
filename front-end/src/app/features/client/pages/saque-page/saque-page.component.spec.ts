@@ -1,41 +1,57 @@
-import { FormBuilder } from '@angular/forms';
-import { fakeAsync, flushMicrotasks } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { of } from 'rxjs';
 import { Router } from '@angular/router';
+import { of } from 'rxjs';
 
+import { ClientAccountService } from '../../services/client-account.service';
 import { SaquePageComponent } from './saque-page.component';
-import { SaqueService } from '../../services/saque.service';
 
 describe('SaquePageComponent', () => {
   let component: SaquePageComponent;
-  let dialog: jasmine.SpyObj<MatDialog>;
-  let router: jasmine.SpyObj<Router>;
-  let saqueService: jasmine.SpyObj<SaqueService>;
+  let fixture: ComponentFixture<SaquePageComponent>;
 
-  beforeEach(() => {
-    dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
-    router = jasmine.createSpyObj<Router>('Router', ['navigate']);
-    saqueService = jasmine.createSpyObj<SaqueService>('SaqueService', [
-      'getSaldoDisponivel',
-      'realizarSaque',
-    ]);
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SaquePageComponent],
+      providers: [
+        {
+          provide: MatDialog,
+          useValue: {
+            open: jasmine.createSpy('open'),
+          },
+        },
+        {
+          provide: Router,
+          useValue: {
+            navigate: jasmine.createSpy('navigate'),
+          },
+        },
+        {
+          provide: ClientAccountService,
+          useValue: {
+            getCurrentAccount: () =>
+              of({
+                accountId: 'client-main-account',
+                branch: '0001',
+                accountNumber: '123456-7',
+                holderName: 'Artur Falavinha',
+                holderDocument: '12345678910',
+                availableBalance: 125.49,
+                limit: 5000,
+                manager: 'Gerente Teste',
+                transactions: [],
+              }),
+            withdrawFromCurrentAccount: jasmine
+              .createSpy('withdrawFromCurrentAccount')
+              .and.returnValue(of(null)),
+          },
+        },
+      ],
+    }).compileComponents();
 
-    saqueService.getSaldoDisponivel.and.returnValue(
-      of({
-        saldo: 5125.49,
-        limite: 5000,
-      })
-    );
-
-    component = new SaquePageComponent(
-      new FormBuilder(),
-      dialog,
-      router,
-      saqueService
-    );
-
-    component.ngOnInit();
+    fixture = TestBed.createComponent(SaquePageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('deve sanitizar caracteres inválidos no input de valor', fakeAsync(() => {

@@ -8,12 +8,13 @@ describe('CardMenu', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CardMenu]
-    })
-    .compileComponents();
+      imports: [CardMenu],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CardMenu);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('icon', 'home');
+    fixture.componentRef.setInput('label', 'Home');
     fixture.detectChanges();
   });
 

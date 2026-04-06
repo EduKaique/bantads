@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { DetalheClienteService, ClienteDetalhado } from '../../services/detalhe-cliente.service';
+import { formatCpf, formatPhone, formatCep } from '../../../../shared/utils/formatters';
 
 @Component({
   selector: 'app-consultar-cliente',
@@ -20,6 +21,10 @@ export class ConsultarClienteComponent implements OnInit {
   carregando = false;
   erro = '';
   foiBuscado = false;
+
+  formatCpf = formatCpf;
+  formatPhone = formatPhone;
+  formatCep = formatCep;
 
 ngOnInit(): void {
     this.activatedRoute.paramMap.subscribe((params) => {

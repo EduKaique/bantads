@@ -41,7 +41,7 @@
             </div>
             <div class="field-group">
               <label class="field-label">CPF</label>
-              <div class="field-value">{{ clienteAtual.cpf }}</div>
+              <div class="field-value">{{ formatCpf(clienteAtual.cpf) }}</div>
             </div>
           </div>
 
@@ -53,7 +53,7 @@
             </div>
             <div class="field-group">
               <label class="field-label">Telefone</label>
-              <div class="field-value">{{ clienteAtual.celular }}</div>
+              <div class="field-value">{{ formatPhone(clienteAtual.celular) }}</div>
             </div>
           </div>
 
@@ -70,7 +70,7 @@
                 <br>
                 {{ clienteAtual.endereco.bairro }}, {{ clienteAtual.endereco.cidade }} - {{ clienteAtual.endereco.uf }}
                 <br>
-                CEP: {{ clienteAtual.endereco.cep }}
+                CEP: {{ formatCep(clienteAtual.endereco.cep) }}
               </div>
             </div>
             <div class="field-group">
