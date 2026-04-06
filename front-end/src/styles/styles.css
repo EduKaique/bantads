@@ -11,6 +11,7 @@ html, body {
     height: 100%;
     font-family: var(--font-family-secondary);
     background: var(--color-background);
+    overflow-x: hidden;
 }
 
 .main-layout {
@@ -20,13 +21,16 @@ html, body {
 .main-section {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: calc(100vh - 80px);
+    height: auto;
     width: 100%;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 main {
-    height: 100vh;
+    min-height: calc(100vh - 80px);
+    height: auto;
     width: 100%;
     padding: 0 var(--spacing-xl);
 }
