@@ -1,0 +1,44 @@
+main {
+  padding: 0;
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  height: 440px;
+  background-color: var(--color-green-900, #08462e);
+  padding: 48px;
+}
+
+.hero-section {
+  position: relative;
+}
+
+.texto-destaque {
+  margin-top: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 640px;
+}
+
+.descricao-home {
+  max-width: 420px;
+}
+
+.ilustracao-marca {
+  position: absolute;
+  right: -80px;
+  top: -26px;
+}
+
+.menu-cards {
+  position: absolute;
+  bottom: -120px;
+  left: 48px;
+  right: 48px;
+  width: auto;
+  margin: 0 auto;
+  display: flex;
+  gap: 24px;
+}

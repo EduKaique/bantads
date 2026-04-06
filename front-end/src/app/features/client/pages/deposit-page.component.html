@@ -1,6 +1,10 @@
 <section class="deposit-screen">
   @if (successfulDepositTimestamp) {
-    <app-deposit-success-state [performedAt]="successfulDepositTimestamp" />
+    <app-deposit-success-state
+      [performedAt]="successfulDepositTimestamp"
+      (backToHome)="voltarAoInicio()"
+      (newDeposit)="novoDeposito()"
+    />
   } @else {
     @if (account$ | async; as account) {
       <article class="deposit-card">

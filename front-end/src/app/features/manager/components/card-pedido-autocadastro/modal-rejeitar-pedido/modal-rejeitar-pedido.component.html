@@ -1,42 +1,68 @@
-<div class="modal-backdrop" (click)="emitirFechamento()">
-  <div class="modal-container" (click)="$event.stopPropagation()">
-    
-    <header class="modal-header">
-      <h2 class="modal-titulo">Rejeitar Autocadastro</h2>
-      <button type="button" class="btn-fechar" (click)="emitirFechamento()">&times;</button>
+<div
+  class="decision-modal-backdrop"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="reject-request-title"
+  (click)="emitirFechamento()"
+>
+  <div class="decision-modal" (click)="$event.stopPropagation()">
+    <header class="decision-modal__header">
+      <div class="decision-modal__heading">
+        <h2 id="reject-request-title" class="decision-modal__title heading_5">
+          Rejeitar autocadastro
+        </h2>
+        <p class="decision-modal__description body_medium">
+          Informe o motivo da rejeição para <strong>{{ pedido.nome }}</strong>.
+          Esse conteúdo será enviado por e-mail ao cliente.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="decision-modal__close"
+        aria-label="Fechar modal de rejeição"
+        (click)="emitirFechamento()"
+      >
+        &times;
+      </button>
     </header>
 
-    <div class="modal-body">
-      <p class="modal-descricao">
-        Informe o motivo da rejeição para <strong>{{ pedido.nome }}</strong>. Isso será enviado por e-mail ao cliente.
-      </p>
+    <div class="decision-modal__content">
+      <label class="decision-modal__label label_small" for="reject-reason">
+        Motivo da rejeição
+      </label>
 
-      <div class="form-group">
-        <textarea 
-          class="form-textarea"
-          [formControl]="motivoControl" 
-          rows="4" 
-          placeholder="Digite o motivo detalhado aqui... (mínimo de 10 caracteres)">
-        </textarea>
-        
-        @if (motivoControl.invalid && motivoControl.touched) {
-          <span class="erro-mensagem">O motivo é obrigatório e deve ter no mínimo 10 caracteres.</span>
-        }
-      </div>
+      <textarea
+        id="reject-reason"
+        class="decision-modal__textarea body_medium"
+        [formControl]="motivoControl"
+        rows="4"
+        placeholder="Digite o motivo detalhado aqui... (mínimo de 10 caracteres)"
+      ></textarea>
+
+      @if (motivoControl.invalid && motivoControl.touched) {
+        <span class="decision-modal__error caption">
+          O motivo é obrigatório e deve ter no mínimo 10 caracteres.
+        </span>
+      }
     </div>
 
-    <footer class="modal-footer">
-      <button type="button" class="btn btn-cancelar" (click)="emitirFechamento()">
+    <footer class="decision-modal__actions">
+      <button
+        type="button"
+        class="button-secondary decision-modal__action"
+        (click)="emitirFechamento()"
+      >
         Cancelar
       </button>
-      <button 
-        type="button" 
-        class="btn btn-confirmar" 
-        (click)="emitirConfirmacao()" 
-        [disabled]="motivoControl.invalid">
-        Confirmar Rejeição
+      <button
+        type="button"
+        class="decision-modal__action decision-modal__action--destructive"
+        (click)="emitirConfirmacao()"
+        [disabled]="motivoControl.invalid"
+      >
+        Confirmar rejeição
       </button>
     </footer>
-
   </div>
 </div>

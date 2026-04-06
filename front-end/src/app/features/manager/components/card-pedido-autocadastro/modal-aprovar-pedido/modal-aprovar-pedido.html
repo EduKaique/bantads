@@ -1,38 +1,48 @@
-<div class="modal-backdrop" (click)="emitirFechamento()">
-  <div class="modal-container" (click)="$event.stopPropagation()">
-    
-    <header class="modal-header">
-      <h2 class="heading_5">Aprovar Autocadastro</h2>
+<div
+  class="decision-modal-backdrop"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="approve-request-title"
+  (click)="emitirFechamento()"
+>
+  <div class="decision-modal" (click)="$event.stopPropagation()">
+    <header class="decision-modal__header">
+      <div class="decision-modal__heading">
+        <h2 id="approve-request-title" class="decision-modal__title heading_5">
+          Aprovar autocadastro
+        </h2>
+        <p class="decision-modal__description body_medium">
+          Confirme a aprovação do pedido de <strong>{{ pedido.nome }}</strong>.
+          Um e-mail com a senha de acesso será enviado ao cliente.
+        </p>
+      </div>
 
-      <button 
-        type="button" 
-        class="btn-fechar"
-        (click)="emitirFechamento()">
+      <button
+        type="button"
+        class="decision-modal__close"
+        aria-label="Fechar modal de aprovação"
+        (click)="emitirFechamento()"
+      >
         &times;
       </button>
     </header>
 
-    <div class="modal-body">
-      <p class="body_small">
-        Deseja aprovar o pedido de autocadastro de 
-        <strong>{{ pedido.nome }}</strong>? <br>
-        Um e-mail contendo a senha de acesso será enviado ao cliente.
-      </p>
-    </div>
-
-    <footer class="modal-footer">
+    <footer class="decision-modal__actions">
       <button
-        class="button-secondary"
-        (click)="emitirFechamento()">
+        type="button"
+        class="button-secondary decision-modal__action"
+        (click)="emitirFechamento()"
+      >
         Cancelar
       </button>
 
       <button
-        class="button-primary"
-        (click)="emitirConfirmacao()">
-        Confirmar Aprovação
+        type="button"
+        class="button-primary decision-modal__action"
+        (click)="emitirConfirmacao()"
+      >
+        Confirmar aprovação
       </button>
     </footer>
-
   </div>
 </div>
