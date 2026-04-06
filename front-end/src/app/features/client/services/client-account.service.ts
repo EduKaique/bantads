@@ -9,6 +9,10 @@ import {
   createDepositTransaction,
   createMockClientAccount,
 } from './client-account.factory';
+import {
+  buildScopedStorageKey,
+  PREFIXO_ARMAZENAMENTO_CONTA_CLIENTE,
+} from '../../../shared/utils/session-storage.utils';
 
 @Injectable({
   providedIn: 'root',
@@ -16,11 +20,10 @@ import {
 export class ClientAccountService {
   private readonly authService = inject(AuthService);
   private readonly accountStateSubject = new BehaviorSubject<BankAccount>(
-    this.loadAccountState()
+    this.loadAccountState(),
   );
 
   readonly account$ = this.accountStateSubject.asObservable();
-
 
   getCurrentAccount(): Observable<BankAccount> {
     return this.account$;
@@ -31,7 +34,7 @@ export class ClientAccountService {
 
     if (currentUser && currentUser.tipo !== 'cliente') {
       return throwError(
-        () => new Error('Apenas clientes podem realizar depositos.')
+        () => new Error('Apenas clientes podem realizar depositos.'),
       );
     }
 
@@ -39,7 +42,7 @@ export class ClientAccountService {
       const amount = this.validateAmount(request.amount);
       const currentAccount = this.accountStateSubject.value;
       const balanceAfter = this.roundCurrency(
-        currentAccount.availableBalance + amount
+        currentAccount.availableBalance + amount,
       );
 
       const transaction = createDepositTransaction({
@@ -62,17 +65,20 @@ export class ClientAccountService {
       return throwError(() =>
         error instanceof Error
           ? error
-          : new Error('Nao foi possivel processar o deposito.')
+          : new Error('Nao foi possivel processar o deposito.'),
       );
     }
   }
 
-  withdrawFromCurrentAccount(request: { amount: number; description?: string }): Observable<BankAccount> {
+  withdrawFromCurrentAccount(request: {
+    amount: number;
+    description?: string;
+  }): Observable<BankAccount> {
     const currentUser = this.authService.currentUserValue;
 
     if (currentUser && currentUser.tipo !== 'cliente') {
       return throwError(
-        () => new Error('Apenas clientes podem realizar saques.')
+        () => new Error('Apenas clientes podem realizar saques.'),
       );
     }
 
@@ -87,7 +93,7 @@ export class ClientAccountService {
       }
 
       const balanceAfter = this.roundCurrency(
-        currentAccount.availableBalance - amount
+        currentAccount.availableBalance - amount,
       );
 
       const transaction: AccountTransaction = {
@@ -96,7 +102,7 @@ export class ClientAccountService {
         amount: amount,
         description: request.description?.trim() || 'Saque em conta',
         performedAt: new Date().toISOString(),
-        balanceAfter: balanceAfter
+        balanceAfter: balanceAfter,
       } as AccountTransaction;
 
       const updatedAccount: BankAccount = {
@@ -113,7 +119,7 @@ export class ClientAccountService {
       return throwError(() =>
         error instanceof Error
           ? error
-          : new Error('Nao foi possivel processar o saque.')
+          : new Error('Nao foi possivel processar o saque.'),
       );
     }
   }
@@ -145,15 +151,10 @@ export class ClientAccountService {
   }
 
   private buildStorageKey(): string {
-    const currentUser = this.authService.currentUserValue;
-    const sessionKey =
-      currentUser?.tipo === 'cliente'
-        ? this.normalizeStorageKeySegment(
-            currentUser.email || currentUser.nome || 'cliente'
-          )
-        : 'local-demo';
-
-    return `client-account-state:${sessionKey}`;
+    return buildScopedStorageKey(
+      PREFIXO_ARMAZENAMENTO_CONTA_CLIENTE,
+      this.authService.currentUserValue,
+    );
   }
 
   private resolveHolderName(): string {
@@ -184,15 +185,6 @@ export class ClientAccountService {
     return Math.round((value + Number.EPSILON) * 100) / 100;
   }
 
-  private normalizeStorageKeySegment(value: string): string {
-    return value
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-  }
-
   private isBankAccount(value: unknown): value is BankAccount {
     if (!value || typeof value !== 'object') {
       return false;
@@ -209,7 +201,7 @@ export class ClientAccountService {
       typeof account.availableBalance === 'number' &&
       Array.isArray(account.transactions) &&
       account.transactions.every((transaction) =>
-        this.isAccountTransaction(transaction)
+        this.isAccountTransaction(transaction),
       )
     );
   }

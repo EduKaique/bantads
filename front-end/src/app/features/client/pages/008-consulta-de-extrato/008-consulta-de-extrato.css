@@ -3,9 +3,8 @@ input {
 }
 
 .extrato-main {
-  background-color: transparent;
   min-height: 100%;
-  padding: 40px;
+  padding: var(--spacing-xl);
   display: flex;
   justify-content: center;
 }
@@ -13,10 +12,11 @@ input {
 .container {
   width: 100%;
   max-width: 950px;
-  background-color: #fafafa;
-  border-radius: 24px;
-  padding: 48px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: var(--color-card);
+  border-radius: var(--border-lg);
+  padding: var(--spacing-3xl);
+  padding-right: 36px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
   display: flex;
   flex-direction: column;
   max-height: 85vh;
@@ -24,9 +24,7 @@ input {
   overflow-x: hidden;
   box-sizing: border-box;
   scrollbar-gutter: stable;
-  padding-right: 36px;
 }
-
 
 .container::-webkit-scrollbar {
   width: 8px;
@@ -34,75 +32,76 @@ input {
 
 .container::-webkit-scrollbar-track {
   background: transparent;
-  border-radius: 24px;
-  margin-top: 48px;
-  margin-bottom: 48px;
+  border-radius: var(--border-lg);
+  margin-top: var(--spacing-3xl);
+  margin-bottom: var(--spacing-3xl);
 }
 
 .container::-webkit-scrollbar-thumb {
-  background-color: #d0d0d0;
-  border-radius: 4px;
-  border: 2px solid #fafafa;
-  margin-top: 48px;
-  margin-bottom: 48px;
+  background-color: var(--color-border-alternative);
+  border-radius: var(--radius-xs);
+  border: 2px solid var(--color-card);
+  margin-top: var(--spacing-3xl);
+  margin-bottom: var(--spacing-3xl);
 }
-
 
 .header {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  margin-bottom: 40px;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
   width: 100%;
 }
 
 .title {
-  font-family: 'Sora', sans-serif;
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 28px;
-  letter-spacing: -0.2px;
-  color: #242827;
   margin: 0;
+  color: var(--color-foreground);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--font-line-height-2xl);
+  letter-spacing: var(--font-letter-spacing-x-tight);
   user-select: text;
 }
 
 .balance-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 24px 32px;
-  background: linear-gradient(135deg, #087448 0%, #05543a 100%);
-  border-radius: 12px;
-  border: none;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-green-900) 100%
+  );
+  border-radius: var(--border-sm);
   max-width: 280px;
   user-select: text;
 }
 
 .balance-label {
-  font-family: 'Roboto', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
+  color: rgb(255 255 255 / 80%);
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--font-line-height-default);
   letter-spacing: 0.4px;
-  color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
 }
 
 .balance-amount {
-  font-family: 'Sora', sans-serif;
-  font-size: 32px;
-  font-weight: 600;
-  color: #ffffff;
-  line-height: 40px;
   margin: 0;
+  color: var(--color-primary-foreground);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--font-line-height-5xl);
 }
-
 
 .date-filters {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: var(--spacing-xs);
   position: relative;
   z-index: 10;
   max-width: 500px;
@@ -111,17 +110,16 @@ input {
 .date-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  flex: 0 0 auto;
+  gap: var(--spacing-5xs);
 }
 
 .date-label {
-  font-family: 'Roboto', sans-serif;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
+  color: var(--color-primary);
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--font-line-height-default);
   letter-spacing: 0.4px;
-  color: #087448;
   text-transform: capitalize;
   user-select: text;
 }
@@ -129,37 +127,33 @@ input {
 .input-wrapper {
   display: flex;
   align-items: center;
-  border: 2px solid #087448;
-  border-radius: 6px;
-  background-color: white;
   height: 48px;
-  position: relative;
-  z-index: 1;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-card);
 }
 
 .date-input {
   flex: 1;
   border: none;
-  padding: 0 16px;
-  font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 24px;
-  letter-spacing: 0.5px;
-  color: #1d1b20;
+  padding: 0 var(--spacing-xs);
+  color: var(--color-foreground);
   background-color: transparent;
   caret-color: transparent;
-  user-select: text;
   cursor: pointer;
+  user-select: text;
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-default);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--font-line-height-xl);
 }
 
 .date-input:focus {
   outline: none;
-  caret-color: transparent;
 }
 
 .date-input::placeholder {
-  color: #b3b1b6;
+  color: var(--color-border-alternative);
 }
 
 .calendar-toggle {
@@ -168,7 +162,7 @@ input {
   justify-content: center;
   width: 48px;
   height: 48px;
-  color: #56645f;
+  color: var(--color-muted-foreground);
 }
 
 .calendar-toggle ::ng-deep button {
@@ -180,12 +174,12 @@ input {
   border: none;
   background-color: transparent;
   cursor: pointer;
-  color: #56645f;
+  color: var(--color-muted-foreground);
   transition: background-color 0.2s ease;
 }
 
 .calendar-toggle ::ng-deep button:hover {
-  background-color: rgba(73, 69, 79, 0.08);
+  background-color: rgb(73 69 79 / 8%);
 }
 
 .calendar-toggle ::ng-deep .mat-icon {
@@ -194,25 +188,21 @@ input {
   height: 24px !important;
 }
 
-
-::ng-deep .mat-mdc-menu-panel {
-  z-index: 10001 !important;
-}
-
-::ng-deep .mat-datepicker-container {
-  z-index: 10001 !important;
-  max-height: 100vh;
-}
-
+::ng-deep .mat-mdc-menu-panel,
+::ng-deep .mat-datepicker-container,
 ::ng-deep .cdk-overlay-pane {
   z-index: 10001 !important;
 }
 
+::ng-deep .mat-datepicker-container {
+  max-height: 100vh;
+}
 
-.transactions-list {
+.transactions-list,
+.transactions-group,
+.date-group {
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 .empty-state {
@@ -221,64 +211,46 @@ input {
   align-items: center;
   min-height: 300px;
   text-align: center;
-  color: #999;
 }
 
 .empty-message {
-  font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 24px;
-  color: #999;
   margin: 0;
+  color: var(--color-neutral-400);
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-default);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--font-line-height-xl);
   user-select: text;
 }
 
-.date-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
 .date-header {
-  padding: 24px 0;
-  border-bottom: 1.5px solid #cdd4d1;
+  padding: var(--spacing-md) 0;
+  border-bottom: 1.5px solid var(--color-border);
 }
 
 .date-info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-4xs);
   user-select: text;
 }
 
 .date-text {
-  font-family: 'Sora', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 20px;
-  letter-spacing: 0px;
-  color: #56645f;
   margin: 0;
-  user-select: text;
+  color: var(--color-muted-foreground);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-default);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--font-line-height-lg);
 }
 
 .balance-text {
-  font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: 0px;
-  color: #56645f;
   margin: 0;
-  user-select: text;
-}
-
-
-.transactions-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  color: var(--color-muted-foreground);
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-default);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--font-line-height-default);
 }
 
 .transaction-item {
@@ -287,16 +259,14 @@ input {
   align-items: center;
   gap: 10px;
   height: 85px;
-  padding: 16px 24px;
-  border-bottom: 1.5px solid #cdd4d1;
-  background-color: transparent;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-bottom: 1.5px solid var(--color-border);
   transition: background-color 0.2s ease;
 }
 
 .transaction-item:hover {
-  background-color: #f5f7f6;
+  background-color: var(--color-neutral-50);
 }
-
 
 .left-wrapper {
   display: flex;
@@ -306,10 +276,9 @@ input {
   user-select: text;
 }
 
-
 .operation-section {
   display: flex;
-  gap: 16px;
+  gap: var(--spacing-xs);
   align-items: center;
   flex-shrink: 0;
   width: 200px;
@@ -318,12 +287,11 @@ input {
 .operation-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--spacing-5xs);
   flex-shrink: 0;
   width: 180px;
   user-select: text;
 }
-
 
 .transaction-icon {
   display: flex;
@@ -338,103 +306,71 @@ input {
   font-size: 28px;
   width: 28px !important;
   height: 28px !important;
-  color: #56645f;
+  color: var(--color-muted-foreground);
 }
 
 .icon-negative {
-  color: #ff5e5b !important;
+  color: var(--color-red-300) !important;
 }
 
 .icon-positive {
-  color: #5c4bb7 !important;
+  color: var(--color-secondary) !important;
 }
-
-
-.transaction-details {
-  display: none;
-}
-
-.left-section {
-  display: none;
-}
-
 
 .category-section {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: var(--spacing-5xs);
   flex-shrink: 0;
   width: 110px;
   user-select: text;
 }
 
 .transaction-type {
-  font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: 0px;
-  color: #56645f;
   margin: 0;
+  color: var(--color-muted-foreground);
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-default);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--font-line-height-default);
   white-space: nowrap;
 }
 
-.transaction-name {
-  font-family: 'Sora', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 20px;
-  letter-spacing: 0px;
-  color: #242827;
+.transaction-name,
+.category-value {
   margin: 0;
+  color: var(--color-foreground);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-default);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--font-line-height-lg);
   white-space: nowrap;
 }
 
 .category-label {
-  font-family: 'Roboto', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: 0px;
-  color: #56645f;
   margin: 0;
+  color: var(--color-muted-foreground);
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--font-line-height-default);
 }
-
-.category-value {
-  font-family: 'Sora', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 20px;
-  letter-spacing: 0px;
-  color: #242827;
-  margin: 0;
-}
-
 
 .transaction-amount {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-family: 'Sora', sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 20px;
-  letter-spacing: 0px;
-  color: #5c4bb7;
+  gap: var(--spacing-5xs);
+  color: var(--color-secondary);
   white-space: nowrap;
   flex-shrink: 0;
   user-select: text;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--font-line-height-lg);
 }
 
 .transaction-amount.negative {
-  color: #ff5e5b;
-}
-
-.sign {
-  font-size: 18px;
-}
-
-.amount {
-  font-size: 18px;
+  color: var(--color-red-300);
 }
