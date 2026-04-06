@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 
 export interface Cliente {
   id: string;
@@ -40,6 +41,13 @@ export class ConsultarClientesComponent implements OnInit {
 
   ngOnInit(): void {
     this.carregarClientesDaAPI();
+  }
+
+  formatarCpf(cpf: string): string {
+    if (!cpf || cpf === '-') return '-';
+    const cpfNormalizado = cpf.replace(/\D/g, '');
+    if (cpfNormalizado.length !== 11) return cpf;
+    return cpfNormalizado.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   }
 
   carregarClientesDaAPI(): void {

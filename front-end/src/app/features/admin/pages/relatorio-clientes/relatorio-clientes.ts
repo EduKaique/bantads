@@ -81,7 +81,7 @@ export class RelatorioClientesComponent implements OnInit, AfterViewInit {
     forkJoin({
       clientes: this.http.get<any[]>('http://localhost:3000/clientes'),
       contas: this.http.get<any[]>('http://localhost:3000/contas'),
-      gerentes: this.http.get<any[]>('http://localhost:3000/admin/gerentes')
+      gerentes: this.http.get<any[]>('http://localhost:3000/gerentes')
     })
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
