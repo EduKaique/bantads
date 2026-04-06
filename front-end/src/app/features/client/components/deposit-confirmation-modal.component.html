@@ -1,10 +1,20 @@
 @if (visible) {
-  <div class="confirmation-backdrop" role="dialog" aria-modal="true" aria-labelledby="deposit-confirmation-title">
+  <div
+    class="confirmation-backdrop"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="deposit-confirmation-title"
+  >
     <div class="confirmation-modal">
       <header class="confirmation-modal__header">
-        <h2 id="deposit-confirmation-title" class="confirmation-modal__title">
-          Confirmar o depósito
-        </h2>
+        <div class="confirmation-modal__heading">
+          <h2 id="deposit-confirmation-title" class="confirmation-modal__title heading_5">
+            Confirmar depósito
+          </h2>
+          <p class="confirmation-modal__description body_medium">
+            Confira o valor abaixo antes de concluir a operação.
+          </p>
+        </div>
 
         <button
           type="button"
@@ -19,14 +29,16 @@
       </header>
 
       <div class="confirmation-modal__content">
-        <p class="confirmation-modal__question">Tem certeza que deseja depositar</p>
+        <p class="confirmation-modal__question label_small">
+          Tem certeza que deseja depositar
+        </p>
         <div class="confirmation-modal__amount">{{ formattedAmount }}</div>
       </div>
 
       <div class="confirmation-modal__actions">
         <button
           type="button"
-          class="confirmation-modal__action confirmation-modal__action--cancel"
+          class="button-secondary confirmation-modal__action"
           [disabled]="isBusy"
           (click)="onCancel()"
         >
@@ -35,7 +47,7 @@
 
         <button
           type="button"
-          class="confirmation-modal__action confirmation-modal__action--confirm"
+          class="button-primary confirmation-modal__action"
           [disabled]="isBusy"
           (click)="onConfirm()"
         >

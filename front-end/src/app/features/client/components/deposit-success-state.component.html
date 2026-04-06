@@ -15,4 +15,21 @@
       <p>Hora: {{ formattedTime }}</p>
     </div>
   </div>
+
+  <div class="deposit-success-card__actions">
+    <button
+      type="button"
+      class="button-secondary deposit-success-card__action"
+      (click)="iniciarNovoDeposito()"
+    >
+      Novo Depósito
+    </button>
+    <button
+      type="button"
+      class="button-primary deposit-success-card__action"
+      (click)="voltarAoInicio()"
+    >
+      Voltar ao Início
+    </button>
+  </div>
 </section>

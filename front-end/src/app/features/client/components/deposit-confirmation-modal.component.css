@@ -9,128 +9,130 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: var(--spacing-lg);
   background: rgba(229, 232, 230, 0.84);
   backdrop-filter: blur(2px);
 }
 
 .confirmation-modal {
-  width: 565px;
+  width: 35.3125rem;
   max-width: 100%;
-  padding: 24px;
-  border-radius: 16px;
-  background: #fafafa;
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card);
+  box-shadow: 0 1rem 3rem rgba(36, 40, 39, 0.16);
+  box-sizing: border-box;
 }
 
 .confirmation-modal__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--spacing-md);
+}
+
+.confirmation-modal__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
 }
 
 .confirmation-modal__title {
   margin: 0;
-  color: #3e4c4b;
-  font-family: 'Inter', sans-serif;
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 28px;
-  letter-spacing: -0.2px;
+  color: var(--color-foreground-title);
+  line-height: var(--heading-h5-line-height);
+}
+
+.confirmation-modal__description {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  line-height: var(--body-default-line-height);
 }
 
 .confirmation-modal__close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 1.5rem;
+  height: 1.5rem;
   padding: 0;
   border: 0;
   background: transparent;
-  color: #56645f;
+  color: var(--color-muted-foreground);
+  font-size: var(--font-size-xl);
+  line-height: 1;
   cursor: pointer;
 }
 
 .confirmation-modal__close svg {
-  width: 24px;
-  height: 24px;
+  width: 1.5rem;
+  height: 1.5rem;
   fill: currentColor;
+}
+
+.confirmation-modal__close:hover {
+  color: var(--color-foreground);
 }
 
 .confirmation-modal__content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--spacing-2xs);
 }
 
 .confirmation-modal__question {
   margin: 0;
-  color: #475756;
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 20px;
+  color: var(--color-foreground-title);
 }
 
 .confirmation-modal__amount {
   display: flex;
   align-items: center;
-  min-height: 48px;
-  padding: 8px 16px;
-  border: 1px solid #a8b8b7;
-  border-radius: 8px;
-  color: #7c9493;
-  background: #fafafa;
-  font-family: 'Roboto', sans-serif;
-  font-size: 18px;
-  font-weight: 400;
-  line-height: 24px;
-  letter-spacing: -0.1px;
+  min-height: 3rem;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-card);
+  color: var(--color-muted-foreground);
+  font-family: var(--body-large-font-family);
+  font-size: var(--body-large-font-size);
+  font-weight: var(--body-large-font-weight);
+  line-height: var(--body-large-line-height);
+  letter-spacing: var(--body-large-letter-spacing);
   box-sizing: border-box;
 }
 
 .confirmation-modal__actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 40px;
+  display: flex;
+  gap: var(--spacing-sm);
 }
 
 .confirmation-modal__action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  border: 0;
-  border-radius: 8px;
-  color: #f3fafa;
-  font-family: 'Inter', sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 24px;
-  cursor: pointer;
+  flex: 1;
+  width: auto;
 }
 
 .confirmation-modal__action:disabled,
 .confirmation-modal__close:disabled {
-  cursor: default;
+  cursor: not-allowed;
   opacity: 0.7;
 }
 
-.confirmation-modal__action--cancel {
-  background: #ff5e5b;
-}
-
-.confirmation-modal__action--confirm {
-  background: #25a46b;
-}
-
 @media (max-width: 640px) {
+  .confirmation-modal {
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
   .confirmation-modal__actions {
-    gap: 16px;
+    flex-direction: column;
+  }
+
+  .confirmation-modal__action {
+    width: 100%;
   }
 }
