@@ -6,53 +6,74 @@
       (newDeposit)="novoDeposito()"
     />
   } @else {
-    @if (account$ | async; as account) {
-      <article class="deposit-card">
-        <header class="deposit-card__header">
-          <h1 class="deposit-card__title">Depósito</h1>
-          <p class="deposit-card__description">
-            Preencha o valor que deseja depositar em sua conta.
-          </p>
-        </header>
 
-        <form class="deposit-form" [formGroup]="depositForm" (ngSubmit)="openConfirmation()">
-          <div class="deposit-form__fields">
-            <div class="deposit-field">
-              <label class="deposit-field__label" for="amount">*Valor</label>
-              <div class="deposit-field__input-shell" [class.deposit-field__input-shell--invalid]="helperIsError">
-                <span class="deposit-field__prefix">R$</span>
-                <input
-                  id="amount"
-                  type="text"
-                  inputmode="decimal"
-                  autocomplete="off"
-                  formControlName="amount"
-                  placeholder="________________"
-                  (input)="onAmountInput($event)"
-                />
-              </div>
-            </div>
+    <article class="deposit-card">
+      <header class="deposit-card__header">
+        <h1 class="deposit-card__title">Depósito</h1>
+        <p class="deposit-card__description">
+          Preencha o valor que deseja depositar em sua conta.
+        </p>
+      </header>
 
-            <div class="deposit-field">
-              <label class="deposit-field__label" for="available-balance">Saldo Disponível</label>
-              <div id="available-balance" class="deposit-field__input-shell deposit-field__input-shell--readonly">
-                <span class="deposit-field__readonly-value">{{ formatCurrency(account.availableBalance) }}</span>
-              </div>
+      <form class="deposit-form" [formGroup]="depositForm" (ngSubmit)="openConfirmation()">
+        <div class="deposit-form__fields">
+
+          <!-- VALOR -->
+          <div class="deposit-field">
+            <label class="deposit-field__label" for="amount">*Valor</label>
+            <div
+              class="deposit-field__input-shell"
+              [class.deposit-field__input-shell--invalid]="helperIsError"
+            >
+              <span class="deposit-field__prefix">R$</span>
+              <input
+                id="amount"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                formControlName="amount"
+                placeholder="________________"
+                (input)="onAmountInput($event)"
+              />
             </div>
           </div>
 
-          <p class="deposit-form__helper" [class.deposit-form__helper--error]="helperIsError">
-            {{ helperMessage }}
-          </p>
-
-          <div class="deposit-form__actions">
-            <button type="submit" class="deposit-form__submit" [disabled]="isSubmitting">
-              Enviar
-            </button>
+          <!-- SALDO -->
+          <div class="deposit-field">
+            <label class="deposit-field__label" for="available-balance">
+              Saldo Disponível
+            </label>
+            <div
+              id="available-balance"
+              class="deposit-field__input-shell deposit-field__input-shell--readonly"
+            >
+              <span class="deposit-field__readonly-value">
+                {{ formatCurrency(availableBalance) }}
+              </span>
+            </div>
           </div>
-        </form>
-      </article>
-    }
+
+        </div>
+
+        <p
+          class="deposit-form__helper"
+          [class.deposit-form__helper--error]="helperIsError"
+        >
+          {{ helperMessage }}
+        </p>
+
+        <div class="deposit-form__actions">
+          <button
+            type="submit"
+            class="deposit-form__submit"
+            [disabled]="isSubmitting"
+          >
+            Enviar
+          </button>
+        </div>
+      </form>
+    </article>
+
   }
 
   <app-deposit-confirmation-modal

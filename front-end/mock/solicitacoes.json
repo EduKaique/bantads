@@ -21,7 +21,7 @@
     "nome": "Cleuddônio",
     "email": "cli2@bantads.com.br",
     "celular": "13996762377",
-    "salario": "R$ 20.000",
+    "salario": "20000",
     "endereco": {
       "cep": "11900000",
       "logradouro": "Rua rui prado de mendonça",
@@ -38,7 +38,7 @@
     "nome": "Catianna",
     "email": "cli3@bantads.com.br",
     "celular": "13996762377",
-    "salario": "R$ 3.000",
+    "salario": "R3000",
     "endereco": {
       "cep": "11900000",
       "logradouro": "Rua rui prado de mendonça",
