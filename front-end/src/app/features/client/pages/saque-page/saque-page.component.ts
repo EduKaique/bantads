@@ -78,7 +78,7 @@ export class SaquePageComponent implements OnInit {
     this.account$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((account) => {
-        const limite = (account as any).limit ?? 5000;
+        const limite = (account as any).limit || 0;
         this.saldoDisponivel = account.availableBalance + limite;
       });
   }

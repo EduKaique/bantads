@@ -92,7 +92,7 @@ export class ClientAccountService {
 
       const transaction: AccountTransaction = {
         id: Math.random().toString(36).substring(2, 10),
-        type: 'withdrawal' as any,
+        type: 'withdrawal',
         amount: amount,
         description: request.description?.trim() || 'Saque em conta',
         performedAt: new Date().toISOString(),
