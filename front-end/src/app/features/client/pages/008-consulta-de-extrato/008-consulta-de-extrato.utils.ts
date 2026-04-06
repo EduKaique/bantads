@@ -41,8 +41,10 @@ export function criarGruposTransacoes(
   saldoAtual: number,
 ): GrupoTransacoes[] {
   const gruposPorData = new Map<string, GrupoTransacoes>();
+  const dataInicialNormalizada = normalizarInicioDoDia(dataInicio);
+  const dataFinalNormalizada = normalizarFimDoDia(dataFim);
 
-  for (const data of gerarIntervaloDatas(dataInicio, dataFim)) {
+  for (const data of gerarIntervaloDatas(dataInicialNormalizada, dataFinalNormalizada)) {
     const dataFormatada = formatarDataParaInput(data);
     gruposPorData.set(dataFormatada, {
       data: formatarCabecalhoData(dataFormatada),
@@ -51,7 +53,7 @@ export function criarGruposTransacoes(
     });
   }
 
-  for (const transacao of filtrarTransacoesPorPeriodo(transacoes, dataInicio, dataFim)) {
+  for (const transacao of filtrarTransacoesPorPeriodo(transacoes, dataInicialNormalizada, dataFinalNormalizada)) {
     gruposPorData.get(transacao.data)?.transacoes.push(transacao);
   }
 
@@ -106,6 +108,15 @@ export function desserializarFiltroExtrato(
   }
 }
 
+export function calcularImpactoDasTransacoes(
+  transacoes: Transaction[],
+): number {
+  return transacoes.reduce((saldo, transacao) => {
+    const valor = parseValorMonetario(transacao.valor);
+    return transacao.operacaoColor === 'blue' ? saldo + valor : saldo - valor;
+  }, 0);
+}
+
 function extrairHoraDaDataIso(dataIso: string): string {
   const data = new Date(dataIso);
   const horas = String(data.getHours()).padStart(2, '0');
@@ -123,7 +134,7 @@ function mapearTipoOperacao(tipo: AccountTransaction['type']): string {
 
 function gerarIntervaloDatas(dataInicio: Date, dataFim: Date): Date[] {
   const datas: Date[] = [];
-  const cursor = new Date(dataInicio);
+  const cursor = normalizarInicioDoDia(dataInicio);
 
   while (cursor <= dataFim) {
     datas.push(new Date(cursor));
@@ -138,9 +149,15 @@ function filtrarTransacoesPorPeriodo(
   dataInicio: Date,
   dataFim: Date,
 ): Transaction[] {
+  const dataInicialNormalizada = normalizarInicioDoDia(dataInicio);
+  const dataFinalNormalizada = normalizarFimDoDia(dataFim);
+
   return transacoes.filter((transacao) => {
     const dataTransacao = parseDataBr(transacao.data);
-    return dataTransacao >= dataInicio && dataTransacao <= dataFim;
+    return (
+      dataTransacao >= dataInicialNormalizada &&
+      dataTransacao <= dataFinalNormalizada
+    );
   });
 }
 
@@ -175,4 +192,28 @@ function parseValorMonetario(valor: string): number {
 
 function ordenarPorHora(transacaoA: Transaction, transacaoB: Transaction): number {
   return (transacaoA.hora || '00:00').localeCompare(transacaoB.hora || '00:00');
+}
+
+function normalizarInicioDoDia(data: Date): Date {
+  return new Date(
+    data.getFullYear(),
+    data.getMonth(),
+    data.getDate(),
+    0,
+    0,
+    0,
+    0,
+  );
+}
+
+function normalizarFimDoDia(data: Date): Date {
+  return new Date(
+    data.getFullYear(),
+    data.getMonth(),
+    data.getDate(),
+    23,
+    59,
+    59,
+    999,
+  );
 }

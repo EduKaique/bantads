@@ -15,6 +15,7 @@ import {
 } from '../../../../shared/utils/session-storage.utils';
 import { ClientAccountService } from '../../services/client-account.service';
 import {
+  calcularImpactoDasTransacoes,
   criarGruposTransacoes,
   desserializarFiltroExtrato,
   GrupoTransacoes,
@@ -95,7 +96,9 @@ export class ConsultaExtratoPageComponent implements OnInit {
       .getCurrentAccount()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((conta) => {
-        this.saldoAtual.set(conta.availableBalance);
+        this.saldoAtual.set(
+          conta.availableBalance + calcularImpactoDasTransacoes(MOCK_TRANSACTIONS),
+        );
         this.transacoes = [
           ...mapearTransacoesDaConta(conta.transactions),
           ...MOCK_TRANSACTIONS,
@@ -119,8 +122,24 @@ export class ConsultaExtratoPageComponent implements OnInit {
     }
 
     const hoje = new Date();
-    this.dataSelecionadaInicio = hoje;
-    this.dataSelecionadaFim = hoje;
+    this.dataSelecionadaInicio = new Date(
+      hoje.getFullYear(),
+      hoje.getMonth(),
+      hoje.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+    this.dataSelecionadaFim = new Date(
+      hoje.getFullYear(),
+      hoje.getMonth(),
+      hoje.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
     sessionStorage.setItem(chavePrimeiroAcesso, 'true');
     this.persistirFiltroDaSessao();
   }
