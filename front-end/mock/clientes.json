@@ -4,7 +4,7 @@
     "nome": "Coândrya",
     "email": "cli5@bantads.com.br",
     "celular": "13996762377",
-    "salario": "R$ 1.500",
+    "salario": "1500",
     "endereco": {
       "cep": "11900000",
       "logradouro": "Rua rui prado de mendonça",
@@ -21,7 +21,7 @@
     "nome": "Cutardo",
     "email": "cli4@bantads.com.br",
     "celular": "13996762377",
-    "salario": "R$ 500",
+    "salario": "500",
     "endereco": {
       "cep": "11900000",
       "logradouro": "Rua rui prado de mendonça",
@@ -31,65 +31,6 @@
       "cidade": "Registro",
       "uf": "SP"
     },
-    "dataSolicitacao": "2026-03-15T09:00:00.000Z",
-    "id": 5,
-    "cpfGerente": "22233344455"
-  },
-  {
-    "cpf": "52018026054",
-    "nome": "Beatriz Costa",
-    "email": "beatriz.costa@bantads.com.br",
-    "celular": "41999990006",
-    "salario": 9500,
-    "endereco": {
-      "cep": "80320060",
-      "logradouro": "Rua das Flores",
-      "numero": "765",
-      "complemento": "Apto 504",
-      "bairro": "Mercês",
-      "cidade": "Curitiba",
-      "uf": "PR"
-    },
-    "dataSolicitacao": "2026-03-15T10:00:00.000Z",
-    "id": 6,
-    "cpfGerente": "33344455566"
-  },
-  {
-    "cpf": "69986117062",
-    "nome": "Carlosinho Banana",
-    "email": "carlosinho@bantads.com.br",
-    "celular": "41999990007",
-    "salario": 3000,
-    "endereco": {
-      "cep": "80010000",
-      "logradouro": "Avenida Getúlio Vargas",
-      "numero": "555",
-      "complemento": "Apto 301",
-      "bairro": "Centro",
-      "cidade": "Curitiba",
-      "uf": "PR"
-    },
-    "dataSolicitacao": "2026-03-16T11:00:00.000Z",
-    "id": 7,
-    "cpfGerente": "64065268052"
-  },
-  {
-    "cpf": "60546315003",
-    "nome": "Fernanda Pobre",
-    "email": "fernanda.neg@bantads.com.br",
-    "celular": "41999990008",
-    "salario": 4500,
-    "endereco": {
-      "cep": "80010000",
-      "logradouro": "Avenida Getúlio Vargas",
-      "numero": "999",
-      "complemento": "Apto 801",
-      "bairro": "Centro",
-      "cidade": "Curitiba",
-      "uf": "PR"
-    },
-    "dataSolicitacao": "2026-03-16T14:00:00.000Z",
-    "id": 8,
-    "cpfGerente": "23862179060"
+    "dataSolicitacao": "2026-04-06T00:29:10.807Z"
   }
 ]
