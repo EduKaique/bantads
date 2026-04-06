@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 import { provideNgxMask } from 'ngx-mask';
 import { ListagemGerentesComponent } from './listagem-gerentes';
 import { GerentesService } from '../../services/gerentes';
@@ -17,19 +18,19 @@ describe('ListagemGerentesComponent', () => {
           cpf: '98574307084',
           nome: 'Geniéve',
           email: 'ger1@bantads.com.br',
-          telefone: '(41) 8888-0001',
+          celular: '(41) 8888-0001',
         },
         {
           cpf: '64065268052',
           nome: 'Godophredo',
           email: 'ger2@bantads.com.br',
-          telefone: '(41) 8888-0002',
+          celular: '(41) 8888-0002',
         },
         {
           cpf: '23862179060',
           nome: 'Gyândula',
           email: 'ger3@bantads.com.br',
-          telefone: '(41) 8888-0003',
+          celular: '(41) 8888-0003',
         },
       ]),
     );
@@ -39,6 +40,7 @@ describe('ListagemGerentesComponent', () => {
       providers: [
         provideNgxMask(),
         { provide: GerentesService, useValue: gerentesServiceSpy },
+        { provide: ActivatedRoute, useValue: { queryParams: of({}) } },
       ],
     }).compileComponents();
 
@@ -57,19 +59,19 @@ describe('ListagemGerentesComponent', () => {
         cpf: '98574307084',
         nome: 'Geniéve',
         email: 'ger1@bantads.com.br',
-        telefone: '(41) 8888-0001',
+        celular: '(41) 8888-0001',
       },
       {
         cpf: '64065268052',
         nome: 'Godophredo',
         email: 'ger2@bantads.com.br',
-        telefone: '(41) 8888-0002',
+        celular: '(41) 8888-0002',
       },
       {
         cpf: '23862179060',
         nome: 'Gyândula',
         email: 'ger3@bantads.com.br',
-        telefone: '(41) 8888-0003',
+        celular: '(41) 8888-0003',
       },
     ]);
   });
@@ -99,7 +101,7 @@ describe('ListagemGerentesComponent', () => {
         cpf: '23862179060',
         nome: 'Gyândula',
         email: 'ger3@bantads.com.br',
-        telefone: '(41) 8888-0003',
+        celular: '(41) 8888-0003',
       },
     ]);
   });

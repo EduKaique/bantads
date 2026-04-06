@@ -9,7 +9,7 @@ import { ClientAccountService } from './client-account.service';
 
 class AuthServiceStub {
   private readonly currentUserSubject = new BehaviorSubject<UserState>({
-    name: 'Artur Falavinha',
+    nome: 'Artur Falavinha',
     email: 'artur@bantads.com',
     tipo: 'cliente',
     access_token: 'token',
@@ -82,7 +82,7 @@ describe('ClientAccountService', () => {
 
   it('should block deposits when the session is not a client', (done) => {
     authService.setCurrentUser({
-      name: 'Employee Session',
+      nome: 'Employee Session',
       email: 'employee@bantads.com',
       tipo: 'gerente',
       access_token: 'token',

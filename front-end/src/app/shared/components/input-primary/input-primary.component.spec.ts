@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { provideNgxMask } from 'ngx-mask';
 
 import { InputPrimaryComponent } from './input-primary.component';
 
@@ -8,9 +10,9 @@ describe('InputPrimaryComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InputPrimaryComponent]
-    })
-    .compileComponents();
+      imports: [InputPrimaryComponent, ReactiveFormsModule],
+      providers: [provideNgxMask(), FormControl],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(InputPrimaryComponent);
     component = fixture.componentInstance;

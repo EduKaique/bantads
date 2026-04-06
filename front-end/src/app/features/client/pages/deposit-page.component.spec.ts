@@ -13,6 +13,7 @@ class ClientAccountServiceStub {
     holderName: 'Artur Falavinha',
     holderDocument: '123.456.789-10',
     availableBalance: 2450.75,
+    manager: 'Gerente Teste',
     transactions: [],
   };
 
