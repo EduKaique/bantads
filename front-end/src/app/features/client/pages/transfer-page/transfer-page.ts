@@ -6,11 +6,12 @@ import { AppSuccessModalComponent } from '../../../../shared/components/modal-me
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { formatCpf } from '../../../../shared/utils/formatters';
+import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
 
 @Component({
   selector: 'app-transfer-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, AppSuccessModalComponent, MatIconModule],  
+  imports: [CommonModule, ReactiveFormsModule, AppSuccessModalComponent, MatIconModule, DepositConfirmationModalComponent],
   templateUrl: './transfer-page.html',
   styleUrls: ['./transfer-page.css']
 })
@@ -34,6 +35,10 @@ export class TransferPage implements OnInit {
     private http: HttpClient,
     private authService: AuthService
   ) {}
+
+  get nomeDestino(): string {
+    return this.transferForm?.get('name')?.value ?? '';
+  }
 
   exibirToast(mensagem: string): void {
     this.toastMessage = mensagem;

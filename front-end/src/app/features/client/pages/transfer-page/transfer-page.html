@@ -80,43 +80,18 @@
     </form>
   </div>
 
-  @if (isModalOpen) {
-    <div class="modal-overlay">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3 class="modal-title">Confirmar a transferência</h3>
-          <button type="button" class="btn-close-modal" (click)="closeModal()">✕</button>
-        </div>
-
-        <div class="modal-body">
-          <div class="form-group mb-modal">
-            <label class="form-label label_large">Tem certeza que deseja enviar</label>
-            <input
-              type="text"
-              class="form-control body_medium disabled-field"
-              [value]="transferForm.get('amount')?.value"
-              readonly
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label label_large">Para</label>
-            <input
-              type="text"
-              class="form-control body_medium disabled-field"
-              [value]="transferForm.get('name')?.value"
-              readonly
-            />
-          </div>
-        </div>
-
-        <div class="modal-footer flex-buttons">
-          <button type="button" class="btn-modal-cancel label_large" (click)="closeModal()">Cancelar</button>
-          <button type="button" class="btn-modal-confirm label_large" (click)="confirmTransfer()">Confirmar</button>
-        </div>
-      </div>
-    </div>
-  }
+  <app-deposit-confirmation-modal
+    [visible]="isModalOpen"
+    [formattedAmount]="transferForm.get('amount')?.value || ''"
+    [title]="'Confirmar transferência'"
+    [description]="'Confira os dados abaixo antes de concluir a operação.'"
+    [question]="'Tem certeza que deseja enviar'"
+    [detailLines]="['Para ' + nomeDestino]"
+    [confirmLabel]="'Confirmar'"
+    [cancelLabel]="'Cancelar'"
+    (cancelled)="closeModal()"
+    (confirmed)="confirmTransfer()"
+  />
 
   @if (showToast) {
     <div class="toast-container">
@@ -132,6 +107,8 @@
   titulo="Transferência concluída!"
   [subtitulo]="'Valor enviado: ' + valorEnviado"
   [mostrarDataHora]="true"
-  textoBotao="Voltar para o Início"
+  [exibirBotaoSecundario]="true"
+  textoBotaoSecundario="Nova transferência"
+  textoBotao="Voltar ao Início"
   rotaDestino="/cliente/home">
 </app-success-modal>

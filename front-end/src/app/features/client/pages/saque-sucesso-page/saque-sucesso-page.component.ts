@@ -1,32 +1,23 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
 
 @Component({
   selector: 'app-saque-sucesso-page',
   standalone: true,
-  imports: [],
+  imports: [AppSuccessModalComponent],
   templateUrl: './saque-sucesso-page.component.html',
   styleUrls: ['./saque-sucesso-page.component.css'],
 })
 export class SaqueSucessoPageComponent {
-  valorSacado: number = 0;
-  dataHora: Date = new Date();
+  mostrarModal = true;
+  valorSacado = 0;
+  dataHora = new Date();
 
   get valorFormatado(): string {
     return this.valorSacado.toLocaleString('pt-BR', {
       style: 'currency',
       currency: 'BRL',
-    });
-  }
-
-  get dataFormatada(): string {
-    return this.dataHora.toLocaleDateString('pt-BR');
-  }
-
-  get horaFormatada(): string {
-    return this.dataHora.toLocaleTimeString('pt-BR', {
-      hour: '2-digit',
-      minute: '2-digit',
     });
   }
 

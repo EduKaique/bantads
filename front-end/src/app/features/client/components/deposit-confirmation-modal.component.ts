@@ -10,6 +10,12 @@ export class DepositConfirmationModalComponent {
   @Input() visible = false;
   @Input() formattedAmount = '';
   @Input() isBusy = false;
+  @Input() title = 'Confirmar depósito';
+  @Input() description = 'Confira o valor abaixo antes de concluir a operação.';
+  @Input() question = 'Tem certeza que deseja depositar';
+  @Input() detailLines: string[] = [];
+  @Input() confirmLabel = 'Confirmar';
+  @Input() cancelLabel = 'Cancelar';
 
   @Output() cancelled = new EventEmitter<void>();
   @Output() confirmed = new EventEmitter<void>();

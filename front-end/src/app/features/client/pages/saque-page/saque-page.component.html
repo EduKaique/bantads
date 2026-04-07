@@ -9,7 +9,6 @@
 
     <form class="saque-form" [formGroup]="saqueForm" (ngSubmit)="onEnviar()">
       <div class="saque-campos">
-
         <div class="campo-wrapper">
           <label class="campo-label label_large" for="valor">*Valor</label>
           <div class="campo-shell" [class.campo-shell--erro]="!!erroValor">
@@ -39,7 +38,6 @@
             </span>
           </div>
         </div>
-
       </div>
 
       <p
@@ -50,9 +48,9 @@
       </p>
 
       <div class="saque-acoes">
-        <button 
-          type="submit" 
-          class="button-primary btn-enviar label_large" 
+        <button
+          type="submit"
+          class="button-primary btn-enviar label_large"
           [disabled]="(saqueForm.invalid && saqueForm.touched) || isSubmitting"
         >
           Enviar
@@ -60,4 +58,17 @@
       </div>
     </form>
   </article>
+
+  <app-deposit-confirmation-modal
+    [visible]="exibirModalConfirmacao"
+    [formattedAmount]="valorSaqueFormatado"
+    [isBusy]="isSubmitting"
+    [title]="'Confirmar saque'"
+    [description]="'Confira o valor abaixo antes de concluir a operação.'"
+    [question]="'Tem certeza que deseja sacar'"
+    [confirmLabel]="'Confirmar'"
+    [cancelLabel]="'Cancelar'"
+    (cancelled)="fecharModalConfirmacao()"
+    (confirmed)="confirmarSaque()"
+  />
 </main>

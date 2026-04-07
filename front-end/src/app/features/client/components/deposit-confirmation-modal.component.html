@@ -4,15 +4,16 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby="deposit-confirmation-title"
+    (click)="onCancel()"
   >
-    <div class="confirmation-modal">
+    <div class="confirmation-modal" (click)="$event.stopPropagation()">
       <header class="confirmation-modal__header">
         <div class="confirmation-modal__heading">
           <h2 id="deposit-confirmation-title" class="confirmation-modal__title heading_5">
-            Confirmar depósito
+            {{ title }}
           </h2>
           <p class="confirmation-modal__description body_medium">
-            Confira o valor abaixo antes de concluir a operação.
+            {{ description }}
           </p>
         </div>
 
@@ -20,6 +21,7 @@
           type="button"
           class="confirmation-modal__close"
           aria-label="Fechar confirmação"
+          [disabled]="isBusy"
           (click)="onCancel()"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -30,9 +32,16 @@
 
       <div class="confirmation-modal__content">
         <p class="confirmation-modal__question label_small">
-          Tem certeza que deseja depositar
+          {{ question }}
         </p>
         <div class="confirmation-modal__amount">{{ formattedAmount }}</div>
+        @if (detailLines.length) {
+          <div class="confirmation-modal__details body_medium">
+            @for (detailLine of detailLines; track detailLine) {
+              <p>{{ detailLine }}</p>
+            }
+          </div>
+        }
       </div>
 
       <div class="confirmation-modal__actions">
@@ -42,7 +51,7 @@
           [disabled]="isBusy"
           (click)="onCancel()"
         >
-          Cancelar
+          {{ cancelLabel }}
         </button>
 
         <button
@@ -51,7 +60,7 @@
           [disabled]="isBusy"
           (click)="onConfirm()"
         >
-          Confirmar
+          {{ confirmLabel }}
         </button>
       </div>
     </div>

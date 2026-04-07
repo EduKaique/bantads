@@ -5,7 +5,7 @@
     "accountNumber": "5328",
     "holderName": "Coândrya",
     "holderDocument": "76179646090",
-    "availableBalance": 20,
+    "availableBalance": 21.1,
     "limit": 0,
     "transactions": []
   },
@@ -15,7 +15,7 @@
     "accountNumber": "3441",
     "holderName": "Cutardo",
     "holderDocument": "58872160006",
-    "availableBalance": 880,
+    "availableBalance": 868.9,
     "limit": 0,
     "transactions": []
   }

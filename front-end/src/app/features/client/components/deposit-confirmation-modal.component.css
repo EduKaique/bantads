@@ -106,6 +106,17 @@
   box-sizing: border-box;
 }
 
+.confirmation-modal__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4xs);
+  color: var(--color-muted-foreground);
+}
+
+.confirmation-modal__details p {
+  margin: 0;
+}
+
 .confirmation-modal__actions {
   display: flex;
   gap: var(--spacing-sm);
