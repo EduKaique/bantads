@@ -10,12 +10,11 @@ import {
 } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 
 import { DepositRequest } from '../../../shared/models/deposit-request';
 import { DepositConfirmationModalComponent } from '../components/deposit-confirmation-modal.component';
 import { DepositSuccessStateComponent } from '../components/deposit-success-state.component';
-import { AuthService } from '../../../core/auth/services/auth.service';
+import { ClientAccountService } from '../services/client-account.service';
 import { formatCurrency } from '../../../shared/utils/formatters';
 
 const amountPattern = /^\d+(?:[.,]\d{1,2})?$/;
@@ -25,7 +24,9 @@ const depositAmountValidator: ValidatorFn = (
 ): ValidationErrors | null => {
   const rawValue = String(control.value ?? '').trim();
 
-  if (!rawValue) return null;
+  if (!rawValue) {
+    return null;
+  }
 
   if (!amountPattern.test(rawValue)) {
     return { currencyFormat: true };
@@ -42,7 +43,6 @@ const depositAmountValidator: ValidatorFn = (
 
 @Component({
   selector: 'app-deposit-page',
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -55,15 +55,10 @@ const depositAmountValidator: ValidatorFn = (
 })
 export class DepositPageComponent {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly http = inject(HttpClient);
-  private readonly authService = inject(AuthService);
+  private readonly clientAccountService = inject(ClientAccountService);
   private readonly router = inject(Router);
-
   readonly formatCurrency = formatCurrency;
-
-  // ✅ Dados da conta (igual transferência)
-  availableBalance: number = 0;
-  minhaContaLogada: string = '';
+  readonly account$ = this.clientAccountService.getCurrentAccount();
 
   readonly depositForm = this.formBuilder.nonNullable.group({
     amount: ['', [Validators.required, depositAmountValidator]],
@@ -77,29 +72,6 @@ export class DepositPageComponent {
   successfulDepositTimestamp = '';
 
   private pendingDeposit: DepositRequest | null = null;
-
-  constructor() {
-    const usuarioLogado = this.authService.currentUserValue;
-
-    if (usuarioLogado && usuarioLogado.cpf) {
-      this.carregarSaldo(usuarioLogado.cpf);
-    } else {
-      console.error('Usuário não identificado');
-    }
-  }
-
-  // ✅ Buscar saldo (igual transferência)
-  private carregarSaldo(cpf: string): void {
-    this.http.get<any>(`http://localhost:3000/contas/cpf/${cpf}`).subscribe({
-      next: (dadosConta) => {
-        this.minhaContaLogada = dadosConta.numeroConta;
-        this.availableBalance = dadosConta.saldoDisponivel || 0;
-      },
-      error: (erro) => {
-        console.error('Erro ao buscar saldo:', erro);
-      }
-    });
-  }
 
   onAmountInput(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -120,56 +92,45 @@ export class DepositPageComponent {
       return;
     }
 
-    const amount = this.parseAmount(this.amountControl.value);
-
-    if (amount <= 0) {
-      this.submissionError = 'Valor inválido para depósito.';
-      return;
-    }
-
-    this.pendingDeposit = { amount };
+    this.pendingDeposit = {
+      amount: this.parseAmount(this.amountControl.value),
+    };
 
     this.submissionError = '';
     this.isConfirmationVisible = true;
   }
 
   closeConfirmation(): void {
-    if (this.isSubmitting) return;
+    if (this.isSubmitting) {
+      return;
+    }
+
     this.resetConfirmationState();
   }
 
   confirmDeposit(): void {
     const pendingDeposit = this.pendingDeposit;
-    if (!pendingDeposit) return;
+
+    if (!pendingDeposit) {
+      return;
+    }
 
     this.isSubmitting = true;
     this.submissionError = '';
 
-    const payload = {
-      conta: this.minhaContaLogada,
-      valor: pendingDeposit.amount
-    };
-
-    console.log('Enviando depósito:', payload);
-
-    this.http.post<any>('http://localhost:3000/transacoes/depositar', payload)
+    this.clientAccountService
+      .depositIntoCurrentAccount(pendingDeposit)
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
-        next: () => {
-          // ✅ Atualiza saldo após depósito
-          const cpf = this.authService.currentUserValue?.cpf;
-          if (cpf) {
-            this.carregarSaldo(cpf);
-          }
-
-          this.successfulDepositTimestamp = new Date().toISOString();
+        next: (account) => {
+          this.successfulDepositTimestamp =
+            account.transactions[0]?.performedAt ?? new Date().toISOString();
 
           this.depositForm.reset({ amount: '' });
           this.resetConfirmationState();
         },
-        error: (error) => {
-          this.submissionError =
-            error.error?.message || 'Erro ao realizar depósito.';
+        error: (error: Error) => {
+          this.submissionError = error.message;
           this.resetConfirmationState();
         },
       });
@@ -180,7 +141,9 @@ export class DepositPageComponent {
   }
 
   get helperMessage(): string {
-    if (this.submissionError) return this.submissionError;
+    if (this.submissionError) {
+      return this.submissionError;
+    }
 
     if (this.hasFieldError(this.amountControl)) {
       return this.amountErrorMessage;

@@ -1,57 +1,63 @@
 <main class="saque-wrapper">
-  @if (account$ | async; as account) {
-    <article class="saque-card">
-      <header class="saque-header">
-        <h1 class="saque-titulo heading_2">Saque</h1>
-        <p class="saque-subtitulo body_large">
-          Preencha o valor que deseja sacar da sua conta.
-        </p>
-      </header>
+  <article class="saque-card">
+    <header class="saque-header">
+      <h1 class="saque-titulo heading_2">Saque</h1>
+      <p class="saque-subtitulo body_large">
+        Preencha o valor que deseja sacar da sua conta.
+      </p>
+    </header>
 
-      <form class="saque-form" [formGroup]="saqueForm" (ngSubmit)="onEnviar()">
-        <div class="saque-campos">
-          <div class="campo-wrapper">
-            <label class="campo-label label_large" for="valor">*Valor</label>
-            <div class="campo-shell" [class.campo-shell--erro]="!!erroValor">
-              <span class="campo-prefix body_medium">R$</span>
-              <input
-                id="valor"
-                type="text"
-                class="body_medium"
-                inputmode="decimal"
-                autocomplete="off"
-                formControlName="valor"
-                placeholder="________________"
-                (keydown)="onValorKeydown($event)"
-                (input)="onValorInput($event)"
-                (paste)="onValorPaste($event)"
-              />
-            </div>
-          </div>
+    <form class="saque-form" [formGroup]="saqueForm" (ngSubmit)="onEnviar()">
+      <div class="saque-campos">
 
-          <div class="campo-wrapper">
-            <label class="campo-label label_large" for="disponivel">Disponível</label>
-            <div id="disponivel" class="campo-shell campo-shell--readonly">
-              <span class="campo-readonly-valor body_medium">
-                  {{ formatCurrency(saldoDisponivel) }}              
-              </span>
-            </div>
+        <div class="campo-wrapper">
+          <label class="campo-label label_large" for="valor">*Valor</label>
+          <div class="campo-shell" [class.campo-shell--erro]="!!erroValor">
+            <span class="campo-prefix body_medium">R$</span>
+            <input
+              id="valor"
+              type="text"
+              class="body_medium"
+              inputmode="decimal"
+              autocomplete="off"
+              formControlName="valor"
+              placeholder="________________"
+              (keydown)="onValorKeydown($event)"
+              (input)="onValorInput($event)"
+              (paste)="onValorPaste($event)"
+            />
           </div>
         </div>
 
-        <p class="campo-obrigatorio body_medium" [class.campo-obrigatorio--erro]="!!erroValor">
-          {{ erroValor ?? '* Campo de preenchimento obrigatório' }}
-        </p>
-
-        <div class="saque-acoes">
-          <button 
-            type="submit" 
-            class="button-primary btn-enviar label_large" 
-            [disabled]="(saqueForm.invalid && saqueForm.touched) || isSubmitting">
-            Enviar
-          </button>
+        <div class="campo-wrapper">
+          <label class="campo-label label_large" for="disponivel">
+            Disponível
+          </label>
+          <div id="disponivel" class="campo-shell campo-shell--readonly">
+            <span class="campo-readonly-valor body_medium">
+              {{ formatCurrency(saldoDisponivel) }}
+            </span>
+          </div>
         </div>
-      </form>
-    </article>
-  }
+
+      </div>
+
+      <p
+        class="campo-obrigatorio body_medium"
+        [class.campo-obrigatorio--erro]="!!erroValor"
+      >
+        {{ erroValor ?? '* Campo de preenchimento obrigatório' }}
+      </p>
+
+      <div class="saque-acoes">
+        <button 
+          type="submit" 
+          class="button-primary btn-enviar label_large" 
+          [disabled]="(saqueForm.invalid && saqueForm.touched) || isSubmitting"
+        >
+          Enviar
+        </button>
+      </div>
+    </form>
+  </article>
 </main>

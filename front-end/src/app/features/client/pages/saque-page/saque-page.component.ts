@@ -1,6 +1,5 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormBuilder,
@@ -13,9 +12,10 @@ import {
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 import { SaqueConfirmacaoModalComponent } from '../../components/saque-confirmacao-modal/saque-confirmacao-modal.component';
-import { ClientAccountService } from '../../services/client-account.service';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 import { formatCurrency } from '../../../../shared/utils/formatters';
 
 const valorPattern = /^\d+(?:[.,]\d{1,2})?$/;
@@ -25,9 +25,7 @@ const saqueValorValidator: ValidatorFn = (
 ): ValidationErrors | null => {
   const valorBruto = String(control.value ?? '').trim();
 
-  if (!valorBruto) {
-    return null;
-  }
+  if (!valorBruto) return null;
 
   if (!valorPattern.test(valorBruto)) {
     return { formatoMoeda: true };
@@ -53,14 +51,15 @@ export class SaquePageComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
-  private readonly clientAccountService = inject(ClientAccountService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
 
-  readonly account$ = this.clientAccountService.getCurrentAccount();
   readonly formatCurrency = formatCurrency;
 
   saqueForm!: FormGroup;
+
   saldoDisponivel = 0;
+  minhaContaLogada: string = '';
   isSubmitting = false;
 
   ngOnInit(): void {
@@ -68,19 +67,34 @@ export class SaquePageComponent implements OnInit {
       valor: ['', [Validators.required, saqueValorValidator]],
     });
 
+    const usuarioLogado = this.authService.currentUserValue;
+
+    if (usuarioLogado?.cpf) {
+      this.carregarSaldo(usuarioLogado.cpf);
+    } else {
+      console.error('Usuário não identificado');
+    }
+
     this.valorControl?.valueChanges.subscribe((valorAtual) => {
       const valorSanitizado = this.sanitizarValor(String(valorAtual ?? ''));
       if (valorAtual !== valorSanitizado) {
         this.aplicarValorSanitizado(valorSanitizado);
       }
     });
+  }
 
-    this.account$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((account) => {
-        const limite = (account as any).limit || 0;
-        this.saldoDisponivel = account.availableBalance + limite;
-      });
+  private carregarSaldo(cpf: string): void {
+    this.http.get<any>(`http://localhost:3000/contas/cpf/${cpf}`).subscribe({
+      next: (dadosConta) => {
+        this.minhaContaLogada = dadosConta.numeroConta;
+
+        const limite = dadosConta.limite || 0;
+        this.saldoDisponivel = (dadosConta.saldoDisponivel || 0) + limite;
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar saldo:', erro);
+      }
+    });
   }
 
   get valorControl() {
@@ -130,22 +144,10 @@ export class SaquePageComponent implements OnInit {
     if (
       event.ctrlKey ||
       event.metaKey ||
-      [
-        'Backspace',
-        'Delete',
-        'Tab',
-        'ArrowLeft',
-        'ArrowRight',
-        'Home',
-        'End',
-      ].includes(event.key)
-    ) {
-      return;
-    }
+      ['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End'].includes(event.key)
+    ) return;
 
-    if (/^\d$/.test(event.key) || event.key === ',' || event.key === '.') {
-      return;
-    }
+    if (/^\d$/.test(event.key) || event.key === ',' || event.key === '.') return;
 
     event.preventDefault();
   }
@@ -153,13 +155,13 @@ export class SaquePageComponent implements OnInit {
   onValorPaste(event: ClipboardEvent): void {
     const input = event.target as HTMLInputElement;
     const valorColado = event.clipboardData?.getData('text') ?? '';
-    const inicioSelecao = input.selectionStart ?? input.value.length;
-    const fimSelecao = input.selectionEnd ?? input.value.length;
+    const inicio = input.selectionStart ?? input.value.length;
+    const fim = input.selectionEnd ?? input.value.length;
 
     event.preventDefault();
 
-    const proximoValor = `${input.value.slice(0, inicioSelecao)}${valorColado}${input.value.slice(fimSelecao)}`;
-    const valorSanitizado = this.sanitizarValor(proximoValor);
+    const novoValor = `${input.value.slice(0, inicio)}${valorColado}${input.value.slice(fim)}`;
+    const valorSanitizado = this.sanitizarValor(novoValor);
 
     input.value = valorSanitizado;
     this.aplicarValorSanitizado(valorSanitizado);
@@ -170,9 +172,7 @@ export class SaquePageComponent implements OnInit {
   onEnviar(): void {
     this.saqueForm.markAllAsTouched();
 
-    if (this.saqueForm.invalid) {
-      return;
-    }
+    if (this.saqueForm.invalid) return;
 
     const valorRaw = this.valorControl?.value as string;
     const valorNumerico = parseFloat(
@@ -191,18 +191,28 @@ export class SaquePageComponent implements OnInit {
 
     const dialogRef = this.dialog.open(SaqueConfirmacaoModalComponent, {
       data: { valor: valorNumerico },
-      panelClass: 'saque-modal-panel',
-      backdropClass: 'saque-backdrop',
       disableClose: true,
     });
 
     dialogRef.afterClosed().subscribe((confirmado: boolean) => {
       if (!confirmado) return;
+
       this.isSubmitting = true;
-      this.clientAccountService.withdrawFromCurrentAccount({ amount: valorNumerico })
+
+      const payload = {
+        contaOrigem: this.minhaContaLogada,
+        valor: valorNumerico
+      };
+
+      console.log('Enviando saque:', payload);
+
+      this.http.post<any>('http://localhost:3000/transacoes/saque', payload)
         .pipe(finalize(() => this.isSubmitting = false))
         .subscribe({
           next: () => {
+            const cpf = this.authService.currentUserValue?.cpf;
+            if (cpf) this.carregarSaldo(cpf);
+
             this.router.navigate(['/cliente/saque/sucesso'], {
               state: {
                 valor: valorNumerico,
@@ -210,9 +220,9 @@ export class SaquePageComponent implements OnInit {
               },
             });
           },
-          error: (err: Error) => {
+          error: (err) => {
             this.valorControl?.setErrors({ saldoInsuficiente: true });
-            console.error(err.message);
+            console.error(err);
           },
         });
     });
@@ -223,22 +233,18 @@ export class SaquePageComponent implements OnInit {
       .replace(/\./g, ',')
       .replace(/[^\d,]/g, '');
 
-    const [parteInteira = '', ...partesDecimais] =
-      valorNormalizado.split(',');
+    const [inteiro = '', ...decimais] = valorNormalizado.split(',');
+    const decimal = decimais.join('').slice(0, 2);
 
-    const parteDecimal = partesDecimais.join('').slice(0, 2);
+    if (decimais.length === 0) return inteiro;
 
-    if (partesDecimais.length === 0) {
-      return parteInteira;
-    }
-
-    return `${parteInteira},${parteDecimal}`;
+    return `${inteiro},${decimal}`;
   }
 
-  private aplicarValorSanitizado(valorSanitizado: string): void {
+  private aplicarValorSanitizado(valor: string): void {
     queueMicrotask(() => {
-      if (this.valorControl?.value !== valorSanitizado) {
-        this.valorControl?.setValue(valorSanitizado, { emitEvent: false });
+      if (this.valorControl?.value !== valor) {
+        this.valorControl?.setValue(valor, { emitEvent: false });
       }
     });
   }

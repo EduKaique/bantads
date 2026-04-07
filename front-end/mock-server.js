@@ -612,6 +612,7 @@ app.get("/gerentes", (_req, res) => {
   res.json(gerentes);
 });
 
+//Saque -----------------------------------
 app.post("/transacoes/saque", (req, res) => {
   const { contaOrigem, valor } = req.body;
   const contas = getData("contas");
