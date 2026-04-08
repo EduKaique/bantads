@@ -1,7 +1,11 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
+import { InputPrimaryComponent } from '../../../shared/components/input-primary/input-primary.component';
+
 @Component({
   selector: 'app-deposit-confirmation-modal',
+  standalone: true,
+  imports: [InputPrimaryComponent],
   templateUrl: './deposit-confirmation-modal.component.html',
   styleUrl: './deposit-confirmation-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,6 +20,7 @@ export class DepositConfirmationModalComponent {
   @Input() detailLines: string[] = [];
   @Input() confirmLabel = 'Confirmar';
   @Input() cancelLabel = 'Cancelar';
+  @Input() amountLabel = 'Valor da operação';
 
   @Output() cancelled = new EventEmitter<void>();
   @Output() confirmed = new EventEmitter<void>();

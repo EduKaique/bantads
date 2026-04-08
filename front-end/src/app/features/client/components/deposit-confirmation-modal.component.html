@@ -34,7 +34,14 @@
         <p class="confirmation-modal__question label_small">
           {{ question }}
         </p>
-        <div class="confirmation-modal__amount">{{ formattedAmount }}</div>
+        <app-input-primary
+          class="confirmation-modal__amount-field"
+          [label]="amountLabel"
+          [valorExibido]="formattedAmount"
+          [readonly]="true"
+          inputName="confirmation-amount"
+          type="text"
+        ></app-input-primary>
         @if (detailLines.length) {
           <div class="confirmation-modal__details body_medium">
             @for (detailLine of detailLines; track detailLine) {

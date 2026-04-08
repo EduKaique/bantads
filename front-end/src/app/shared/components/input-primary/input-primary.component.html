@@ -2,22 +2,35 @@
   @if (label()) {
     <label [for]="finalId" class="label_medium">{{ label() }}</label>
   }
-  <div class="input-content">
-    <input
-    [id]="finalId"
-    [type]="type()"
-    [placeholder]="placeholder()"
-    [value]="value()"
-    (input)="onInput($event)"
-    (blur)="onBlur()"
-    [mask]="mask()"
-    [prefix]="prefix()"
-    [thousandSeparator]="thousandSeparator()"
-    [decimalMarker]="decimalMarker()"
-    [dropSpecialCharacters]="dropSpecialCharacters()"
-    [readonly]="readonly()"
-    class="body_medium"
-  />
+  <div class="input-content" [ngClass]="{ 'input-content--readonly': readonly() }">
+    @if (mask()) {
+      <input
+        [id]="finalId"
+        [type]="type()"
+        [placeholder]="placeholder()"
+        [value]="valorAtual"
+        (input)="onInput($event)"
+        (blur)="onBlur()"
+        [mask]="mask()"
+        [prefix]="prefix()"
+        [thousandSeparator]="thousandSeparator()"
+        [decimalMarker]="decimalMarker()"
+        [dropSpecialCharacters]="dropSpecialCharacters()"
+        [readonly]="readonly()"
+        class="body_medium"
+      />
+    } @else {
+      <input
+        [id]="finalId"
+        [type]="type()"
+        [placeholder]="placeholder()"
+        [value]="valorAtual"
+        (input)="onInput($event)"
+        (blur)="onBlur()"
+        [readonly]="readonly()"
+        class="body_medium"
+      />
+    }
     <div class="icon">
       <ng-content></ng-content>
     </div>

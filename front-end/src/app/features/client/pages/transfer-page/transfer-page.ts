@@ -1,43 +1,154 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Component, inject } from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
+
 import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
 import { AuthService } from '../../../../core/auth/services/auth.service';
-import { MatIconModule } from '@angular/material/icon';
-import { formatCpf } from '../../../../shared/utils/formatters';
 import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
+import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
+import { formatCpf, formatCurrency } from '../../../../shared/utils/formatters';
+import { MatIconModule } from '@angular/material/icon';
+
+const amountPattern = /^\d+(?:[.,]\d{1,2})?$/;
+
+const transferAmountValidator: ValidatorFn = (
+  control: AbstractControl
+): ValidationErrors | null => {
+  const rawValue = String(control.value ?? '').trim();
+
+  if (!rawValue) {
+    return null;
+  }
+
+  const normalizedValue = normalizarValorMonetario(rawValue);
+
+  if (!rawValue || normalizedValue === null) {
+    return { currencyFormat: true };
+  }
+
+  if (!Number.isFinite(normalizedValue) || normalizedValue <= 0) {
+    return { positiveAmount: true };
+  }
+
+  return null;
+};
 
 @Component({
   selector: 'app-transfer-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, AppSuccessModalComponent, MatIconModule, DepositConfirmationModalComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    InputPrimaryComponent,
+    DepositConfirmationModalComponent,
+    AppSuccessModalComponent,
+    MatIconModule,
+  ],
   templateUrl: './transfer-page.html',
-  styleUrls: ['./transfer-page.css']
+  styleUrls: ['./transfer-page.css'],
 })
-export class TransferPage implements OnInit {
-  transferForm!: FormGroup;
+export class TransferPage {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
 
-  isModalOpen: boolean = false;
-  toastMessage: string = '';
-  showToast: boolean = false;
-  exibirModalSucesso: boolean = false; 
-  valorEnviado: string = '';
+  readonly formatCurrency = formatCurrency;
+  readonly transferForm = this.formBuilder.nonNullable.group({
+    accountNumber: [
+      '',
+      [Validators.required, Validators.pattern(/^\d{4}$/)],
+    ],
+    amount: ['', [Validators.required, transferAmountValidator]],
+  });
 
-  minhaContaLogada: string = ''; 
-  availableBalance: number = 0;
+  private readonly accountNumberControl = this.transferForm.controls.accountNumber;
+  private readonly amountControl = this.transferForm.controls.amount;
 
-  buscandoConta: boolean = false;
-  contaEncontrada: boolean = false;
+  isModalOpen = false;
+  toastMessage = '';
+  showToast = false;
+  exibirModalSucesso = false;
+  valorEnviado = '';
+  successfulTransferTimestamp = '';
 
-  constructor(
-    private fb: FormBuilder,
-    private http: HttpClient,
-    private authService: AuthService
-  ) {}
+  minhaContaLogada = '';
+  saldoDisponivel = 0;
 
-  get nomeDestino(): string {
-    return this.transferForm?.get('name')?.value ?? '';
+  buscandoConta = false;
+  contaEncontrada = false;
+  nomeDestino = '';
+  cpfDestino = '';
+
+  constructor() {
+    const usuarioLogado = this.authService.currentUserValue;
+
+    if (usuarioLogado?.cpf) {
+      this.carregarSaldoOrigem(usuarioLogado.cpf);
+    } else {
+      this.exibirToast('Não foi possível identificar o usuário logado.');
+    }
+
+    this.accountNumberControl.valueChanges.subscribe(() => {
+      this.contaEncontrada = false;
+      this.nomeDestino = '';
+      this.cpfDestino = '';
+    });
+  }
+
+  get helperMessage(): string {
+    return '* Campo de preenchimento obrigatório';
+  }
+
+  get helperIsError(): boolean {
+    return false;
+  }
+
+  get saldoDisponivelFormatado(): string {
+    return formatCurrency(this.saldoDisponivel);
+  }
+
+  get valorTransferenciaFormatado(): string {
+    return formatCurrency(this.parseAmount(this.amountControl.value));
+  }
+
+  get accountNumberErrorMessage(): string {
+    if (this.accountNumberControl.hasError('required')) {
+      return 'Informe a conta de destino.';
+    }
+
+    if (this.accountNumberControl.hasError('pattern')) {
+      return 'Use um número de conta com 4 dígitos.';
+    }
+
+    return 'Informe uma conta válida.';
+  }
+
+  get amountErrorMessage(): string {
+    if (this.amountControl.hasError('required')) {
+      return 'Informe o valor da transferência.';
+    }
+
+    if (this.amountControl.hasError('currencyFormat')) {
+      return 'Use um valor válido com até duas casas decimais.';
+    }
+
+    if (this.amountControl.hasError('positiveAmount')) {
+      return 'O valor deve ser maior que zero.';
+    }
+
+    if (this.amountControl.hasError('insufficientBalance')) {
+      return 'Saldo insuficiente para esta transferência.';
+    }
+
+    return 'Informe um valor válido.';
   }
 
   exibirToast(mensagem: string): void {
@@ -48,114 +159,62 @@ export class TransferPage implements OnInit {
     }, 3000);
   }
 
-  ngOnInit(): void {
-    // Inicializa o formulário e suas validações
-    this.transferForm = this.fb.group({
-      accountNumber: ['', [Validators.required, Validators.pattern('^[0-9]{4}$')]],
-      name: [{ value: '', disabled: true }],
-      cpf: [{ value: '', disabled: true }],
-      amount: ['', [Validators.required]],
-      balance: [{ value: 'Carregando...', disabled: true }]    
-    });
-
-    const usuarioLogado = this.authService.currentUserValue;
-    if (usuarioLogado && usuarioLogado.cpf) {
-      this.carregarSaldoOrigem(usuarioLogado.cpf);
-    } else {
-      this.transferForm.patchValue({ balance: 'Usuário não logado' });
-      this.exibirToast('Não foi possível identificar o usuário logado.');
-    }
-
-    // Escuta alterações no campo da conta. Se o usuário digitar outro número, reseta a busca.
-    this.transferForm.get('accountNumber')?.valueChanges.subscribe(() => {
-      this.contaEncontrada = false;
-      this.transferForm.patchValue({ name: '', cpf: '' }, { emitEvent: false });
-    });
-  }
-
-  carregarSaldoOrigem(cpf: string): void {
-    this.http.get<any>(`http://localhost:3000/contas/cpf/${cpf}`).subscribe({
-      next: (dadosConta) => {
-        this.minhaContaLogada = dadosConta.numeroConta; 
-        this.availableBalance = dadosConta.saldoDisponivel || 0;
-        
-        const saldoFormatado = 'R$ ' + this.availableBalance.toLocaleString('pt-BR', { 
-          minimumFractionDigits: 2, 
-          maximumFractionDigits: 2 
-        });
-
-        this.transferForm.patchValue({ balance: saldoFormatado });
-      },
-      error: (erro) => {
-        console.error('Erro ao buscar conta do cliente logado:', erro);
-        this.transferForm.patchValue({ balance: 'Erro ao carregar' });
-      }
-    });
-  }
-
-  onAmountInput(event: any) {
-    let val = event.target.value.replace(/\D/g, '');
-    if (!val) {
-      this.transferForm.patchValue({ amount: '' });
+  searchAccount(): void {
+    if (this.accountNumberControl.invalid) {
+      this.accountNumberControl.markAsTouched();
       return;
     }
-    const num = parseInt(val, 10) / 100;
-    const formatted = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    this.transferForm.patchValue({ amount: 'R$ ' + formatted });
-  }
 
-  searchAccount(): void {
-    const accountControl = this.transferForm.get('accountNumber');
+    const numeroDigitado = this.accountNumberControl.value;
 
-    if (accountControl?.valid) {
-      this.buscandoConta = true;
-      const numeroDigitado = accountControl.value;
+    if (numeroDigitado === this.minhaContaLogada) {
+      this.exibirToast('Você não pode transferir para a sua própria conta.');
+      return;
+    }
 
-      // Impede de transferir para a própria conta
-      if (numeroDigitado === this.minhaContaLogada) {
-        this.buscandoConta = false;
-        this.exibirToast('Você não pode transferir para a sua própria conta.');
-        return;
-      }
+    this.buscandoConta = true;
 
-      this.http.get<any>(`http://localhost:3000/contas/${numeroDigitado}`).subscribe({
+    this.http
+      .get<any>(`http://localhost:3000/contas/${numeroDigitado}`)
+      .subscribe({
         next: (dados) => {
           this.buscandoConta = false;
           this.contaEncontrada = true;
-          this.transferForm.patchValue({
-            name: dados.nome,
-            cpf: formatCpf(dados.cpf)
-          });
+          this.nomeDestino = dados.nome;
+          this.cpfDestino = formatCpf(dados.cpf);
         },
         error: (erro) => {
           this.buscandoConta = false;
           this.contaEncontrada = false;
+          this.nomeDestino = '';
+          this.cpfDestino = '';
           this.exibirToast('Conta não encontrada na base de dados.');
           console.error(erro);
-        }
+        },
       });
-    } else {
-      this.exibirToast('Por favor, insira um código de conta válido com 4 dígitos.');
-    }
   }
 
   onSubmit(): void {
+    this.transferForm.markAllAsTouched();
+
+    if (this.transferForm.invalid) {
+      return;
+    }
+
     if (!this.contaEncontrada) {
       this.exibirToast('Busque e valide a conta de destino antes de transferir.');
       return;
     }
 
-    if (this.transferForm.invalid) {
-      this.transferForm.markAllAsTouched();
+    const transferAmount = this.parseAmount(this.amountControl.value);
+
+    if (!transferAmount) {
+      this.amountControl.setErrors({ positiveAmount: true });
       return;
     }
 
-    const rawAmount = this.transferForm.get('amount')?.value;
-    const cleanAmountStr = rawAmount.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
-    const transferAmount = parseFloat(cleanAmountStr);
-
-    if (transferAmount > this.availableBalance) {
-      this.exibirToast('Saldo insuficiente para realizar esta transferência.');
+    if (transferAmount > this.saldoDisponivel) {
+      this.amountControl.setErrors({ insufficientBalance: true });
       return;
     }
 
@@ -167,45 +226,95 @@ export class TransferPage implements OnInit {
   }
 
   confirmTransfer(): void {
-    const rawAmount = this.transferForm.get('amount')?.value;
-    const cleanAmountStr = rawAmount.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
-    const transferAmount = parseFloat(cleanAmountStr);
+    const transferAmount = this.parseAmount(this.amountControl.value);
+
+    if (!transferAmount) {
+      this.amountControl.setErrors({ positiveAmount: true });
+      return;
+    }
 
     const payload = {
-      contaOrigem: this.minhaContaLogada, // Pega dinamicamente a conta de quem logou
-      contaDestino: this.transferForm.get('accountNumber')?.value,
-      valor: transferAmount
+      contaOrigem: this.minhaContaLogada,
+      contaDestino: this.accountNumberControl.value,
+      valor: transferAmount,
     };
 
-    console.log('Enviando para a API:', payload);
+    this.http
+      .post<any>('http://localhost:3000/transacoes/transferir', payload)
+      .subscribe({
+        next: (resposta) => {
+          this.closeModal();
 
-    // Requisição POST para o mock-server realizar a transferência
-    this.http.post<any>('http://localhost:3000/transacoes/transferir', payload).subscribe({
-      next: (resposta) => {
-        this.closeModal();
-        
-        let newBalanceFormatted = 'R$ 0,00'; // fallback
-        if (resposta.novoSaldoOrigem !== null && resposta.novoSaldoOrigem !== undefined) {
-           this.availableBalance = resposta.novoSaldoOrigem;
-           newBalanceFormatted = 'R$ ' + resposta.novoSaldoOrigem.toLocaleString('pt-BR', { 
-            minimumFractionDigits: 2, 
-            maximumFractionDigits: 2 
-          });
-        }
+          if (
+            resposta.novoSaldoOrigem !== null &&
+            resposta.novoSaldoOrigem !== undefined
+          ) {
+            this.saldoDisponivel = resposta.novoSaldoOrigem;
+          }
 
-        this.transferForm.reset({
-          balance: newBalanceFormatted
-        });
-        
-        this.contaEncontrada = false;
-        this.valorEnviado = transferAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        this.exibirModalSucesso = true;
+          this.valorEnviado = formatCurrency(transferAmount);
+          this.successfulTransferTimestamp = new Date().toISOString();
+          this.exibirModalSucesso = true;
+          this.resetTransferForm();
+        },
+        error: (erro) => {
+          this.closeModal();
+          this.exibirToast(
+            erro.error?.message || 'Erro ao processar a transferência.'
+          );
+          console.error(erro);
+        },
+      });
+  }
+
+  novaTransferencia(): void {
+    this.exibirModalSucesso = false;
+    this.valorEnviado = '';
+    this.successfulTransferTimestamp = '';
+    this.resetTransferForm();
+  }
+
+  private carregarSaldoOrigem(cpf: string): void {
+    this.http.get<any>(`http://localhost:3000/contas/cpf/${cpf}`).subscribe({
+      next: (dadosConta) => {
+        this.minhaContaLogada = dadosConta.numeroConta;
+        this.saldoDisponivel = dadosConta.saldoDisponivel || 0;
       },
       error: (erro) => {
-        this.closeModal();
-        this.exibirToast(erro.error?.message || 'Erro ao processar a transferência.');
-        console.error(erro);
-      }
+        console.error('Erro ao buscar conta do cliente logado:', erro);
+        this.exibirToast('Erro ao carregar o saldo disponível.');
+      },
     });
   }
+
+  private parseAmount(rawValue: string): number {
+    const normalizedValue = normalizarValorMonetario(rawValue);
+    return normalizedValue ?? 0;
+  }
+
+  private resetTransferForm(): void {
+    this.transferForm.reset({
+      accountNumber: '',
+      amount: '',
+    });
+    this.contaEncontrada = false;
+    this.nomeDestino = '';
+    this.cpfDestino = '';
+  }
+}
+
+function normalizarValorMonetario(rawValue: string): number | null {
+  const cleanedValue = rawValue
+    .replace(/R\$\s?/g, '')
+    .replace(/\./g, '')
+    .replace(',', '.')
+    .trim();
+
+  if (!cleanedValue || !amountPattern.test(cleanedValue.replace('.', ','))) {
+    return null;
+  }
+
+  const normalizedValue = Number(cleanedValue);
+
+  return Number.isFinite(normalizedValue) ? normalizedValue : null;
 }

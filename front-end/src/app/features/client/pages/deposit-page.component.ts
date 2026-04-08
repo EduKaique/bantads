@@ -8,14 +8,15 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { finalize } from 'rxjs';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 
+import { AppSuccessModalComponent } from '../../../shared/components/modal-mensagem/app-success-modal';
 import { DepositRequest } from '../../../shared/models/deposit-request';
-import { DepositConfirmationModalComponent } from '../components/deposit-confirmation-modal.component';
-import { DepositSuccessStateComponent } from '../components/deposit-success-state.component';
-import { ClientAccountService } from '../services/client-account.service';
 import { formatCurrency } from '../../../shared/utils/formatters';
+import { InputPrimaryComponent } from '../../../shared/components/input-primary/input-primary.component';
+import { DepositConfirmationModalComponent } from '../components/deposit-confirmation-modal.component';
+import { ClientAccountService } from '../services/client-account.service';
 
 const amountPattern = /^\d+(?:[.,]\d{1,2})?$/;
 
@@ -28,11 +29,11 @@ const depositAmountValidator: ValidatorFn = (
     return null;
   }
 
-  if (!amountPattern.test(rawValue)) {
+  const normalizedValue = normalizarValorMonetario(rawValue);
+
+  if (!rawValue || normalizedValue === null) {
     return { currencyFormat: true };
   }
-
-  const normalizedValue = Number(rawValue.replace(',', '.'));
 
   if (!Number.isFinite(normalizedValue) || normalizedValue <= 0) {
     return { positiveAmount: true };
@@ -46,8 +47,9 @@ const depositAmountValidator: ValidatorFn = (
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    InputPrimaryComponent,
     DepositConfirmationModalComponent,
-    DepositSuccessStateComponent,
+    AppSuccessModalComponent,
   ],
   templateUrl: './deposit-page.component.html',
   styleUrl: './deposit-page.component.css',
@@ -57,9 +59,9 @@ export class DepositPageComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly clientAccountService = inject(ClientAccountService);
   private readonly router = inject(Router);
+
   readonly formatCurrency = formatCurrency;
   readonly account$ = this.clientAccountService.getCurrentAccount();
-
   readonly depositForm = this.formBuilder.nonNullable.group({
     amount: ['', [Validators.required, depositAmountValidator]],
   });
@@ -69,22 +71,11 @@ export class DepositPageComponent {
   isConfirmationVisible = false;
   isSubmitting = false;
   submissionError = '';
+  exibirModalSucesso = false;
   successfulDepositTimestamp = '';
+  successfulDepositAmountLabel = '';
 
   private pendingDeposit: DepositRequest | null = null;
-
-  onAmountInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const sanitizedValue = this.sanitizeAmountInput(input.value);
-
-    if (input.value !== sanitizedValue) {
-      input.value = sanitizedValue;
-    }
-
-    this.amountControl.setValue(sanitizedValue, { emitEvent: false });
-    this.amountControl.markAsDirty();
-    this.amountControl.updateValueAndValidity();
-  }
 
   openConfirmation(): void {
     if (this.depositForm.invalid) {
@@ -123,8 +114,12 @@ export class DepositPageComponent {
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
         next: (account) => {
+          this.successfulDepositAmountLabel = formatCurrency(
+            pendingDeposit.amount
+          );
           this.successfulDepositTimestamp =
             account.transactions[0]?.performedAt ?? new Date().toISOString();
+          this.exibirModalSucesso = true;
 
           this.depositForm.reset({ amount: '' });
           this.resetConfirmationState();
@@ -146,6 +141,10 @@ export class DepositPageComponent {
     }
 
     if (this.hasFieldError(this.amountControl)) {
+      if (this.amountControl.hasError('required')) {
+        return '* Campo de preenchimento obrigatório';
+      }
+
       return this.amountErrorMessage;
     }
 
@@ -153,9 +152,13 @@ export class DepositPageComponent {
   }
 
   get helperIsError(): boolean {
+    if (this.submissionError) {
+      return true;
+    }
+
     return (
-      Boolean(this.submissionError) ||
-      this.hasFieldError(this.amountControl)
+      this.hasFieldError(this.amountControl) &&
+      !this.amountControl.hasError('required')
     );
   }
 
@@ -184,34 +187,36 @@ export class DepositPageComponent {
   }
 
   novoDeposito(): void {
+    this.exibirModalSucesso = false;
     this.successfulDepositTimestamp = '';
+    this.successfulDepositAmountLabel = '';
     this.submissionError = '';
     this.depositForm.reset({ amount: '' });
   }
 
   private parseAmount(rawValue: string): number {
-    return Number(rawValue.replace(',', '.'));
+    const valorNormalizado = normalizarValorMonetario(rawValue);
+    return valorNormalizado ?? 0;
   }
 
   private resetConfirmationState(): void {
     this.isConfirmationVisible = false;
     this.pendingDeposit = null;
   }
+}
 
-  private sanitizeAmountInput(rawValue: string): string {
-    const normalizedValue = rawValue
-      .replace(/\./g, ',')
-      .replace(/[^\d,]/g, '');
+function normalizarValorMonetario(rawValue: string): number | null {
+  const valorLimpo = rawValue
+    .replace(/R\$\s?/g, '')
+    .replace(/\./g, '')
+    .replace(',', '.')
+    .trim();
 
-    const [integerPart = '', ...fractionChunks] =
-      normalizedValue.split(',');
-
-    const fractionPart = fractionChunks.join('').slice(0, 2);
-
-    if (fractionChunks.length === 0) {
-      return integerPart;
-    }
-
-    return `${integerPart},${fractionPart}`;
+  if (!valorLimpo || !amountPattern.test(valorLimpo.replace('.', ','))) {
+    return null;
   }
+
+  const valorNormalizado = Number(valorLimpo);
+
+  return Number.isFinite(valorNormalizado) ? valorNormalizado : null;
 }

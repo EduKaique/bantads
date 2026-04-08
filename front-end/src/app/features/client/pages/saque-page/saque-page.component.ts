@@ -1,9 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
-  FormGroup,
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
@@ -11,29 +11,31 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
 import { formatCurrency } from '../../../../shared/utils/formatters';
 import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
 
-const valorPattern = /^\d+(?:[.,]\d{1,2})?$/;
+const amountPattern = /^\d+(?:[.,]\d{1,2})?$/;
 
-const saqueValorValidator: ValidatorFn = (
+const saqueAmountValidator: ValidatorFn = (
   control: AbstractControl
 ): ValidationErrors | null => {
-  const valorBruto = String(control.value ?? '').trim();
+  const rawValue = String(control.value ?? '').trim();
 
-  if (!valorBruto) return null;
-
-  if (!valorPattern.test(valorBruto)) {
-    return { formatoMoeda: true };
+  if (!rawValue) {
+    return null;
   }
 
-  const valorNormalizado = Number(valorBruto.replace(',', '.'));
+  const normalizedValue = normalizarValorMonetario(rawValue);
 
-  if (!Number.isFinite(valorNormalizado) || valorNormalizado <= 0) {
-    return { min: true };
+  if (!rawValue || normalizedValue === null) {
+    return { currencyFormat: true };
+  }
+
+  if (!Number.isFinite(normalizedValue) || normalizedValue <= 0) {
+    return { positiveAmount: true };
   }
 
   return null;
@@ -42,29 +44,36 @@ const saqueValorValidator: ValidatorFn = (
 @Component({
   selector: 'app-saque-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DepositConfirmationModalComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    InputPrimaryComponent,
+    DepositConfirmationModalComponent,
+  ],
   templateUrl: './saque-page.component.html',
   styleUrls: ['./saque-page.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SaquePageComponent implements OnInit {
+export class SaquePageComponent {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
 
   readonly formatCurrency = formatCurrency;
+  readonly saqueForm = this.formBuilder.nonNullable.group({
+    valor: ['', [Validators.required, saqueAmountValidator]],
+  });
 
-  saqueForm!: FormGroup;
+  private readonly valorControl = this.saqueForm.controls.valor;
+
   saldoDisponivel = 0;
   minhaContaLogada = '';
   isSubmitting = false;
   exibirModalConfirmacao = false;
 
-  ngOnInit(): void {
-    this.saqueForm = this.formBuilder.group({
-      valor: ['', [Validators.required, saqueValorValidator]],
-    });
-
+  constructor() {
     const usuarioLogado = this.authService.currentUserValue;
 
     if (usuarioLogado?.cpf) {
@@ -72,114 +81,67 @@ export class SaquePageComponent implements OnInit {
     } else {
       console.error('Usuário não identificado');
     }
-
-    this.valorControl?.valueChanges.subscribe((valorAtual) => {
-      const valorSanitizado = this.sanitizarValor(String(valorAtual ?? ''));
-      if (valorAtual !== valorSanitizado) {
-        this.aplicarValorSanitizado(valorSanitizado);
-      }
-    });
-  }
-
-  get valorControl() {
-    return this.saqueForm.get('valor');
   }
 
   get valorSaqueFormatado(): string {
-    const valorRaw = String(this.valorControl?.value ?? '').trim();
-    const valorNumerico = parseFloat(
-      valorRaw.replace(/\./g, '').replace(',', '.')
-    );
-
-    return formatCurrency(Number.isFinite(valorNumerico) ? valorNumerico : 0);
+    return formatCurrency(this.parseValor(this.valorControl.value));
   }
 
-  get erroValor(): string | null {
-    const controle = this.valorControl;
+  get helperMessage(): string {
+    if (this.hasFieldError(this.valorControl)) {
+      if (this.valorControl.hasError('required')) {
+        return '* Campo de preenchimento obrigatório';
+      }
 
-    if (!controle || !controle.touched || controle.valid) {
-      return null;
+      return this.amountErrorMessage;
     }
 
-    if (controle.errors?.['required']) {
+    return '* Campo de preenchimento obrigatório';
+  }
+
+  get helperIsError(): boolean {
+    return (
+      this.hasFieldError(this.valorControl) &&
+      !this.valorControl.hasError('required')
+    );
+  }
+
+  get amountErrorMessage(): string {
+    if (this.valorControl.hasError('required')) {
       return 'Informe o valor do saque.';
     }
 
-    if (controle.errors?.['formatoMoeda']) {
+    if (this.valorControl.hasError('currencyFormat')) {
       return 'Use um valor válido com até duas casas decimais.';
     }
 
-    if (controle.errors?.['min']) {
-      return 'O valor mínimo é R$ 0,01.';
+    if (this.valorControl.hasError('positiveAmount')) {
+      return 'O valor deve ser maior que zero.';
     }
 
-    if (controle.errors?.['saldoInsuficiente']) {
+    if (this.valorControl.hasError('saldoInsuficiente')) {
       return 'Saldo insuficiente para este saque.';
     }
 
-    return null;
-  }
-
-  onValorInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const valorSanitizado = this.sanitizarValor(input.value);
-
-    if (input.value !== valorSanitizado) {
-      input.value = valorSanitizado;
-    }
-
-    this.aplicarValorSanitizado(valorSanitizado);
-    this.valorControl?.markAsDirty();
-    this.valorControl?.updateValueAndValidity();
-  }
-
-  onValorKeydown(event: KeyboardEvent): void {
-    if (
-      event.ctrlKey ||
-      event.metaKey ||
-      ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)
-    ) {
-      return;
-    }
-
-    if (/^\d$/.test(event.key) || event.key === ',' || event.key === '.') {
-      return;
-    }
-
-    event.preventDefault();
-  }
-
-  onValorPaste(event: ClipboardEvent): void {
-    const input = event.target as HTMLInputElement;
-    const valorColado = event.clipboardData?.getData('text') ?? '';
-    const inicio = input.selectionStart ?? input.value.length;
-    const fim = input.selectionEnd ?? input.value.length;
-
-    event.preventDefault();
-
-    const novoValor = `${input.value.slice(0, inicio)}${valorColado}${input.value.slice(fim)}`;
-    const valorSanitizado = this.sanitizarValor(novoValor);
-
-    input.value = valorSanitizado;
-    this.aplicarValorSanitizado(valorSanitizado);
-    this.valorControl?.markAsDirty();
-    this.valorControl?.updateValueAndValidity();
+    return 'Informe um valor válido.';
   }
 
   onEnviar(): void {
     this.saqueForm.markAllAsTouched();
 
-    if (this.saqueForm.invalid) return;
+    if (this.saqueForm.invalid) {
+      return;
+    }
 
-    const valorNumerico = this.obterValorNumerico();
+    const valorNumerico = this.parseValor(this.valorControl.value);
 
     if (!valorNumerico) {
-      this.valorControl?.setErrors({ min: true });
+      this.valorControl.setErrors({ positiveAmount: true });
       return;
     }
 
     if (valorNumerico > this.saldoDisponivel) {
-      this.valorControl?.setErrors({ saldoInsuficiente: true });
+      this.valorControl.setErrors({ saldoInsuficiente: true });
       return;
     }
 
@@ -193,10 +155,10 @@ export class SaquePageComponent implements OnInit {
   }
 
   confirmarSaque(): void {
-    const valorNumerico = this.obterValorNumerico();
+    const valorNumerico = this.parseValor(this.valorControl.value);
 
     if (!valorNumerico) {
-      this.valorControl?.setErrors({ min: true });
+      this.valorControl.setErrors({ positiveAmount: true });
       return;
     }
 
@@ -207,11 +169,14 @@ export class SaquePageComponent implements OnInit {
       valor: valorNumerico,
     };
 
-    this.http.post<any>('http://localhost:3000/transacoes/saque', payload)
-      .pipe(finalize(() => {
-        this.isSubmitting = false;
-        this.exibirModalConfirmacao = false;
-      }))
+    this.http
+      .post<any>('http://localhost:3000/transacoes/saque', payload)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+          this.exibirModalConfirmacao = false;
+        })
+      )
       .subscribe({
         next: () => {
           const cpf = this.authService.currentUserValue?.cpf;
@@ -227,7 +192,7 @@ export class SaquePageComponent implements OnInit {
           });
         },
         error: (erro) => {
-          this.valorControl?.setErrors({ saldoInsuficiente: true });
+          this.valorControl.setErrors({ saldoInsuficiente: true });
           console.error(erro);
         },
       });
@@ -239,36 +204,37 @@ export class SaquePageComponent implements OnInit {
         this.minhaContaLogada = dadosConta.numeroConta;
         const limite = dadosConta.limite || 0;
         this.saldoDisponivel = (dadosConta.saldoDisponivel || 0) + limite;
+        this.changeDetectorRef.markForCheck();
       },
       error: (erro) => {
         console.error('Erro ao buscar saldo:', erro);
-      }
+        this.changeDetectorRef.markForCheck();
+      },
     });
   }
 
-  private obterValorNumerico(): number {
-    const valorRaw = this.valorControl?.value as string;
-    return parseFloat(valorRaw.replace(/\./g, '').replace(',', '.'));
+  private hasFieldError(control: AbstractControl): boolean {
+    return control.invalid && (control.dirty || control.touched);
   }
 
-  private sanitizarValor(valorBruto: string): string {
-    const valorNormalizado = valorBruto
-      .replace(/\./g, ',')
-      .replace(/[^\d,]/g, '');
+  private parseValor(rawValue: string): number {
+    const normalizedValue = normalizarValorMonetario(rawValue);
+    return normalizedValue ?? 0;
+  }
+}
 
-    const [inteiro = '', ...decimais] = valorNormalizado.split(',');
-    const decimal = decimais.join('').slice(0, 2);
+function normalizarValorMonetario(rawValue: string): number | null {
+  const cleanedValue = rawValue
+    .replace(/R\$\s?/g, '')
+    .replace(/\./g, '')
+    .replace(',', '.')
+    .trim();
 
-    if (decimais.length === 0) return inteiro;
-
-    return `${inteiro},${decimal}`;
+  if (!cleanedValue || !amountPattern.test(cleanedValue.replace('.', ','))) {
+    return null;
   }
 
-  private aplicarValorSanitizado(valor: string): void {
-    queueMicrotask(() => {
-      if (this.valorControl?.value !== valor) {
-        this.valorControl?.setValue(valor, { emitEvent: false });
-      }
-    });
-  }
+  const normalizedValue = Number(cleanedValue);
+
+  return Number.isFinite(normalizedValue) ? normalizedValue : null;
 }
