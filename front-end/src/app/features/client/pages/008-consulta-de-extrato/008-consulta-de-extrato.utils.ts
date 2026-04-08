@@ -1,11 +1,11 @@
-import { AccountTransaction } from '../../../../shared/models/account-transaction';
 import { formatCurrency } from '../../../../shared/utils/formatters';
-import { Transaction } from '../../../../../assets/mock/transactions.mock';
+import { TransacaoExtratoMock } from '../../services/client-account.service';
+import { ExtratoTransaction } from './extrato-transaction.model';
 
 export interface GrupoTransacoes {
   data: string;
   saldoDoDia: string;
-  transacoes: Transaction[];
+  transacoes: ExtratoTransaction[];
 }
 
 interface FiltroPersistidoExtrato {
@@ -20,22 +20,34 @@ const FORMATO_DATA_CABECALHO = new Intl.DateTimeFormat('pt-BR', {
   day: 'numeric',
 });
 
-export function mapearTransacoesDaConta(
-  transacoes: AccountTransaction[],
-): Transaction[] {
-  return transacoes.map((transacao) => ({
-    data: formatarDataParaInput(new Date(transacao.performedAt)),
-    hora: extrairHoraDaDataIso(transacao.performedAt),
-    operacao: mapearTipoOperacao(transacao.type),
-    remetenteDestinatario: 'Você',
-    categoria: 'Operação bancária',
-    valor: formatCurrency(Math.abs(transacao.amount)),
-    operacaoColor: transacao.type === 'withdrawal' ? 'red' : 'blue',
-  }));
+export function mapearTransacoesDoExtratoMock(
+  transacoes: TransacaoExtratoMock[],
+  numeroContaAtual: string,
+): ExtratoTransaction[] {
+  return transacoes.map((transacao) => {
+    const dataHora = new Date(transacao.dataHora);
+    const transferenciaEntrada =
+      transacao.tipo === 'TRANSFERENCIA' &&
+      transacao.contaDestino === numeroContaAtual;
+
+    return {
+      data: formatarDataParaInput(dataHora),
+      hora: extrairHoraDaDataIso(transacao.dataHora),
+      operacao: mapearTipoOperacaoExtrato(transacao.tipo),
+      remetenteDestinatario: obterContraparteDaTransacao(
+        transacao,
+        numeroContaAtual,
+      ),
+      categoria: 'Operação bancária',
+      valor: formatCurrency(Math.abs(transacao.valor)),
+      operacaoColor:
+        transferenciaEntrada || transacao.tipo === 'DEPOSITO' ? 'blue' : 'red',
+    };
+  });
 }
 
 export function criarGruposTransacoes(
-  transacoes: Transaction[],
+  transacoes: ExtratoTransaction[],
   dataInicio: Date,
   dataFim: Date,
   saldoAtual: number,
@@ -44,7 +56,10 @@ export function criarGruposTransacoes(
   const dataInicialNormalizada = normalizarInicioDoDia(dataInicio);
   const dataFinalNormalizada = normalizarFimDoDia(dataFim);
 
-  for (const data of gerarIntervaloDatas(dataInicialNormalizada, dataFinalNormalizada)) {
+  for (const data of gerarIntervaloDatas(
+    dataInicialNormalizada,
+    dataFinalNormalizada,
+  )) {
     const dataFormatada = formatarDataParaInput(data);
     gruposPorData.set(dataFormatada, {
       data: formatarCabecalhoData(dataFormatada),
@@ -53,7 +68,11 @@ export function criarGruposTransacoes(
     });
   }
 
-  for (const transacao of filtrarTransacoesPorPeriodo(transacoes, dataInicialNormalizada, dataFinalNormalizada)) {
+  for (const transacao of filtrarTransacoesPorPeriodo(
+    transacoes,
+    dataInicialNormalizada,
+    dataFinalNormalizada,
+  )) {
     gruposPorData.get(transacao.data)?.transacoes.push(transacao);
   }
 
@@ -108,15 +127,6 @@ export function desserializarFiltroExtrato(
   }
 }
 
-export function calcularImpactoDasTransacoes(
-  transacoes: Transaction[],
-): number {
-  return transacoes.reduce((saldo, transacao) => {
-    const valor = parseValorMonetario(transacao.valor);
-    return transacao.operacaoColor === 'blue' ? saldo + valor : saldo - valor;
-  }, 0);
-}
-
 function extrairHoraDaDataIso(dataIso: string): string {
   const data = new Date(dataIso);
   const horas = String(data.getHours()).padStart(2, '0');
@@ -124,12 +134,33 @@ function extrairHoraDaDataIso(dataIso: string): string {
   return `${horas}:${minutos}`;
 }
 
-function mapearTipoOperacao(tipo: AccountTransaction['type']): string {
-  if (tipo === 'deposit') {
+function mapearTipoOperacaoExtrato(
+  tipo: TransacaoExtratoMock['tipo'],
+): string {
+  if (tipo === 'DEPOSITO') {
     return 'Depósito';
   }
 
-  return 'Saque';
+  if (tipo === 'SAQUE') {
+    return 'Saque';
+  }
+
+  return 'Transferência';
+}
+
+function obterContraparteDaTransacao(
+  transacao: TransacaoExtratoMock,
+  numeroContaAtual: string,
+): string | undefined {
+  if (transacao.tipo !== 'TRANSFERENCIA') {
+    return undefined;
+  }
+
+  if (transacao.contaOrigem === numeroContaAtual) {
+    return transacao.nomeDestino || transacao.contaDestino || undefined;
+  }
+
+  return transacao.nomeOrigem || transacao.contaOrigem || undefined;
 }
 
 function gerarIntervaloDatas(dataInicio: Date, dataFim: Date): Date[] {
@@ -145,10 +176,10 @@ function gerarIntervaloDatas(dataInicio: Date, dataFim: Date): Date[] {
 }
 
 function filtrarTransacoesPorPeriodo(
-  transacoes: Transaction[],
+  transacoes: ExtratoTransaction[],
   dataInicio: Date,
   dataFim: Date,
-): Transaction[] {
+): ExtratoTransaction[] {
   const dataInicialNormalizada = normalizarInicioDoDia(dataInicio);
   const dataFinalNormalizada = normalizarFimDoDia(dataFim);
 
@@ -167,7 +198,7 @@ function formatarCabecalhoData(data: string): string {
 
 function calcularSaldoDoDia(
   dataReferencia: Date,
-  transacoes: Transaction[],
+  transacoes: ExtratoTransaction[],
   saldoAtual: number,
 ): string {
   const saldoCalculado = transacoes.reduce((saldo, transacao) => {
@@ -185,13 +216,19 @@ function calcularSaldoDoDia(
 }
 
 function parseValorMonetario(valor: string): number {
-  return Number(
-    valor.replace(/R\$\s?/g, '').replace(/\./g, '').replace(',', '.'),
-  ) || 0;
+  return (
+    Number(valor.replace(/R\$\s?/g, '').replace(/\./g, '').replace(',', '.')) ||
+    0
+  );
 }
 
-function ordenarPorHora(transacaoA: Transaction, transacaoB: Transaction): number {
-  return (transacaoA.hora || '00:00').localeCompare(transacaoB.hora || '00:00');
+function ordenarPorHora(
+  transacaoA: ExtratoTransaction,
+  transacaoB: ExtratoTransaction,
+): number {
+  return (transacaoA.hora || '00:00').localeCompare(
+    transacaoB.hora || '00:00',
+  );
 }
 
 function normalizarInicioDoDia(data: Date): Date {

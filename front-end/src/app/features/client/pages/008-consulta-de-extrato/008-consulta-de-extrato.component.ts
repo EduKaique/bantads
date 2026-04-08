@@ -6,7 +6,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MOCK_TRANSACTIONS, Transaction } from '../../../../../assets/mock/transactions.mock';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import {
   buildScopedStorageKey,
@@ -15,13 +14,13 @@ import {
 } from '../../../../shared/utils/session-storage.utils';
 import { ClientAccountService } from '../../services/client-account.service';
 import {
-  calcularImpactoDasTransacoes,
   criarGruposTransacoes,
   desserializarFiltroExtrato,
   GrupoTransacoes,
-  mapearTransacoesDaConta,
+  mapearTransacoesDoExtratoMock,
   serializarFiltroExtrato,
 } from './008-consulta-de-extrato.utils';
+import { ExtratoTransaction } from './extrato-transaction.model';
 
 @Component({
   selector: 'app-consulta-extrato',
@@ -48,7 +47,7 @@ export class ConsultaExtratoPageComponent implements OnInit {
   dataSelecionadaFim = new Date(2026, 11, 31);
   transacoesPorData: GrupoTransacoes[] = [];
 
-  private transacoes: Transaction[] = MOCK_TRANSACTIONS;
+  private transacoes: ExtratoTransaction[] = [];
 
   ngOnInit(): void {
     this.configurarFiltroInicialDaSessao();
@@ -93,16 +92,14 @@ export class ConsultaExtratoPageComponent implements OnInit {
 
   private carregarExtrato(): void {
     this.clientAccountService
-      .getCurrentAccount()
+      .getExtratoAtual()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((conta) => {
-        this.saldoAtual.set(
-          conta.availableBalance + calcularImpactoDasTransacoes(MOCK_TRANSACTIONS),
+      .subscribe((extrato) => {
+        this.saldoAtual.set(extrato.saldoAtual);
+        this.transacoes = mapearTransacoesDoExtratoMock(
+          extrato.transacoes,
+          extrato.numeroConta,
         );
-        this.transacoes = [
-          ...mapearTransacoesDaConta(conta.transactions),
-          ...MOCK_TRANSACTIONS,
-        ];
         this.filtrarEAgruparTransacoes();
       });
   }

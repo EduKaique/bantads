@@ -16,6 +16,7 @@ interface ClienteResumo {
 interface ContaResumo {
   holderDocument: string;
   availableBalance: number;
+  managerDocument?: string;
 }
 
 interface DadosDashboard {
@@ -105,19 +106,27 @@ export class GerentesDashboardService {
     saldoPositivo: number;
     saldoNegativo: number;
   } {
+    const cpfGerenteNormalizado = this.normalizarCpf(cpfGerente);
+    const contasGerente = contas.filter(
+      (conta) =>
+        this.normalizarCpf(conta.managerDocument || '') ===
+        cpfGerenteNormalizado,
+    );
+
     const cpfsClientes = new Set(
+      contasGerente.map((conta) => this.normalizarCpf(conta.holderDocument)),
+    );
+
+    if (cpfsClientes.size === 0) {
       clientes
         .filter(
           (cliente) =>
-            this.normalizarCpf(cliente.cpfGerente) ===
-            this.normalizarCpf(cpfGerente),
+            this.normalizarCpf(cliente.cpfGerente) === cpfGerenteNormalizado,
         )
-        .map((cliente) => this.normalizarCpf(cliente.cpf)),
-    );
-
-    const contasGerente = contas.filter((conta) =>
-      cpfsClientes.has(this.normalizarCpf(conta.holderDocument)),
-    );
+        .forEach((cliente) => {
+          cpfsClientes.add(this.normalizarCpf(cliente.cpf));
+        });
+    }
 
     return {
       totalClientes: cpfsClientes.size,

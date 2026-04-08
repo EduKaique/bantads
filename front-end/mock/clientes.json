@@ -1,36 +1,123 @@
 [
   {
-    "cpf": "76179646090",
-    "nome": "Coândrya",
-    "email": "cli5@bantads.com.br",
-    "celular": "13996762377",
-    "salario": "1500",
+    "cpf": "12912861012",
+    "nome": "Catharyna",
+    "email": "cli1@bantads.com.br",
+    "celular": "45456465465",
+    "salario": 5000,
+    "cpfGerente": "23862179060",
     "endereco": {
-      "cep": "11900000",
-      "logradouro": "Rua rui prado de mendonça",
-      "numero": "755",
+      "cep": "80010000",
+      "logradouro": "Rua das Araucárias",
+      "numero": "101",
+      "complemento": "Apto 11",
+      "bairro": "Centro",
+      "cidade": "Curitiba",
+      "uf": "PR"
+    }
+  },
+  {
+    "cpf": "09506382000",
+    "nome": "Cleuddônio",
+    "email": "cli2@bantads.com.br",
+    "celular": "41999990012",
+    "salario": "20000",
+    "cpfGerente": "64065268052",
+    "endereco": {
+      "cep": "80020000",
+      "logradouro": "Avenida das Torres",
+      "numero": "202",
       "complemento": "",
-      "bairro": "Alai correa",
-      "cidade": "Registro",
-      "uf": "SP"
-    },
-    "dataSolicitacao": "2026-04-06T00:29:47.344Z"
+      "bairro": "Jardim Botânico",
+      "cidade": "Curitiba",
+      "uf": "PR"
+    }
+  },
+  {
+    "cpf": "85733854057",
+    "nome": "Catianna",
+    "email": "cli3@bantads.com.br",
+    "celular": "41999990013",
+    "salario": "3000",
+    "cpfGerente": "23862179060",
+    "endereco": {
+      "cep": "80030000",
+      "logradouro": "Rua das Flores",
+      "numero": "303",
+      "complemento": "Casa",
+      "bairro": "Água Verde",
+      "cidade": "Curitiba",
+      "uf": "PR"
+    }
   },
   {
     "cpf": "58872160006",
     "nome": "Cutardo",
     "email": "cli4@bantads.com.br",
-    "celular": "13996762377",
+    "celular": "41999990014",
     "salario": "500",
+    "cpfGerente": "23862179060",
     "endereco": {
-      "cep": "11900000",
-      "logradouro": "Rua rui prado de mendonça",
-      "numero": "755",
+      "cep": "80040000",
+      "logradouro": "Rua Marechal Deodoro",
+      "numero": "404",
       "complemento": "",
-      "bairro": "Alai correa",
-      "cidade": "Registro",
-      "uf": "SP"
+      "bairro": "Rebouças",
+      "cidade": "Curitiba",
+      "uf": "PR"
+    }
+  },
+  {
+    "cpf": "76179646090",
+    "nome": "Coândrya",
+    "email": "cli5@bantads.com.br",
+    "celular": "41999990015",
+    "salario": "1500",
+    "cpfGerente": "64065268052",
+    "endereco": {
+      "cep": "80050000",
+      "logradouro": "Rua XV de Novembro",
+      "numero": "505",
+      "complemento": "Sala 5",
+      "bairro": "Centro Cívico",
+      "cidade": "Curitiba",
+      "uf": "PR"
+    }
+  },
+  {
+    "cpf": "13171161940",
+    "nome": "gabriel braza",
+    "email": "gabriel.paulabrasil@gmail.com",
+    "celular": "41993333939",
+    "salario": 12333,
+    "endereco": {
+      "cep": "80310000",
+      "logradouro": "Rua Major França Gomes",
+      "numero": "1557",
+      "complemento": "Casa 1",
+      "bairro": "Santa Quitéria",
+      "cidade": "Curitiba",
+      "uf": "PR"
     },
-    "dataSolicitacao": "2026-04-06T00:29:10.807Z"
+    "cpfGerente": "23862179060",
+    "dataSolicitacao": "2026-04-07T00:57:38.286Z"
+  },
+  {
+    "cpf": "11149903961",
+    "nome": "Eduardo",
+    "email": "edu@teste.com",
+    "celular": "65646545464",
+    "salario": 2200,
+    "endereco": {
+      "cep": "80060092",
+      "logradouro": "Rua Ubaldino do Amaral",
+      "numero": "6544",
+      "complemento": "",
+      "bairro": "Jardim Botânico",
+      "cidade": "Curitiba",
+      "uf": "PR"
+    },
+    "cpfGerente": "23862179060",
+    "dataSolicitacao": "2026-04-07T01:38:48.610Z"
   }
 ]
