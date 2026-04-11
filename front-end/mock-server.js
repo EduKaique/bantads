@@ -570,19 +570,43 @@ app.post("/admin/gerentes", (req, res) => {
 
   gerentes.push(novoGerente);
   auths.push(novoGerente);
-  
-  contas.sort((a, b) => a.availableBalance - b.availableBalance);
-  const contaAlvo = contas.find(c => c.managerDocument && c.managerDocument !== novoGerente.cpf);
-
-  if (contaAlvo) {
-    contaAlvo.managerDocument = novoGerente.cpf;
-    contaAlvo.manager = novoGerente.nome;
-    console.log(`[R17] Conta ${contaAlvo.accountNumber} transferida para o novo gerente!`);
-  }
-
   saveData("gerentes", gerentes);
   saveData("auth", auths);
-  saveData("contas", contas);
+  
+  const gerentesAnteriores = gerentes.filter(g => g.cpf !== novoGerente.cpf);
+
+  if (gerentesAnteriores.length === 0) {
+    return res.status(201).json({ message: "Gerente cadastrado com sucesso!" });
+  }
+
+   const contagemPorGerente = gerentesAnteriores.map(g => {
+    const contasDoGerente = contas.filter(c =>
+      c.managerDocument && c.managerDocument.replace(/\D/g, '') === g.cpf.replace(/\D/g, '')
+    );
+    const saldoPositivo = contasDoGerente.reduce((acc, c) => acc + Math.max(0, c.availableBalance), 0);
+    return { cpf: g.cpf, nome: g.nome, total: contasDoGerente.length, saldoPositivo };
+  });
+
+  const maxContas = Math.max(...contagemPorGerente.map(g => g.total));
+
+  if (maxContas <= 1) {
+    return res.status(201).json({ message: "Gerente cadastrado sem contas atribuídas." });
+  }
+
+  const candidatos = contagemPorGerente.filter(g => g.total === maxContas);
+  candidatos.sort((a, b) => a.saldoPositivo - b.saldoPositivo);
+  const gerenteOrigem = candidatos[0];
+
+  const idxConta = contas.findIndex(c =>
+    c.managerDocument && c.managerDocument.replace(/\D/g, '') === gerenteOrigem.cpf.replace(/\D/g, '')
+  );
+
+  if (idxConta !== -1) {
+    contas[idxConta].managerDocument = novoGerente.cpf;
+    contas[idxConta].manager = novoGerente.nome;
+    saveData("contas", contas);
+    console.log(`[R17] Conta ${contas[idxConta].accountNumber} transferida de ${gerenteOrigem.nome} para ${novoGerente.nome}`);
+  }
 
   res.status(201).json({ message: "Gerente cadastrado com sucesso!" });
 });
