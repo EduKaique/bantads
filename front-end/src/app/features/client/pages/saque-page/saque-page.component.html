@@ -1,57 +1,65 @@
-<main class="saque-wrapper">
-  @if (account$ | async; as account) {
-    <article class="saque-card">
-      <header class="saque-header">
-        <h1 class="saque-titulo heading_2">Saque</h1>
-        <p class="saque-subtitulo body_large">
-          Preencha o valor que deseja sacar da sua conta.
-        </p>
-      </header>
+<section class="withdraw-screen">
+  <article class="withdraw-card">
+    <header class="withdraw-card__header">
+      <h1 class="withdraw-card__title">Saque</h1>
+      <p class="withdraw-card__description">
+        Preencha o valor que deseja sacar da sua conta.
+      </p>
+    </header>
 
-      <form class="saque-form" [formGroup]="saqueForm" (ngSubmit)="onEnviar()">
-        <div class="saque-campos">
-          <div class="campo-wrapper">
-            <label class="campo-label label_large" for="valor">*Valor</label>
-            <div class="campo-shell" [class.campo-shell--erro]="!!erroValor">
-              <span class="campo-prefix body_medium">R$</span>
-              <input
-                id="valor"
-                type="text"
-                class="body_medium"
-                inputmode="decimal"
-                autocomplete="off"
-                formControlName="valor"
-                placeholder="________________"
-                (keydown)="onValorKeydown($event)"
-                (input)="onValorInput($event)"
-                (paste)="onValorPaste($event)"
-              />
-            </div>
-          </div>
+    <form class="withdraw-form" [formGroup]="saqueForm" (ngSubmit)="onEnviar()">
+      <div class="withdraw-form__fields">
+        <app-input-primary
+          label="*Valor"
+          inputName="withdraw-amount"
+          type="text"
+          formControlName="valor"
+          mask="separator.2"
+          prefix="R$ "
+          thousandSeparator="."
+          decimalMarker=","
+          placeholder="R$ 0,00"
+          [errorMessage]="amountErrorMessage"
+          class="withdraw-field"
+        ></app-input-primary>
 
-          <div class="campo-wrapper">
-            <label class="campo-label label_large" for="disponivel">Disponível</label>
-            <div id="disponivel" class="campo-shell campo-shell--readonly">
-              <span class="campo-readonly-valor body_medium">
-                  {{ formatCurrency(saldoDisponivel) }}              
-              </span>
-            </div>
-          </div>
-        </div>
+        <app-input-primary
+          label="Saldo Disponível"
+          inputName="available-balance"
+          type="text"
+          [valorExibido]="formatCurrency(saldoDisponivel)"
+          [readonly]="true"
+          class="withdraw-field"
+        ></app-input-primary>
+      </div>
 
-        <p class="campo-obrigatorio body_medium" [class.campo-obrigatorio--erro]="!!erroValor">
-          {{ erroValor ?? '* Campo de preenchimento obrigatório' }}
-        </p>
+      <p class="withdraw-form__helper" [class.withdraw-form__helper--error]="helperIsError">
+        {{ helperMessage }}
+      </p>
 
-        <div class="saque-acoes">
-          <button 
-            type="submit" 
-            class="button-primary btn-enviar label_large" 
-            [disabled]="(saqueForm.invalid && saqueForm.touched) || isSubmitting">
-            Enviar
-          </button>
-        </div>
-      </form>
-    </article>
-  }
-</main>
+      <div class="withdraw-form__actions">
+        <button
+          type="submit"
+          class="button-primary withdraw-form__submit label_large"
+          [disabled]="isSubmitting"
+        >
+          Enviar
+        </button>
+      </div>
+    </form>
+  </article>
+
+  <app-deposit-confirmation-modal
+    [visible]="exibirModalConfirmacao"
+    [formattedAmount]="valorSaqueFormatado"
+    [isBusy]="isSubmitting"
+    [title]="'Confirmar saque'"
+    [description]="'Confira o valor abaixo antes de concluir a operação.'"
+    [question]="'Tem certeza que deseja sacar'"
+    [amountLabel]="'Valor do saque'"
+    [confirmLabel]="'Confirmar'"
+    [cancelLabel]="'Cancelar'"
+    (cancelled)="fecharModalConfirmacao()"
+    (confirmed)="confirmarSaque()"
+  />
+</section>

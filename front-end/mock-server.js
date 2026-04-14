@@ -30,6 +30,15 @@ const getData = (file) => {
 const saveData = (file, data) =>
   fs.writeFileSync(PATHS[file], JSON.stringify(data, null, 2));
 
+const gerarIdTransacao = () =>
+  Math.random().toString(36).substring(2, 10);
+
+const gerarDataIsoBrasil = (data = new Date()) => {
+  const timezoneOffsetEmMinutos = 3 * 60;
+  const dataComFuso = new Date(data.getTime() - timezoneOffsetEmMinutos * 60 * 1000);
+  return `${dataComFuso.toISOString().replace("Z", "")}-03:00`;
+};
+
 //Login ------------------------------
 app.post("/auth/login", (req, res) => {
   const { email, password } = req.body;
@@ -231,6 +240,7 @@ app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
   const clientes = getData("clientes");
   const contas = getData("contas");
   const auth = getData("auth");
+  const gerentes = getData("gerentes");
   const pedido = solicitacoes.find((s) => s.cpf === cpf);
 
   if (!pedido) {
@@ -254,14 +264,21 @@ app.post("/manager/aprovar-cliente/:cpf", (req, res) => {
       ? pedido.salario / 2
       : 0;
 
+  const gerenteResponsavel = gerentes.find(
+    (gerente) => gerente.cpf === pedido.cpfGerente
+  );
+
   contas.push({
-    accountId: Math.random().toString(36).substring(2, 10),
+    accountId: `conta-${numeroConta}`,
     branch: "0001",
     accountNumber: numeroConta,
     holderName: pedido.nome,
     holderDocument: pedido.cpf,
     availableBalance: 0,
     limit: limite,
+    manager: gerenteResponsavel?.nome || null,
+    managerDocument: gerenteResponsavel?.cpf || pedido.cpfGerente || null,
+    createdAt: gerarDataIsoBrasil(),
     transactions: []
   });
 
@@ -443,8 +460,9 @@ app.post("/transacoes/transferir", (req, res) => {
   saveData("contas", contas);
 
   const novaTransacao = {
-    id: Math.random().toString(36).substring(2, 10),
+    id: gerarIdTransacao(),
     dataHora: new Date().toISOString(),
+    tipo: "TRANSFERENCIA",
     contaOrigem: contaOrigem,
     nomeOrigem: idxOrigem !== -1 ? contas[idxOrigem].holderName : "Sistema/Depósito",
     contaDestino: contaDestino,
@@ -473,7 +491,72 @@ app.get("/contas/cpf/:cpf", (req, res) => {
 
   res.json({
     numeroConta: contaOrigem.accountNumber,
-    saldoDisponivel: contaOrigem.availableBalance
+    saldoDisponivel: contaOrigem.availableBalance,
+    limite: contaOrigem.limit || 0,
+    manager: contaOrigem.manager || null
+  });
+});
+
+app.get("/transacoes/cpf/:cpf", (req, res) => {
+  const { cpf } = req.params;
+  const contas = getData("contas");
+  const transacoes = getData("transacoes");
+
+  const contaCliente = contas.find((conta) => conta.holderDocument === cpf);
+
+  if (!contaCliente) {
+    return res.status(404).json({ message: "Conta não encontrada para este CPF." });
+  }
+
+  const transacoesDaConta = transacoes
+    .filter((transacao) =>
+      transacao.contaOrigem === contaCliente.accountNumber ||
+      transacao.contaDestino === contaCliente.accountNumber
+    )
+    .sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora));
+
+  res.json(transacoesDaConta);
+});
+
+//Deposito -----------------------------------
+app.post("/transacoes/deposito", (req, res) => {
+  const { contaDestino, valor } = req.body;
+  const contas = getData("contas");
+  const transacoes = getData("transacoes");
+
+  const idxDestino = contas.findIndex((conta) => conta.accountNumber === contaDestino);
+
+  if (idxDestino === -1) {
+    return res.status(404).json({ message: "Conta de destino nÃ£o encontrada." });
+  }
+
+  const valorNumerico = Number(valor);
+
+  if (!Number.isFinite(valorNumerico) || valorNumerico <= 0) {
+    return res.status(400).json({ message: "Valor de depÃ³sito invÃ¡lido." });
+  }
+
+  contas[idxDestino].availableBalance += valorNumerico;
+  saveData("contas", contas);
+
+  const novaTransacao = {
+    id: gerarIdTransacao(),
+    dataHora: new Date().toISOString(),
+    contaOrigem: null,
+    nomeOrigem: "Sistema/DepÃ³sito",
+    contaDestino,
+    nomeDestino: contas[idxDestino].holderName,
+    tipo: "DEPOSITO",
+    valor: valorNumerico
+  };
+
+  transacoes.push(novaTransacao);
+  saveData("transacoes", transacoes);
+
+  res.json({
+    message: "DepÃ³sito realizado com sucesso!",
+    novoSaldoDestino: contas[idxDestino].availableBalance,
+    transacao: novaTransacao
   });
 });
 
@@ -487,19 +570,43 @@ app.post("/admin/gerentes", (req, res) => {
 
   gerentes.push(novoGerente);
   auths.push(novoGerente);
-  
-  contas.sort((a, b) => a.availableBalance - b.availableBalance);
-  const contaAlvo = contas.find(c => c.managerDocument && c.managerDocument !== novoGerente.cpf);
-
-  if (contaAlvo) {
-    contaAlvo.managerDocument = novoGerente.cpf;
-    contaAlvo.manager = novoGerente.nome;
-    console.log(`[R17] Conta ${contaAlvo.accountNumber} transferida para o novo gerente!`);
-  }
-
   saveData("gerentes", gerentes);
   saveData("auth", auths);
-  saveData("contas", contas);
+  
+  const gerentesAnteriores = gerentes.filter(g => g.cpf !== novoGerente.cpf);
+
+  if (gerentesAnteriores.length === 0) {
+    return res.status(201).json({ message: "Gerente cadastrado com sucesso!" });
+  }
+
+   const contagemPorGerente = gerentesAnteriores.map(g => {
+    const contasDoGerente = contas.filter(c =>
+      c.managerDocument && c.managerDocument.replace(/\D/g, '') === g.cpf.replace(/\D/g, '')
+    );
+    const saldoPositivo = contasDoGerente.reduce((acc, c) => acc + Math.max(0, c.availableBalance), 0);
+    return { cpf: g.cpf, nome: g.nome, total: contasDoGerente.length, saldoPositivo };
+  });
+
+  const maxContas = Math.max(...contagemPorGerente.map(g => g.total));
+
+  if (maxContas <= 1) {
+    return res.status(201).json({ message: "Gerente cadastrado sem contas atribuídas." });
+  }
+
+  const candidatos = contagemPorGerente.filter(g => g.total === maxContas);
+  candidatos.sort((a, b) => a.saldoPositivo - b.saldoPositivo);
+  const gerenteOrigem = candidatos[0];
+
+  const idxConta = contas.findIndex(c =>
+    c.managerDocument && c.managerDocument.replace(/\D/g, '') === gerenteOrigem.cpf.replace(/\D/g, '')
+  );
+
+  if (idxConta !== -1) {
+    contas[idxConta].managerDocument = novoGerente.cpf;
+    contas[idxConta].manager = novoGerente.nome;
+    saveData("contas", contas);
+    console.log(`[R17] Conta ${contas[idxConta].accountNumber} transferida de ${gerenteOrigem.nome} para ${novoGerente.nome}`);
+  }
 
   res.status(201).json({ message: "Gerente cadastrado com sucesso!" });
 });
@@ -555,6 +662,7 @@ app.put("/admin/atualizaPerfil/:cpf", (req, res) => {
   // Lê os arquivos atualizados
   let gerentes = JSON.parse(fs.readFileSync('./mock/gerentes.json', 'utf8'));
   let contas = JSON.parse(fs.readFileSync('./mock/conta-banco.json', 'utf8'));
+  let clientes = JSON.parse(fs.readFileSync('./mock/clientes.json', 'utf8'));
 
   const gerenteIndex = gerentes.findIndex(g => (g.cpf ? g.cpf.replace(/\D/g, '') : '') === cpfExcluido);
 
@@ -594,11 +702,32 @@ app.put("/admin/atualizaPerfil/:cpf", (req, res) => {
     return conta;
   });
 
+  let clientesAlterados = false;
+  clientes = clientes.map((cliente) => {
+    const cpfGerenteNormalizado = cliente.cpfGerente
+      ? cliente.cpfGerente.replace(/\D/g, '')
+      : '';
+
+    if (cpfGerenteNormalizado === cpfExcluido) {
+      clientesAlterados = true;
+      return {
+        ...cliente,
+        cpfGerente: gerenteDestino.cpf
+      };
+    }
+
+    return cliente;
+  });
+
   gerentes.splice(gerenteIndex, 1);
   fs.writeFileSync('./mock/gerentes.json', JSON.stringify(gerentes, null, 2), 'utf8');
 
   if (contasAlteradas) {
     fs.writeFileSync('./mock/conta-banco.json', JSON.stringify(contas, null, 2), 'utf8');
+  }
+
+  if (clientesAlterados) {
+    fs.writeFileSync('./mock/clientes.json', JSON.stringify(clientes, null, 2), 'utf8');
   }
 
   res.status(200).json({ 
@@ -612,6 +741,7 @@ app.get("/gerentes", (_req, res) => {
   res.json(gerentes);
 });
 
+//Saque -----------------------------------
 app.post("/transacoes/saque", (req, res) => {
   const { contaOrigem, valor } = req.body;
   const contas = getData("contas");
@@ -629,7 +759,7 @@ app.post("/transacoes/saque", (req, res) => {
   saveData("contas", contas);
 
   const novaTransacao = {
-    id: Math.random().toString(36).substring(2, 10),
+    id: gerarIdTransacao(),
     dataHora: new Date().toISOString(),
     contaOrigem: contaOrigem,
     tipo: "SAQUE",
