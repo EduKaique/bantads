@@ -10,7 +10,12 @@ public class ClienteParaAprovarResponseDTO {
     private String nome;
     private String email;
     private Double salario;
-    private String endereco;
+    
+    private String cep;
+    private String logradouro;
+    private String numero;
+    private String complemento;
+    private String bairro;
     private String cidade;
     private String estado;
 
@@ -20,9 +25,15 @@ public class ClienteParaAprovarResponseDTO {
         dto.setNome(c.getNome());
         dto.setEmail(c.getEmail());
         dto.setSalario(c.getSalario());
-        dto.setEndereco(c.getEndereco());
+        
+        dto.setCep(c.getCep());
+        dto.setLogradouro(c.getLogradouro());
+        dto.setNumero(c.getNumero());
+        dto.setComplemento(c.getComplemento());
+        dto.setBairro(c.getBairro());
         dto.setCidade(c.getCidade());
         dto.setEstado(c.getEstado());
+        
         return dto;
     }
 }
