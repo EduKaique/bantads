@@ -70,7 +70,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb-auth:27017/bantads_auth
     volumes:
-      - ./ms-auth:/app
+      - ./back-end/auth:/app
       - maven-repo:/root/.m2
     restart: unless-stopped
 
@@ -80,7 +80,7 @@ services:
       dockerfile: Dockerfile
       target: dev
     ports:
-      - "8082:8080"
+      - "8082:8082"
     depends_on:
       - postgres-db
       - rabbitmq
@@ -91,7 +91,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_RABBITMQ_HOST=rabbitmq
     volumes:
-      - ./ms-cliente:/app
+      - ./back-end/cliente:/app
       - maven-repo:/root/.m2
     restart: unless-stopped
 
@@ -112,7 +112,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_RABBITMQ_HOST=rabbitmq
     volumes:
-      - ./ms-gerente:/app
+      - ./back-end/gerente:/app
       - maven-repo:/root/.m2
     restart: unless-stopped
 
