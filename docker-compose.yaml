@@ -35,8 +35,6 @@ services:
     restart: unless-stopped
 
   # =========== BANCOS DE DADOS ===========
-
-  # Banco do MS Auth (NoSQL)
   mongodb-auth:
     image: mongo:latest
     ports:
@@ -45,55 +43,18 @@ services:
       - mongo-auth-data:/data/db
     restart: unless-stopped
 
-  # Banco do MS Cliente 
-  postgres-cliente:
+
+  postgres-db:
     image: postgres:15
     environment:
       - POSTGRES_USER=springuser
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=bantads_cliente
+      - POSTGRES_DB=bantads_db
     ports:
       - "5432:5432"
     volumes:
-      - postgres-cliente-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
-    restart: unless-stopped
-
-  # Banco do MS Gerente 
-  postgres-gerente:
-    image: postgres:15
-    environment:
-      - POSTGRES_USER=springuser
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=bantads_gerente
-    ports:
-      - "5433:5432" 
-    volumes:
-      - postgres-gerente-data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  postgres-conta-cud:
-    image: postgres:15
-    environment:
-      - POSTGRES_USER=springuser
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=bantads_conta_cud
-    ports:
-      - "5434:5432"
-    volumes:
-      - postgres-conta-cud-data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  postgres-conta-read:
-    image: postgres:15
-    environment:
-      - POSTGRES_USER=springuser
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=bantads_conta_read
-    ports:
-      - "5435:5432"
-    volumes:
-      - postgres-conta-read-data:/var/lib/postgresql/data
     restart: unless-stopped
 
   # =========== MICROSSERVIÇOS ===========
@@ -121,10 +82,10 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      - postgres-cliente
+      - postgres-db
       - rabbitmq
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-cliente:5432/bantads_cliente
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bantads_db?currentSchema=ms_cliente
       - SPRING_DATASOURCE_USERNAME=springuser
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
@@ -142,10 +103,10 @@ services:
     ports:
       - "8083:8080"
     depends_on:
-      - postgres-gerente
+      - postgres-db
       - rabbitmq
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-gerente:5432/bantads_gerente
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bantads_db?currentSchema=ms_gerente
       - SPRING_DATASOURCE_USERNAME=springuser
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
@@ -163,12 +124,11 @@ services:
     ports:
       - "8084:8080"
     depends_on:
-      - postgres-conta-cud
-      - postgres-conta-read
+      - postgres-db
       - rabbitmq
     environment:
-      - DB_CUD_URL=jdbc:postgresql://postgres-conta-cud:5432/bantads_conta_cud
-      - DB_READ_URL=jdbc:postgresql://postgres-conta-read:5432/bantads_conta_read
+      - DB_CUD_URL=jdbc:postgresql://postgres-db:5432/bantads_db
+      - DB_READ_URL=jdbc:postgresql://postgres-db:5432/bantads_db
       - DB_USERNAME=springuser
       - DB_PASSWORD=password
       - SPRING_RABBITMQ_HOST=rabbitmq
@@ -181,7 +141,4 @@ services:
 volumes:
   maven-repo:
   mongo-auth-data:
-  postgres-cliente-data:
-  postgres-gerente-data:
-  postgres-conta-cud-data:
-  postgres-conta-read-data:
+  postgres-data:
