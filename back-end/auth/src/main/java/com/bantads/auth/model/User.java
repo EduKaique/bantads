@@ -1,85 +1,52 @@
-package com.bantads.back_end.model;
+package com.bantads.auth.model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-
-@Entity
-@Table(name = "users")
-@Inheritance(strategy = InheritanceType.JOINED)
-public abstract class User {
+@Document(collection = "usuario")
+public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @NotBlank(message = "O nome é obrigatório")
-    @Column(nullable = false)
-    private String name; 
+    private String id;
 
     @NotBlank(message = "O e-mail é obrigatório")
     @Email(message = "Formato de e-mail inválido")
-    @Column(nullable = false, unique = true) 
+    @Indexed(unique = true) 
     private String email;
 
     @NotBlank(message = "A senha é obrigatória")
-    @Column(nullable = false)
-    private String password; 
+    private String senha; 
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Role role; 
+    private TipoUsuario tipo; 
 
-  
-    public User() {
-    }
+    @Field("referencia_id")
+    private String referenciaId; // Guarda o CPF do Cliente/Gerente ou ID do Admin
 
-    public User(String name, String email, String password, Role role) {
-        this.name = name;
+    public User() {}
+
+    public User(String email, String senha, TipoUsuario tipo, String referenciaId) {
         this.email = email;
-        this.password = password;
-        this.role = role;
+        this.senha = senha;
+        this.tipo = tipo;
+        this.referenciaId = referenciaId;
     }
 
-   
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    
+    public String getSenha() { return senha; }
+    public void setSenha(String senha) { this.senha = senha; }
+    
+    public TipoUsuario getTipo() { return tipo; }
+    public void setTipo(TipoUsuario tipo) { this.tipo = tipo; }
+    
+    public String getReferenciaId() { return referenciaId; }
+    public void setReferenciaId(String referenciaId) { this.referenciaId = referenciaId; }
 }

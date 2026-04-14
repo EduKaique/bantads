@@ -1,15 +1,10 @@
-package com.bantads.back_end.service;
+package com.bantads.auth.service;
 
-import com.bantads.back_end.dto.LoginResponseDTO;
-import com.bantads.back_end.dto.LoginRequestDTO;
+import com.bantads.auth.dto.LoginRequestDTO;
+import com.bantads.auth.dto.LoginResponseDTO;
+import org.springframework.security.core.AuthenticationException;
 
 public interface LoginService {
-    
-    /**
-     * Processa a tentativa de login.
-     * @param loginRequest DTO com e-mail e senha.
-     * @return DTO com o token e dados do usuário.
-     * @throws org.springframework.security.core.AuthenticationException Se as credenciais forem inválidas.
-     */
-    LoginResponseDTO login(LoginRequestDTO loginRequest);
+    LoginResponseDTO login(LoginRequestDTO loginRequest) 
+    throws AuthenticationException;
 }
