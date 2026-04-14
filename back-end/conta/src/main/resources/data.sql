@@ -1,13 +1,7 @@
--- Inserts Iniciais para o lado da ESCRITA (Command)
-INSERT INTO ms_conta_cud.conta (id, cliente_id, saldo, limite) 
-VALUES (1, 1001, 1500.00, 500.00) ON CONFLICT DO NOTHING;
-
-INSERT INTO ms_conta_cud.conta (id, cliente_id, saldo, limite) 
-VALUES (2, 1002, 250.00, 1000.00) ON CONFLICT DO NOTHING;
-
--- Inserts Iniciais sincronizados para o lado da LEITURA (Query)
-INSERT INTO ms_conta_r.conta_view (id, cliente_id, saldo, limite) 
-VALUES (1, 1001, 1500.00, 500.00) ON CONFLICT DO NOTHING;
-
-INSERT INTO ms_conta_r.conta_view (id, cliente_id, saldo, limite) 
-VALUES (2, 1002, 250.00, 1000.00) ON CONFLICT DO NOTHING;
+INSERT INTO ms_conta_cud.conta (numero, cliente, saldo, limite, gerente, criacao)
+VALUES
+    ('4321', '44636173910', -67052.50, 3000.00, '33427040046', '2024-01-15T10:00:00Z'),
+    ('8765', '11944108980', -56184.50, 7000.00, '64065268052', '2024-01-16T11:30:00Z'),
+    ('2222', '88877766655', 62150.25, 8000.00, '11122233344', '2024-01-17T09:15:00Z'),
+    ('3333', '77766655544', 28950.00, 4500.00, '22233344455', '2024-01-18T14:45:00Z')
+ON CONFLICT (numero) DO NOTHING;
