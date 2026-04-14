@@ -1,14 +1,10 @@
-package com.bantads.back_end.repository;
+package com.bantads.auth.repository;
 
-import com.bantads.back_end.model.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import com.bantads.auth.model.User;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 
-@Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-
-    Optional<User> findByEmail(String email);
-    
-    boolean existsByEmail(String email);
+public interface UserRepository extends MongoRepository<User, String> {
+    Optional<User> 
+    findByEmail(String email);
 }
