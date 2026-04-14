@@ -34,4 +34,8 @@ public class Cliente {
     private String cep;
     private String cidade;
     private String estado;
+    private String logradouro;
+    private String numero;
+    private String complemento;
+    private String bairro;
 }

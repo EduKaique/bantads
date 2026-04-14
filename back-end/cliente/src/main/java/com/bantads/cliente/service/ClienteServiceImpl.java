@@ -39,10 +39,15 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setEmail(dto.getEmail());
         cliente.setTelefone(dto.getTelefone());
         cliente.setSalario(dto.getSalario());
-        cliente.setEndereco(dto.getEndereco());
-        cliente.setCep(dto.getCEP());
+        
+        cliente.setCep(dto.getCep());
+        cliente.setLogradouro(dto.getLogradouro());
+        cliente.setNumero(dto.getNumero());
+        cliente.setComplemento(dto.getComplemento());
+        cliente.setBairro(dto.getBairro());
         cliente.setCidade(dto.getCidade());
         cliente.setEstado(dto.getEstado());
+
         cliente.setStatus(StatusCliente.PENDENTE);
 
         clienteRepository.save(cliente);
@@ -82,8 +87,13 @@ public class ClienteServiceImpl implements ClienteService {
         if (dto.getNome() != null) cliente.setNome(dto.getNome());
         if (dto.getEmail() != null) cliente.setEmail(dto.getEmail());
         if (dto.getSalario() != null) cliente.setSalario(dto.getSalario());
-        if (dto.getEndereco() != null) cliente.setEndereco(dto.getEndereco());
-        if (dto.getCEP() != null) cliente.setCep(dto.getCEP());
+
+        // --- NOVOS CAMPOS DE ENDEREÇO ---
+        if (dto.getCep() != null) cliente.setCep(dto.getCep());
+        if (dto.getLogradouro() != null) cliente.setLogradouro(dto.getLogradouro());
+        if (dto.getNumero() != null) cliente.setNumero(dto.getNumero());
+        if (dto.getComplemento() != null) cliente.setComplemento(dto.getComplemento());
+        if (dto.getBairro() != null) cliente.setBairro(dto.getBairro());
         if (dto.getCidade() != null) cliente.setCidade(dto.getCidade());
         if (dto.getEstado() != null) cliente.setEstado(dto.getEstado());
 
@@ -102,11 +112,12 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     @Transactional
-    public void rejeitar(String cpf) {
+    public void rejeitar(String cpf, MotivoRejeicaoDTO motivo) {
         Cliente cliente = clienteRepository.findById(cpf)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Cliente não encontrado"));
         cliente.setStatus(StatusCliente.REJEITADO);
+                
         clienteRepository.save(cliente);
     }
 }

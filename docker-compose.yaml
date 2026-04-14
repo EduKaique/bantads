@@ -109,6 +109,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb-auth:27017/bantads_auth
     volumes:
+      - ./back-end/auth:/app
       - maven-repo:/root/.m2
     restart: unless-stopped
 
@@ -129,6 +130,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_RABBITMQ_HOST=rabbitmq
     volumes:
+      - ./back-end/cliente:/app
       - maven-repo:/root/.m2
     restart: unless-stopped
 
@@ -149,6 +151,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_RABBITMQ_HOST=rabbitmq
     volumes:
+      - ./back-end/gerente:/app
       - maven-repo:/root/.m2
     restart: unless-stopped
 

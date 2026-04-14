@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {
@@ -19,7 +17,7 @@ public class ClienteController {
         this.clienteService = clienteService;
     }
 
-    @GetMapping
+    @GetMapping({"", "/", "/manager/pedidos-autocadastro"})
     public ResponseEntity<?> listarClientes(@RequestParam(required = false) String filtro) {
         if ("para_aprovar".equalsIgnoreCase(filtro)) {
             return ResponseEntity.ok(clienteService.listarParaAprovar());
@@ -51,8 +49,8 @@ public class ClienteController {
     }
 
     @PostMapping("/{cpf}/rejeitar")
-    public ResponseEntity<?> rejeitarCliente(@PathVariable String cpf) {
-        clienteService.rejeitar(cpf);
+    public ResponseEntity<?> rejeitarCliente(@PathVariable String cpf, @RequestBody MotivoRejeicaoDTO motivo) {
+        clienteService.rejeitar(cpf, motivo); // Passando o motivo com sucesso!
         return ResponseEntity.ok().build();
     }
 }

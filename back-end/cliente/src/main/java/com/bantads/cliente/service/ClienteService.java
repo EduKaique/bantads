@@ -18,5 +18,5 @@ public interface ClienteService {
 
     void aprovar(String cpf);
 
-    void rejeitar(String cpf);
+    void rejeitar(String cpf, MotivoRejeicaoDTO motivo);
 }
