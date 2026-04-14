@@ -15,6 +15,8 @@ import { formatCpf } from '../../../../shared/utils/formatters';
   styleUrls: ['./transfer-page.css']
 })
 export class TransferPage implements OnInit {
+  private readonly apiContaUrl = 'http://localhost:8084/contas';
+
   transferForm!: FormGroup;
 
   isModalOpen: boolean = false;
@@ -69,17 +71,10 @@ export class TransferPage implements OnInit {
   }
 
   carregarSaldoOrigem(cpf: string): void {
-    this.http.get<any>(`http://localhost:3000/contas/cpf/${cpf}`).subscribe({
+    this.http.get<any>(`${this.apiContaUrl}/cpf/${cpf}`).subscribe({
       next: (dadosConta) => {
-        this.minhaContaLogada = dadosConta.numeroConta; 
-        this.availableBalance = dadosConta.saldoDisponivel || 0;
-        
-        const saldoFormatado = 'R$ ' + this.availableBalance.toLocaleString('pt-BR', { 
-          minimumFractionDigits: 2, 
-          maximumFractionDigits: 2 
-        });
-
-        this.transferForm.patchValue({ balance: saldoFormatado });
+        this.minhaContaLogada = dadosConta.numeroConta;
+        this.carregarDetalhesContaOrigem(dadosConta.numeroConta);
       },
       error: (erro) => {
         console.error('Erro ao buscar conta do cliente logado:', erro);
@@ -113,13 +108,14 @@ export class TransferPage implements OnInit {
         return;
       }
 
-      this.http.get<any>(`http://localhost:3000/contas/${numeroDigitado}`).subscribe({
+      this.http.get<any>(`${this.apiContaUrl}/${numeroDigitado}`).subscribe({
         next: (dados) => {
           this.buscandoConta = false;
           this.contaEncontrada = true;
+          const cpf = dados.cpf ?? dados.cliente ?? '';
           this.transferForm.patchValue({
-            name: dados.nome,
-            cpf: formatCpf(dados.cpf)
+            name: dados.nome ?? 'Conta identificada',
+            cpf: cpf ? formatCpf(cpf) : ''
           });
         },
         error: (erro) => {
@@ -166,23 +162,20 @@ export class TransferPage implements OnInit {
     const cleanAmountStr = rawAmount.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
     const transferAmount = parseFloat(cleanAmountStr);
 
+    const contaDestino = this.transferForm.get('accountNumber')?.value;
     const payload = {
-      contaOrigem: this.minhaContaLogada, // Pega dinamicamente a conta de quem logou
-      contaDestino: this.transferForm.get('accountNumber')?.value,
+      destino: contaDestino,
       valor: transferAmount
     };
 
-    console.log('Enviando para a API:', payload);
-
-    // Requisição POST para o mock-server realizar a transferência
-    this.http.post<any>('http://localhost:3000/transacoes/transferir', payload).subscribe({
+    this.http.post<any>(`${this.apiContaUrl}/${this.minhaContaLogada}/transferir`, payload).subscribe({
       next: (resposta) => {
         this.closeModal();
         
         let newBalanceFormatted = 'R$ 0,00'; // fallback
-        if (resposta.novoSaldoOrigem !== null && resposta.novoSaldoOrigem !== undefined) {
-           this.availableBalance = resposta.novoSaldoOrigem;
-           newBalanceFormatted = 'R$ ' + resposta.novoSaldoOrigem.toLocaleString('pt-BR', { 
+        if (resposta.saldo !== null && resposta.saldo !== undefined) {
+           this.availableBalance = resposta.saldo;
+           newBalanceFormatted = 'R$ ' + resposta.saldo.toLocaleString('pt-BR', { 
             minimumFractionDigits: 2, 
             maximumFractionDigits: 2 
           });
@@ -200,6 +193,27 @@ export class TransferPage implements OnInit {
         this.closeModal();
         this.exibirToast(erro.error?.message || 'Erro ao processar a transferência.');
         console.error(erro);
+      }
+    });
+  }
+
+  private carregarDetalhesContaOrigem(numeroConta: string): void {
+    this.http.get<any>(`${this.apiContaUrl}/${numeroConta}`).subscribe({
+      next: (dadosConta) => {
+        const saldo = Number(dadosConta.saldo ?? 0);
+        const limite = Number(dadosConta.limite ?? 0);
+        this.availableBalance = saldo + limite;
+
+        const saldoFormatado = 'R$ ' + this.availableBalance.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+
+        this.transferForm.patchValue({ balance: saldoFormatado });
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar detalhes da conta do cliente logado:', erro);
+        this.transferForm.patchValue({ balance: 'Erro ao carregar' });
       }
     });
   }
