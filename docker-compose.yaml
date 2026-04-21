@@ -32,6 +32,7 @@ services:
     volumes:
       - ./back-end/api-gateway:/app
       - maven-repo:/root/.m2
+      - /app/node_modules
     restart: unless-stopped
 
   # =========== BANCOS DE DADOS ===========
@@ -80,7 +81,7 @@ services:
       dockerfile: Dockerfile
       target: dev
     ports:
-      - "8082:8082"
+      - "8082:8080"
     depends_on:
       - postgres-db
       - rabbitmq

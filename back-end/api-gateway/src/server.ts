@@ -69,7 +69,7 @@ const proxyOptionsComum = (target: string): Options => ({
 app.use('/login', createProxyMiddleware(proxyOptionsComum('http://auth:8080')));
 app.use('/logout', createProxyMiddleware(proxyOptionsComum('http://auth:8080')));
 
-app.use('/clientes', createProxyMiddleware(proxyOptionsComum('http://cliente:8080')));
+app.use('/clientes', createProxyMiddleware(proxyOptionsComum('http://ms-cliente:8080')));
 app.use('/gerentes', createProxyMiddleware(proxyOptionsComum('http://gerente:8080')));
 app.use('/contas', createProxyMiddleware(proxyOptionsComum('http://conta:8080')));
 
