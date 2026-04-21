@@ -1,4 +1,4 @@
-package com.bantads.back_end.security;
+package com.bantads.auth.security; // Pacote corrigido
 
 import java.util.Arrays;
 
@@ -37,12 +37,12 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) 
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
+                // Rotas de Autenticação liberadas explicitamente conforme o Swagger
+                .requestMatchers("/login", "/Logout", "/api/auth/**").permitAll()
                 .requestMatchers("/error").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
 
         return http.build();
     }
@@ -78,6 +78,4 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new Sha256SaltPasswordEncoder();
     }
-
-
 }

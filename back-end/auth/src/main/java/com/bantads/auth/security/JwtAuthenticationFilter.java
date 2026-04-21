@@ -1,4 +1,4 @@
-package com.bantads.back_end.security;
+package com.bantads.auth.security;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
@@ -17,9 +17,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Filtro de autenticação JWT que intercepta as requisições HTTP para validar o token JWT.
- */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -46,12 +43,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             DecodedJWT jwt = tokenService.validateToken(token);
 
             String email = jwt.getSubject();
-            Long id = jwt.getClaim("id").asLong();
-            String role = jwt.getClaim("role").asString();
+            String cpf = jwt.getClaim("cpf").asString();   
+            String tipo = jwt.getClaim("tipo").asString(); 
 
-            List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
+            List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(tipo));
 
-            UserPrincipal principal = new UserPrincipal(id, email, role);
+            UserPrincipal principal = new UserPrincipal(cpf, email, tipo);
 
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     principal,

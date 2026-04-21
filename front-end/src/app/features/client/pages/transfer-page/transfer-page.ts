@@ -9,18 +9,38 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-
-import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
-import { AuthService } from '../../../../core/auth/services/auth.service';
-import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
-import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
-import { formatCpf, formatCurrency } from '../../../../shared/utils/formatters';
 import { MatIconModule } from '@angular/material/icon';
+
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
+import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
+import { formatCpf, formatCurrency } from '../../../../shared/utils/formatters';
+import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
 
 const amountPattern = /^\d+(?:[.,]\d{1,2})?$/;
 
+interface RespostaContaPorCpf {
+  numeroConta: string;
+  saldoDisponivel: number;
+}
+
+interface RespostaContaPerfil {
+  cliente: string;
+  numero: string;
+  saldo: number;
+  limite: number;
+}
+
+interface RespostaTransferencia {
+  conta: string;
+  data: string;
+  destino: string;
+  saldo: number;
+  valor: number;
+}
+
 const transferAmountValidator: ValidatorFn = (
-  control: AbstractControl
+  control: AbstractControl,
 ): ValidationErrors | null => {
   const rawValue = String(control.value ?? '').trim();
 
@@ -30,7 +50,7 @@ const transferAmountValidator: ValidatorFn = (
 
   const normalizedValue = normalizarValorMonetario(rawValue);
 
-  if (!rawValue || normalizedValue === null) {
+  if (normalizedValue === null) {
     return { currencyFormat: true };
   }
 
@@ -56,17 +76,24 @@ const transferAmountValidator: ValidatorFn = (
   styleUrls: ['./transfer-page.css'],
 })
 export class TransferPage {
+  private readonly apiContaUrl = 'http://localhost:8084/contas';
   private readonly formBuilder = inject(FormBuilder);
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
 
   readonly formatCurrency = formatCurrency;
-  readonly transferForm = this.formBuilder.nonNullable.group({
-    accountNumber: [
-      '',
-      [Validators.required, Validators.pattern(/^\d{4}$/)],
-    ],
-    amount: ['', [Validators.required, transferAmountValidator]],
+  readonly transferForm = this.formBuilder.group({
+    accountNumber: this.formBuilder.control('', [
+      Validators.required,
+      Validators.pattern(/^\d{4}$/),
+    ]),
+    name: this.formBuilder.control({ value: '', disabled: true }),
+    cpf: this.formBuilder.control({ value: '', disabled: true }),
+    amount: this.formBuilder.control('', [
+      Validators.required,
+      transferAmountValidator,
+    ]),
+    balance: this.formBuilder.control({ value: '', disabled: true }),
   });
 
   private readonly accountNumberControl = this.transferForm.controls.accountNumber;
@@ -81,6 +108,7 @@ export class TransferPage {
 
   minhaContaLogada = '';
   saldoDisponivel = 0;
+  availableBalance = 0;
 
   buscandoConta = false;
   contaEncontrada = false;
@@ -93,13 +121,12 @@ export class TransferPage {
     if (usuarioLogado?.cpf) {
       this.carregarSaldoOrigem(usuarioLogado.cpf);
     } else {
+      this.atualizarSaldoDisponivel(0);
       this.exibirToast('Não foi possível identificar o usuário logado.');
     }
 
     this.accountNumberControl.valueChanges.subscribe(() => {
-      this.contaEncontrada = false;
-      this.nomeDestino = '';
-      this.cpfDestino = '';
+      this.limparContaDestino();
     });
   }
 
@@ -165,7 +192,7 @@ export class TransferPage {
       return;
     }
 
-    const numeroDigitado = this.accountNumberControl.value;
+    const numeroDigitado = String(this.accountNumberControl.value ?? '').trim();
 
     if (numeroDigitado === this.minhaContaLogada) {
       this.exibirToast('Você não pode transferir para a sua própria conta.');
@@ -175,19 +202,24 @@ export class TransferPage {
     this.buscandoConta = true;
 
     this.http
-      .get<any>(`http://localhost:3000/contas/${numeroDigitado}`)
+      .get<RespostaContaPerfil>(`${this.apiContaUrl}/${numeroDigitado}`)
       .subscribe({
         next: (dados) => {
           this.buscandoConta = false;
           this.contaEncontrada = true;
-          this.nomeDestino = dados.nome;
-          this.cpfDestino = formatCpf(dados.cpf);
+          this.nomeDestino = 'Conta identificada';
+          this.cpfDestino = dados.cliente ? formatCpf(dados.cliente) : '';
+          this.transferForm.patchValue(
+            {
+              name: this.nomeDestino,
+              cpf: this.cpfDestino,
+            },
+            { emitEvent: false },
+          );
         },
         error: (erro) => {
           this.buscandoConta = false;
-          this.contaEncontrada = false;
-          this.nomeDestino = '';
-          this.cpfDestino = '';
+          this.limparContaDestino();
           this.exibirToast('Conta não encontrada na base de dados.');
           console.error(erro);
         },
@@ -213,7 +245,7 @@ export class TransferPage {
       return;
     }
 
-    if (transferAmount > this.saldoDisponivel) {
+    if (transferAmount > this.availableBalance) {
       this.amountControl.setErrors({ insufficientBalance: true });
       return;
     }
@@ -233,34 +265,40 @@ export class TransferPage {
       return;
     }
 
+    if (transferAmount > this.availableBalance) {
+      this.amountControl.setErrors({ insufficientBalance: true });
+      this.closeModal();
+      return;
+    }
+
     const payload = {
-      contaOrigem: this.minhaContaLogada,
-      contaDestino: this.accountNumberControl.value,
+      destino: String(this.accountNumberControl.value ?? '').trim(),
       valor: transferAmount,
     };
 
     this.http
-      .post<any>('http://localhost:3000/transacoes/transferir', payload)
+      .post<RespostaTransferencia>(
+        `${this.apiContaUrl}/${this.minhaContaLogada}/transferir`,
+        payload,
+      )
       .subscribe({
         next: (resposta) => {
           this.closeModal();
 
-          if (
-            resposta.novoSaldoOrigem !== null &&
-            resposta.novoSaldoOrigem !== undefined
-          ) {
-            this.saldoDisponivel = resposta.novoSaldoOrigem;
+          if (resposta.saldo !== null && resposta.saldo !== undefined) {
+            this.atualizarSaldoDisponivel(Number(resposta.saldo));
           }
 
           this.valorEnviado = formatCurrency(transferAmount);
-          this.successfulTransferTimestamp = new Date().toISOString();
+          this.successfulTransferTimestamp =
+            resposta.data || new Date().toISOString();
           this.exibirModalSucesso = true;
           this.resetTransferForm();
         },
         error: (erro) => {
           this.closeModal();
           this.exibirToast(
-            erro.error?.message || 'Erro ao processar a transferência.'
+            erro.error?.message || 'Erro ao processar a transferência.',
           );
           console.error(erro);
         },
@@ -275,37 +313,88 @@ export class TransferPage {
   }
 
   private carregarSaldoOrigem(cpf: string): void {
-    this.http.get<any>(`http://localhost:3000/contas/cpf/${cpf}`).subscribe({
-      next: (dadosConta) => {
-        this.minhaContaLogada = dadosConta.numeroConta;
-        this.saldoDisponivel = dadosConta.saldoDisponivel || 0;
-      },
-      error: (erro) => {
-        console.error('Erro ao buscar conta do cliente logado:', erro);
-        this.exibirToast('Erro ao carregar o saldo disponível.');
-      },
-    });
+    this.http
+      .get<RespostaContaPorCpf>(`${this.apiContaUrl}/cpf/${cpf}`)
+      .subscribe({
+        next: (dadosConta) => {
+          this.minhaContaLogada = dadosConta.numeroConta;
+          this.carregarDetalhesContaOrigem(dadosConta.numeroConta);
+        },
+        error: (erro) => {
+          console.error('Erro ao buscar conta do cliente logado:', erro);
+          this.exibirToast('Erro ao carregar o saldo disponível.');
+        },
+      });
   }
 
-  private parseAmount(rawValue: string): number {
+  private carregarDetalhesContaOrigem(numeroConta: string): void {
+    this.http
+      .get<RespostaContaPerfil>(`${this.apiContaUrl}/${numeroConta}`)
+      .subscribe({
+        next: (dadosConta) => {
+          const saldo = Number(dadosConta.saldo ?? 0);
+          const limite = Number(dadosConta.limite ?? 0);
+          this.atualizarSaldoDisponivel(saldo + limite);
+        },
+        error: (erro) => {
+          console.error(
+            'Erro ao buscar detalhes da conta do cliente logado:',
+            erro,
+          );
+          this.exibirToast('Erro ao carregar o saldo disponível.');
+        },
+      });
+  }
+
+  private atualizarSaldoDisponivel(valor: number): void {
+    this.saldoDisponivel = valor;
+    this.availableBalance = valor;
+    this.transferForm.patchValue(
+      { balance: formatCurrency(valor) },
+      { emitEvent: false },
+    );
+  }
+
+  private limparContaDestino(): void {
+    this.contaEncontrada = false;
+    this.nomeDestino = '';
+    this.cpfDestino = '';
+    this.transferForm.patchValue(
+      {
+        name: '',
+        cpf: '',
+      },
+      { emitEvent: false },
+    );
+  }
+
+  private parseAmount(rawValue: string | null | undefined): number {
     const normalizedValue = normalizarValorMonetario(rawValue);
     return normalizedValue ?? 0;
   }
 
   private resetTransferForm(): void {
-    this.transferForm.reset({
-      accountNumber: '',
-      amount: '',
-    });
-    this.contaEncontrada = false;
-    this.nomeDestino = '';
-    this.cpfDestino = '';
+    this.transferForm.patchValue(
+      {
+        accountNumber: '',
+        amount: '',
+      },
+      { emitEvent: false },
+    );
+    this.accountNumberControl.markAsPristine();
+    this.accountNumberControl.markAsUntouched();
+    this.amountControl.markAsPristine();
+    this.amountControl.markAsUntouched();
+    this.limparContaDestino();
+    this.atualizarSaldoDisponivel(this.availableBalance);
   }
 }
 
-function normalizarValorMonetario(rawValue: string): number | null {
+function normalizarValorMonetario(
+  rawValue: string | null | undefined,
+): number | null {
   const cleanedValue = rawValue
-    .replace(/R\$\s?/g, '')
+    ?.replace(/R\$\s?/g, '')
     .replace(/\./g, '')
     .replace(',', '.')
     .trim();

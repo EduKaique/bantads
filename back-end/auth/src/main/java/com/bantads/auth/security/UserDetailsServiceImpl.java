@@ -1,7 +1,7 @@
-package com.bantads.back_end.security;
+package com.bantads.auth.security;
 
-import com.bantads.back_end.model.User;
-import com.bantads.back_end.repository.UserRepository;
+import com.bantads.auth.model.User;
+import com.bantads.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,9 +14,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
-    /**
-     * Método que o Spring Security usa para carregar o usuário pelo e-mail (username).
-     */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)

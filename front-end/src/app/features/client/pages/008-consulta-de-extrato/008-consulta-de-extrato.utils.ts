@@ -1,11 +1,18 @@
 import { formatCurrency } from '../../../../shared/utils/formatters';
-import { TransacaoExtratoMock } from '../../services/client-account.service';
 import { ExtratoTransaction } from './extrato-transaction.model';
 
 export interface GrupoTransacoes {
   data: string;
   saldoDoDia: string;
   transacoes: ExtratoTransaction[];
+}
+
+export interface MovimentacaoExtratoApi {
+  data: string;
+  tipo: string;
+  origem: string | null;
+  destino: string | null;
+  valor: number;
 }
 
 interface FiltroPersistidoExtrato {
@@ -20,28 +27,31 @@ const FORMATO_DATA_CABECALHO = new Intl.DateTimeFormat('pt-BR', {
   day: 'numeric',
 });
 
-export function mapearTransacoesDoExtratoMock(
-  transacoes: TransacaoExtratoMock[],
-  numeroContaAtual: string,
+export function mapearMovimentacoesDoExtrato(
+  movimentacoes: MovimentacaoExtratoApi[],
+  numeroConta: string,
 ): ExtratoTransaction[] {
-  return transacoes.map((transacao) => {
-    const dataHora = new Date(transacao.dataHora);
-    const transferenciaEntrada =
-      transacao.tipo === 'TRANSFERENCIA' &&
-      transacao.contaDestino === numeroContaAtual;
+  return movimentacoes.map((movimentacao) => {
+    const transferenciaRecebida =
+      movimentacao.tipo === 'transferência' &&
+      movimentacao.destino === numeroConta &&
+      movimentacao.origem !== numeroConta;
 
     return {
-      data: formatarDataParaInput(dataHora),
-      hora: extrairHoraDaDataIso(transacao.dataHora),
-      operacao: mapearTipoOperacaoExtrato(transacao.tipo),
-      remetenteDestinatario: obterContraparteDaTransacao(
-        transacao,
-        numeroContaAtual,
+      data: formatarDataParaInput(new Date(movimentacao.data)),
+      hora: extrairHoraDaDataIso(movimentacao.data),
+      operacao: mapearTipoOperacao(movimentacao.tipo),
+      remetenteDestinatario: mapearRemetenteDestinatario(
+        movimentacao,
+        numeroConta,
       ),
-      categoria: 'Operação bancária',
-      valor: formatCurrency(Math.abs(transacao.valor)),
+      categoria: mapearCategoria(movimentacao.tipo),
+      valor: formatCurrency(Math.abs(movimentacao.valor)),
       operacaoColor:
-        transferenciaEntrada || transacao.tipo === 'DEPOSITO' ? 'blue' : 'red',
+        movimentacao.tipo === 'saque' ||
+        (movimentacao.tipo === 'transferência' && !transferenciaRecebida)
+          ? 'red'
+          : 'blue',
     };
   });
 }
@@ -127,6 +137,15 @@ export function desserializarFiltroExtrato(
   }
 }
 
+export function calcularImpactoDasTransacoes(
+  transacoes: ExtratoTransaction[],
+): number {
+  return transacoes.reduce((saldo, transacao) => {
+    const valor = parseValorMonetario(transacao.valor);
+    return transacao.operacaoColor === 'blue' ? saldo + valor : saldo - valor;
+  }, 0);
+}
+
 function extrairHoraDaDataIso(dataIso: string): string {
   const data = new Date(dataIso);
   const horas = String(data.getHours()).padStart(2, '0');
@@ -134,33 +153,47 @@ function extrairHoraDaDataIso(dataIso: string): string {
   return `${horas}:${minutos}`;
 }
 
-function mapearTipoOperacaoExtrato(
-  tipo: TransacaoExtratoMock['tipo'],
-): string {
-  if (tipo === 'DEPOSITO') {
+function mapearTipoOperacao(tipo: string): string {
+  if (tipo === 'depósito') {
     return 'Depósito';
   }
 
-  if (tipo === 'SAQUE') {
+  if (tipo === 'saque') {
     return 'Saque';
   }
 
   return 'Transferência';
 }
 
-function obterContraparteDaTransacao(
-  transacao: TransacaoExtratoMock,
-  numeroContaAtual: string,
-): string | undefined {
-  if (transacao.tipo !== 'TRANSFERENCIA') {
-    return undefined;
+function mapearRemetenteDestinatario(
+  movimentacao: MovimentacaoExtratoApi,
+  numeroConta: string,
+): string {
+  if (movimentacao.tipo === 'depósito' || movimentacao.tipo === 'saque') {
+    return 'Você';
   }
 
-  if (transacao.contaOrigem === numeroContaAtual) {
-    return transacao.nomeDestino || transacao.contaDestino || undefined;
+  if (
+    movimentacao.destino === numeroConta &&
+    movimentacao.origem &&
+    movimentacao.origem !== numeroConta
+  ) {
+    return `Conta ${movimentacao.origem}`;
   }
 
-  return transacao.nomeOrigem || transacao.contaOrigem || undefined;
+  if (movimentacao.destino) {
+    return `Conta ${movimentacao.destino}`;
+  }
+
+  return 'Você';
+}
+
+function mapearCategoria(tipo: string): string {
+  if (tipo === 'transferência') {
+    return 'Transferência';
+  }
+
+  return 'Operação bancária';
 }
 
 function gerarIntervaloDatas(dataInicio: Date, dataFim: Date): Date[] {
