@@ -2,161 +2,106 @@
   display: block;
 }
 
-.saque-wrapper {
+.withdraw-screen {
   min-height: calc(100vh - 80px);
-  padding: var(--spacing-lg);
+  padding: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-background);
+  background: #e5e8e6;
   box-sizing: border-box;
 }
 
-.saque-card {
+.withdraw-card {
   width: 660px;
   max-width: 100%;
   min-height: 356px;
   padding: 32px 40px;
-  border-radius: var(--radius-lg);
-  background: var(--color-card);
+  border-radius: 24px;
+  background: #fafafa;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 40px;
 }
 
-.saque-header {
+.withdraw-card__header {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.saque-titulo {
+.withdraw-card__title {
   margin: 0;
-  color: var(--color-foreground-title);
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--font-line-height-4xl);
-  letter-spacing: var(--font-letter-spacing-2x-tight);
+  color: #414946;
+  font-family: 'Sora', sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 36px;
+  letter-spacing: -0.4px;
 }
 
-.saque-subtitulo {
+.withdraw-card__description {
   margin: 0;
-  color: var(--color-foreground);
-  font-size: var(--font-size-lg);
-  line-height: var(--font-line-height-xl);
-  letter-spacing: var(--font-letter-spacing-tight);
+  color: #242827;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.1px;
 }
 
-.saque-form {
+.withdraw-form {
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
-.saque-campos {
+.withdraw-form__fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 278px));
   gap: 24px;
 }
 
-.campo-wrapper {
+.withdraw-field {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.campo-label {
-  color: var(--color-muted-foreground);
-}
-
-.campo-shell {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 8px 16px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-neutral-50);
-  box-sizing: border-box;
-  transition: border-color 0.2s ease;
-}
-
-.campo-shell--erro {
-  border-color: var(--color-destructive);
-}
-
-.campo-shell--readonly {
-  justify-content: flex-start;
-  background: var(--color-neutral-100);
-}
-
-.campo-prefix,
-.campo-readonly-valor,
-.campo-shell input {
-  color: var(--color-foreground);
-  font-size: var(--font-size-lg);
-  line-height: var(--body-default-line-height);
-  letter-spacing: var(--font-letter-spacing-tight);
-}
-
-.campo-shell input {
-  flex: 1;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  outline: none;
-  background: transparent;
-}
-
-.campo-shell:focus-within {
-  border-color: var(--color-primary);
-}
-
-.campo-shell input::placeholder {
-  color: var(--color-muted-foreground);
-  opacity: 1;
-}
-
-.campo-obrigatorio {
+.withdraw-form__helper {
   margin: 0;
-  color: var(--color-muted-foreground);
-  font-size: var(--font-size-default);
-  line-height: var(--font-line-height-default);
-  letter-spacing: var(--font-letter-spacing-tight);
+  color: #56645f;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 16px;
 }
 
-.campo-obrigatorio--erro {
-  color: var(--color-destructive);
+.withdraw-form__helper--error {
+  color: #ff5e5b;
 }
 
-.saque-acoes {
+.withdraw-form__actions {
   display: flex;
   justify-content: center;
 }
 
-.btn-enviar {
+.withdraw-form__submit {
   width: 200px;
-  border-radius: var(--radius-sm);
 }
 
-.btn-enviar:disabled {
+.withdraw-form__submit:disabled {
   cursor: default;
-  opacity: 0.8;
 }
 
 @media (max-width: 720px) {
-  .saque-card {
+  .withdraw-card {
     padding: 24px;
     gap: 32px;
   }
 
-  .saque-campos {
+  .withdraw-form__fields {
     grid-template-columns: 1fr;
-  }
-
-  .btn-enviar {
-    width: 100%;
   }
 }

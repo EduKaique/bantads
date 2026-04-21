@@ -1,10 +1,10 @@
 import { formatCurrency } from '../../../../shared/utils/formatters';
-import { Transaction } from '../../../../../assets/mock/transactions.mock';
+import { ExtratoTransaction } from './extrato-transaction.model';
 
 export interface GrupoTransacoes {
   data: string;
   saldoDoDia: string;
-  transacoes: Transaction[];
+  transacoes: ExtratoTransaction[];
 }
 
 export interface MovimentacaoExtratoApi {
@@ -30,7 +30,7 @@ const FORMATO_DATA_CABECALHO = new Intl.DateTimeFormat('pt-BR', {
 export function mapearMovimentacoesDoExtrato(
   movimentacoes: MovimentacaoExtratoApi[],
   numeroConta: string,
-): Transaction[] {
+): ExtratoTransaction[] {
   return movimentacoes.map((movimentacao) => {
     const transferenciaRecebida =
       movimentacao.tipo === 'transferência' &&
@@ -57,7 +57,7 @@ export function mapearMovimentacoesDoExtrato(
 }
 
 export function criarGruposTransacoes(
-  transacoes: Transaction[],
+  transacoes: ExtratoTransaction[],
   dataInicio: Date,
   dataFim: Date,
   saldoAtual: number,
@@ -138,7 +138,7 @@ export function desserializarFiltroExtrato(
 }
 
 export function calcularImpactoDasTransacoes(
-  transacoes: Transaction[],
+  transacoes: ExtratoTransaction[],
 ): number {
   return transacoes.reduce((saldo, transacao) => {
     const valor = parseValorMonetario(transacao.valor);
@@ -209,10 +209,10 @@ function gerarIntervaloDatas(dataInicio: Date, dataFim: Date): Date[] {
 }
 
 function filtrarTransacoesPorPeriodo(
-  transacoes: Transaction[],
+  transacoes: ExtratoTransaction[],
   dataInicio: Date,
   dataFim: Date,
-): Transaction[] {
+): ExtratoTransaction[] {
   const dataInicialNormalizada = normalizarInicioDoDia(dataInicio);
   const dataFinalNormalizada = normalizarFimDoDia(dataFim);
 
@@ -231,7 +231,7 @@ function formatarCabecalhoData(data: string): string {
 
 function calcularSaldoDoDia(
   dataReferencia: Date,
-  transacoes: Transaction[],
+  transacoes: ExtratoTransaction[],
   saldoAtual: number,
 ): string {
   const saldoCalculado = transacoes.reduce((saldo, transacao) => {
@@ -256,8 +256,8 @@ function parseValorMonetario(valor: string): number {
 }
 
 function ordenarPorHora(
-  transacaoA: Transaction,
-  transacaoB: Transaction,
+  transacaoA: ExtratoTransaction,
+  transacaoB: ExtratoTransaction,
 ): number {
   return (transacaoA.hora || '00:00').localeCompare(
     transacaoB.hora || '00:00',

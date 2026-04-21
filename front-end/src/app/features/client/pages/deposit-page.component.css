@@ -141,25 +141,11 @@
 }
 
 .deposit-form__submit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: 200px;
-  min-height: 48px;
-  border: 0;
-  border-radius: 8px;
-  background: #087448;
-  color: #edfcf3;
-  font-family: 'Sora', sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 16px;
-  cursor: pointer;
 }
 
 .deposit-form__submit:disabled {
   cursor: default;
-  opacity: 0.8;
 }
 
 @media (max-width: 720px) {

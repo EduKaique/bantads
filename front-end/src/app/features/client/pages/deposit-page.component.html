@@ -1,58 +1,54 @@
 <section class="deposit-screen">
-  @if (successfulDepositTimestamp) {
-    <app-deposit-success-state
-      [performedAt]="successfulDepositTimestamp"
-      (backToHome)="voltarAoInicio()"
-      (newDeposit)="novoDeposito()"
-    />
-  } @else {
-    @if (account$ | async; as account) {
-      <article class="deposit-card">
-        <header class="deposit-card__header">
-          <h1 class="deposit-card__title">Depósito</h1>
-          <p class="deposit-card__description">
-            Preencha o valor que deseja depositar em sua conta.
-          </p>
-        </header>
+  @if (account$ | async; as account) {
+    <article class="deposit-card">
+      <header class="deposit-card__header">
+        <h1 class="deposit-card__title">Depósito</h1>
+        <p class="deposit-card__description">
+          Preencha o valor que deseja depositar em sua conta.
+        </p>
+      </header>
 
-        <form class="deposit-form" [formGroup]="depositForm" (ngSubmit)="openConfirmation()">
-          <div class="deposit-form__fields">
-            <div class="deposit-field">
-              <label class="deposit-field__label" for="amount">*Valor</label>
-              <div class="deposit-field__input-shell" [class.deposit-field__input-shell--invalid]="helperIsError">
-                <span class="deposit-field__prefix">R$</span>
-                <input
-                  id="amount"
-                  type="text"
-                  inputmode="decimal"
-                  autocomplete="off"
-                  formControlName="amount"
-                  placeholder="________________"
-                  (input)="onAmountInput($event)"
-                />
-              </div>
-            </div>
+      <form class="deposit-form" [formGroup]="depositForm" (ngSubmit)="openConfirmation()">
+        <div class="deposit-form__fields">
+          <app-input-primary
+            label="*Valor"
+            inputName="amount"
+            type="text"
+            formControlName="amount"
+            mask="separator.2"
+            prefix="R$ "
+            thousandSeparator="."
+            decimalMarker=","
+            placeholder="R$ 0,00"
+            [errorMessage]="amountErrorMessage"
+            class="deposit-field"
+          ></app-input-primary>
 
-            <div class="deposit-field">
-              <label class="deposit-field__label" for="available-balance">Saldo Disponível</label>
-              <div id="available-balance" class="deposit-field__input-shell deposit-field__input-shell--readonly">
-                <span class="deposit-field__readonly-value">{{ formatCurrency(account.availableBalance) }}</span>
-              </div>
-            </div>
-          </div>
+          <app-input-primary
+            label="Saldo Disponível"
+            inputName="available-balance"
+            type="text"
+            [valorExibido]="formatCurrency(account.availableBalance)"
+            [readonly]="true"
+            class="deposit-field"
+          ></app-input-primary>
+        </div>
 
-          <p class="deposit-form__helper" [class.deposit-form__helper--error]="helperIsError">
-            {{ helperMessage }}
-          </p>
+        <p class="deposit-form__helper" [class.deposit-form__helper--error]="helperIsError">
+          {{ helperMessage }}
+        </p>
 
-          <div class="deposit-form__actions">
-            <button type="submit" class="deposit-form__submit" [disabled]="isSubmitting">
-              Enviar
-            </button>
-          </div>
-        </form>
-      </article>
-    }
+        <div class="deposit-form__actions">
+          <button
+            type="submit"
+            class="button-primary deposit-form__submit label_large"
+            [disabled]="isSubmitting"
+          >
+            Enviar
+          </button>
+        </div>
+      </form>
+    </article>
   }
 
   <app-deposit-confirmation-modal
@@ -61,5 +57,18 @@
     [isBusy]="isSubmitting"
     (cancelled)="closeConfirmation()"
     (confirmed)="confirmDeposit()"
+  />
+
+  <app-success-modal
+    [(mostrar)]="exibirModalSucesso"
+    titulo="Depósito concluído!"
+    [subtitulo]="'Valor depositado: ' + successfulDepositAmountLabel"
+    [mostrarDataHora]="true"
+    [dataHoraReferencia]="successfulDepositTimestamp"
+    [exibirBotaoSecundario]="true"
+    textoBotaoSecundario="Novo depósito"
+    textoBotao="Voltar ao Início"
+    rotaDestino="/cliente/home"
+    (botaoSecundarioClick)="novoDeposito()"
   />
 </section>

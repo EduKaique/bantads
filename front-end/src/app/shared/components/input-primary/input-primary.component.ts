@@ -14,6 +14,7 @@ export class InputPrimaryComponent implements ControlValueAccessor, OnInit {
   label = input<string>('');
   inputName = input<string>('');
   placeholder = input<string>('');
+  valorExibido = input<string>('');
   type = input<'text' | 'email' | 'password' | 'number'>('text');
   errorMessage = input<string>('');
 
@@ -47,6 +48,14 @@ export class InputPrimaryComponent implements ControlValueAccessor, OnInit {
 
   get hasError(): boolean {
     return !!(this.ngControl?.invalid && this.ngControl?.touched);
+  }
+
+  get valorAtual(): string {
+    if (this.ngControl) {
+      return this.value() ?? '';
+    }
+
+    return this.valorExibido();
   }
 
   onInput(event: Event) {
