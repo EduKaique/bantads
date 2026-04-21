@@ -1,18 +1,22 @@
 package com.bantads.auth.controller;
-
-import com.bantads.auth.dto.LoginResponseDTO;
-import com.bantads.auth.dto.LoginRequestDTO;
-import com.bantads.auth.dto.LogoutResponseDTO;
-import com.bantads.auth.model.User;
-import com.bantads.auth.repository.UserRepository;
-import com.bantads.auth.service.LoginService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bantads.auth.dto.LoginRequestDTO;
+import com.bantads.auth.dto.LoginResponseDTO;
+import com.bantads.auth.dto.LogoutResponseDTO;
+import com.bantads.auth.model.User;
+import com.bantads.auth.repository.UserRepository;
+import com.bantads.auth.service.LoginService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping
@@ -44,10 +48,9 @@ public class AuthController {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
-        // Retornamos null no nome pelo mesmo motivo da modelagem enxuta
         LogoutResponseDTO response = new LogoutResponseDTO(
                 user.getReferenciaId(),
-                null, 
+                user.getNome(),
                 user.getEmail(),
                 user.getTipo().name()
         );

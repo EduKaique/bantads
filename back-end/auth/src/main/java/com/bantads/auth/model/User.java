@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -22,16 +23,18 @@ public class User {
     private String senha; 
 
     private TipoUsuario tipo; 
+    private String nome;
 
     @Field("referencia_id")
-    private String referenciaId; // Guarda o CPF do Cliente/Gerente ou ID do Admin
+    private String referenciaId;
 
     public User() {}
 
-    public User(String email, String senha, TipoUsuario tipo, String referenciaId) {
+    public User(String email, String senha, TipoUsuario tipo, String referenciaId, String nome) {
         this.email = email;
         this.senha = senha;
         this.tipo = tipo;
+        this.nome = nome;
         this.referenciaId = referenciaId;
     }
 
@@ -46,6 +49,9 @@ public class User {
     
     public TipoUsuario getTipo() { return tipo; }
     public void setTipo(TipoUsuario tipo) { this.tipo = tipo; }
+    
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
     
     public String getReferenciaId() { return referenciaId; }
     public void setReferenciaId(String referenciaId) { this.referenciaId = referenciaId; }

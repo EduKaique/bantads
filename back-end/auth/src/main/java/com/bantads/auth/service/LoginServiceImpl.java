@@ -1,11 +1,5 @@
 package com.bantads.auth.service;
 
-import com.bantads.auth.dto.LoginResponseDTO;
-import com.bantads.auth.dto.LoginRequestDTO;
-import com.bantads.auth.dto.UsuarioDTO;
-import com.bantads.auth.model.User;
-import com.bantads.auth.repository.UserRepository;
-import com.bantads.auth.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,6 +7,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import com.bantads.auth.dto.LoginRequestDTO;
+import com.bantads.auth.dto.LoginResponseDTO;
+import com.bantads.auth.dto.UsuarioDTO;
+import com.bantads.auth.model.User;
+import com.bantads.auth.repository.UserRepository;
+import com.bantads.auth.security.TokenService;
 
 @Service
 public class LoginServiceImpl implements LoginService {
@@ -42,8 +43,8 @@ public class LoginServiceImpl implements LoginService {
 
         String token = tokenService.generateToken(user);
         
-        // Nome passado como nulo, pois a tabela de Auth não possui mais essa coluna
-        UsuarioDTO usuarioInfo = new UsuarioDTO(null, user.getReferenciaId(), user.getEmail());
+        
+        UsuarioDTO usuarioInfo = new UsuarioDTO(user.getNome(), user.getReferenciaId(), user.getEmail());
 
         return new LoginResponseDTO(token, user.getTipo().name(), usuarioInfo);
     }
