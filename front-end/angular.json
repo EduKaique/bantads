@@ -28,7 +28,10 @@
               "@angular/material/prebuilt-themes/azure-blue.css",
               "src/styles/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "optimization": {
+              "fonts": false
+            }
           },
           "configurations": {
             "production": {
