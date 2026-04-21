@@ -1,13 +1,14 @@
 package com.bantads.auth;
 
-import com.bantads.auth.model.User;
-import com.bantads.auth.model.TipoUsuario;
-import com.bantads.auth.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.bantads.auth.model.TipoUsuario;
+import com.bantads.auth.model.User;
+import com.bantads.auth.repository.UserRepository;
 
 @SpringBootApplication
 public class AuthApplication {
@@ -25,6 +26,7 @@ public class AuthApplication {
                 testUser.setEmail("admin@bantads.com");
                 testUser.setSenha(passwordEncoder.encode("123456"));
                 testUser.setTipo(TipoUsuario.ADMIN);
+                testUser.setNome("Anna");
                 testUser.setReferenciaId("12345678900");
 
                 userRepository.save(testUser);
