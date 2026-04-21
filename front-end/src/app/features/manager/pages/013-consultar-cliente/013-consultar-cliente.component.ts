@@ -18,6 +18,7 @@ export class ConsultarClienteComponent implements OnInit {
 
   cpfPesquisa: string = '';
   clienteAtual: ClienteDetalhado | null = null;
+
   carregando = false;
   erro = '';
   foiBuscado = false;
@@ -26,14 +27,12 @@ export class ConsultarClienteComponent implements OnInit {
   formatPhone = formatPhone;
   formatCep = formatCep;
 
-ngOnInit(): void {
+  ngOnInit(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
       const cpfDaUrl = params.get('cpf');
       if (cpfDaUrl) {
         this.cpfPesquisa = cpfDaUrl;
-        setTimeout(() => {
-          this.pesquisarCliente();
-        }, 100);
+        this.pesquisarCliente(); // ✅ sem setTimeout
       }
     });
   }
@@ -45,44 +44,29 @@ ngOnInit(): void {
   validarCpf(cpf: string): boolean {
     const cpfLimpo = cpf.replace(/\D/g, '');
 
-    if (cpfLimpo.length !== 11) {
-      return false;
-    }
-
-    if (/^(\d)\1{10}$/.test(cpfLimpo)) {
-      return false;
-    }
+    if (cpfLimpo.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(cpfLimpo)) return false;
 
     let soma = 0;
-    let resto;
+    let resto = 0;
 
     for (let i = 1; i <= 9; i++) {
-      soma += parseInt(cpfLimpo.substring(i - 1, i)) * (11 - i);
+      soma += parseInt(cpfLimpo.substring(i - 1, i), 10) * (11 - i);
     }
 
     resto = (soma * 10) % 11;
-
-    if (resto === 10 || resto === 11) {
-      resto = 0;
-    }
-
-    if (resto !== parseInt(cpfLimpo.substring(9, 10))) {
-      return false;
-    }
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpfLimpo.substring(9, 10), 10)) return false;
 
     soma = 0;
-
     for (let i = 1; i <= 10; i++) {
-      soma += parseInt(cpfLimpo.substring(i - 1, i)) * (12 - i);
+      soma += parseInt(cpfLimpo.substring(i - 1, i), 10) * (12 - i);
     }
 
     resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
 
-    if (resto === 10 || resto === 11) {
-      resto = 0;
-    }
-
-    return resto === parseInt(cpfLimpo.substring(10, 11));
+    return resto === parseInt(cpfLimpo.substring(10, 11), 10);
   }
 
   private carregarClienteDoServidor(): void {
@@ -92,11 +76,11 @@ ngOnInit(): void {
       next: (cliente) => {
         if (cliente) {
           this.clienteAtual = cliente;
+          this.erro = '';
         } else {
           this.clienteAtual = null;
           this.erro = 'Cliente não encontrado no banco de dados.';
         }
-
         this.carregando = false;
       },
       error: () => {
@@ -123,6 +107,7 @@ ngOnInit(): void {
 
     this.carregando = true;
     this.erro = '';
+
     this.carregarClienteDoServidor();
   }
 
@@ -131,5 +116,6 @@ ngOnInit(): void {
     this.clienteAtual = null;
     this.erro = '';
     this.foiBuscado = false;
+    this.carregando = false;
   }
 }
