@@ -9,8 +9,7 @@ import java.util.List;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, String> {
+    List<Cliente> findByStatus(StatusCliente status);
 
     boolean existsByEmail(String email);
-
-    List<Cliente> findByStatus(StatusCliente status);
 }

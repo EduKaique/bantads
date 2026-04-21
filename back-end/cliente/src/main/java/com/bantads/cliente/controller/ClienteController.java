@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/clientes")
+@RequestMapping({"/clientes", "/"})
 public class ClienteController {
 
     private final ClienteService clienteService;
@@ -25,7 +25,7 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.listarTodos());
     }
 
-    @PostMapping
+    @PostMapping({"", "/"})
     public ResponseEntity<?> autocadastro(@RequestBody AutocadastroInfoDTO clienteDto) {
         clienteService.autocadastrar(clienteDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
