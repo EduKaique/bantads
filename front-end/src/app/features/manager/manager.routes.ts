@@ -19,6 +19,13 @@ export const managerRoutes: Routes = [
     path: 'consultar-clientes',
     component: ConsultarClientesComponent,
   },
+
+  {
+    path: 'cliente/:cpf',
+    redirectTo: 'consultar-cliente/:cpf',
+    pathMatch: 'full',
+  },
+
   {
     path: 'consultar-cliente',
     component: ConsultarClienteComponent,
