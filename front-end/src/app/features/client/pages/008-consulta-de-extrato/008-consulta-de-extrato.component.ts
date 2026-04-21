@@ -1,14 +1,13 @@
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, switchMap } from 'rxjs';
 
-import { Transaction } from '../../../../../assets/mock/transactions.mock';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import {
   buildScopedStorageKey,
@@ -23,6 +22,7 @@ import {
   MovimentacaoExtratoApi,
   serializarFiltroExtrato,
 } from './008-consulta-de-extrato.utils';
+import { ExtratoTransaction } from './extrato-transaction.model';
 
 interface ContaPorCpfResponse {
   numeroConta: string;
@@ -61,7 +61,7 @@ export class ConsultaExtratoPageComponent implements OnInit {
   dataSelecionadaFim = new Date(2026, 11, 31);
   transacoesPorData: GrupoTransacoes[] = [];
 
-  private transacoes: Transaction[] = [];
+  private transacoes: ExtratoTransaction[] = [];
 
   ngOnInit(): void {
     this.configurarFiltroInicialDaSessao();
@@ -118,12 +118,14 @@ export class ConsultaExtratoPageComponent implements OnInit {
       .get<ContaPorCpfResponse>(`${this.apiContaUrl}/cpf/${cpf}`)
       .pipe(
         switchMap((conta) =>
-          this.http.get<ExtratoResponse>(`${this.apiContaUrl}/${conta.numeroConta}/extrato`).pipe(
-            map((extrato) => ({
-              numeroConta: conta.numeroConta,
-              extrato,
-            })),
-          ),
+          this.http
+            .get<ExtratoResponse>(`${this.apiContaUrl}/${conta.numeroConta}/extrato`)
+            .pipe(
+              map((extrato) => ({
+                numeroConta: conta.numeroConta,
+                extrato,
+              })),
+            ),
         ),
         takeUntilDestroyed(this.destroyRef),
       )

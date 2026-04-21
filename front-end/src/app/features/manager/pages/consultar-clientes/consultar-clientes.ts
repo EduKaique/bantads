@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 export interface Cliente {
   id: string;
@@ -37,7 +38,7 @@ export class ConsultarClientesComponent implements OnInit {
   clientesExibidos: Cliente[] = [];
   carregando: boolean = true;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.carregarClientesDaAPI();
@@ -53,9 +54,45 @@ export class ConsultarClientesComponent implements OnInit {
   carregarClientesDaAPI(): void {
     this.carregando = true;
     
-    this.http.get<Cliente[]>('http://localhost:3000/manager/clientes').subscribe({
-      next: (dados) => {
-        this.clientes = dados;
+    // Pega o CPF do gerente logado
+    const gerenteLogado = this.authService.currentUserValue;
+    const cpfGerenteLogado = gerenteLogado?.cpf ? gerenteLogado.cpf.replace(/\D/g, '') : '';
+
+    forkJoin({
+      clientes: this.http.get<any[]>('http://localhost:3000/clientes'),
+      contas: this.http.get<any[]>('http://localhost:3000/contas')
+    }).subscribe({
+      next: (res) => {
+        const clientesDoGerente: Cliente[] = [];
+
+        res.clientes.forEach(cliente => {
+          const cpfClienteLimpo = cliente.cpf ? cliente.cpf.replace(/\D/g, '') : '';
+          
+          const conta = res.contas.find(c => {
+            const holderCpfLimpo = c.holderDocument ? c.holderDocument.replace(/\D/g, '') : '';
+            return holderCpfLimpo === cpfClienteLimpo;
+          });
+
+          // Filtra: Só adiciona se o managerDocument da conta for igual ao CPF do gerente logado
+          if (conta && conta.managerDocument) {
+            const managerCpfLimpo = conta.managerDocument.replace(/\D/g, '');
+            
+            if (managerCpfLimpo === cpfGerenteLogado) {
+              clientesDoGerente.push({
+                id: cliente.id || Math.random().toString(),
+                cpf: cliente.cpf,
+                nome: cliente.nome,
+                cidade: cliente.endereco?.cidade || '-',
+                estado: cliente.endereco?.uf || '-',
+                saldo: conta.availableBalance || 0,
+                limite: conta.limit || 0,
+                numeroConta: conta.accountNumber || '-'
+              });
+            }
+          }
+        });
+
+        this.clientes = clientesDoGerente;
         this.ordenarClientesPorNome();
         this.clientesExibidos = [...this.clientes];
         this.atualizarPaginacao();

@@ -1,122 +1,109 @@
-<div class="bg-main">
-  <div class="card-transfer">
-    <div class="header-content">
-      <h1 class="text-title heading_2">Transferência</h1>
-      <p class="text-description body_large">
+<section class="transfer-screen">
+  <article class="transfer-card">
+    <header class="transfer-card__header">
+      <h1 class="transfer-card__title">Transferência</h1>
+      <p class="transfer-card__description">
         Preencha as informações para realizar a transferência.
       </p>
-    </div>
+    </header>
 
-    <form [formGroup]="transferForm" (ngSubmit)="onSubmit()" class="form-grid-layout">
-      <div class="form-row account-search-group full-width">
-        <div class="form-group flex-grow">
-          <label class="form-label label_large">*Número da Conta de Destino</label>
-          <input
-            type="text"
-            class="form-control body_medium"
-            formControlName="accountNumber"
-            placeholder="Ex: 1291"
-            maxlength="4"
-          />
-        </div>
+    <form class="transfer-form" [formGroup]="transferForm" (ngSubmit)="onSubmit()">
+      <div class="transfer-form__search">
+        <app-input-primary
+          label="*Número da Conta de Destino"
+          inputName="account-number"
+          type="text"
+          formControlName="accountNumber"
+          placeholder="Ex: 1291"
+          [errorMessage]="accountNumberErrorMessage"
+          class="transfer-field transfer-field--grow"
+        ></app-input-primary>
 
         <button
           type="button"
-          class="btn-search label_large"
+          class="button-secondary transfer-form__search-button label_large"
           (click)="searchAccount()"
           [disabled]="buscandoConta"
         >
           @if (!buscandoConta) {
             <mat-icon>search</mat-icon>
           }
-          <span>{{ buscandoConta ? 'Buscando...' : 'Pesquisar' }}</span>
+          {{ buscandoConta ? 'Buscando...' : 'Pesquisar' }}
         </button>
       </div>
 
-      <div class="form-row full-width form-group">
-        <label class="form-label label_large">Nome</label>
-        <input type="text" class="form-control body_medium disabled-field" formControlName="name" readonly />
-      </div>
-
-      <div class="form-row full-width form-group">
-        <label class="form-label label_large">CPF</label>
-        <input
+      <div class="transfer-form__fields">
+        <app-input-primary
+          label="Nome"
+          inputName="destination-name"
           type="text"
-          class="form-control body_medium disabled-field"
-          formControlName="cpf"
-          placeholder="___.___.___-__"
-          readonly
-        />
+          [valorExibido]="nomeDestino"
+          [readonly]="true"
+          class="transfer-field"
+        ></app-input-primary>
+
+        <app-input-primary
+          label="CPF"
+          inputName="destination-cpf"
+          type="text"
+          [valorExibido]="cpfDestino"
+          [readonly]="true"
+          class="transfer-field"
+        ></app-input-primary>
+
+        <app-input-primary
+          label="*Valor"
+          inputName="transfer-amount"
+          type="text"
+          formControlName="amount"
+          mask="separator.2"
+          prefix="R$ "
+          thousandSeparator="."
+          decimalMarker=","
+          placeholder="R$ 0,00"
+          [errorMessage]="amountErrorMessage"
+          class="transfer-field"
+        ></app-input-primary>
+
+        <app-input-primary
+          label="Saldo Disponível"
+          inputName="available-balance"
+          type="text"
+          [valorExibido]="saldoDisponivelFormatado"
+          [readonly]="true"
+          class="transfer-field"
+        ></app-input-primary>
       </div>
 
-      <div class="form-row split-group full-width">
-        <div class="form-group half-width">
-          <label class="form-label label_large">*Valor</label>
-          <input
-            type="text"
-            class="form-control body_medium"
-            formControlName="amount"
-            placeholder="R$ 0,00"
-            (input)="onAmountInput($event)"
-          />
-        </div>
+      <p class="transfer-form__helper" [class.transfer-form__helper--error]="helperIsError">
+        {{ helperMessage }}
+      </p>
 
-        <div class="form-group half-width">
-          <label class="form-label label_large">Saldo Disponível</label>
-          <input type="text" class="form-control body_medium disabled-field" formControlName="balance" readonly />
-        </div>
-      </div>
-
-      <div class="form-row full-width footer-actions">
-        <p class="footer-note body_medium">* Campo de preenchimento obrigatório</p>
+      <div class="transfer-form__actions">
         <button
           type="submit"
-          class="button-primary btn-submit label_large"
-          [disabled]="!contaEncontrada || buscandoConta"
+          class="button-primary transfer-form__submit label_large"
+          [disabled]="isModalOpen || buscandoConta"
         >
           Enviar
         </button>
       </div>
     </form>
-  </div>
+  </article>
 
-  @if (isModalOpen) {
-    <div class="modal-overlay">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3 class="modal-title">Confirmar a transferência</h3>
-          <button type="button" class="btn-close-modal" (click)="closeModal()">✕</button>
-        </div>
-
-        <div class="modal-body">
-          <div class="form-group mb-modal">
-            <label class="form-label label_large">Tem certeza que deseja enviar</label>
-            <input
-              type="text"
-              class="form-control body_medium disabled-field"
-              [value]="transferForm.get('amount')?.value"
-              readonly
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label label_large">Para</label>
-            <input
-              type="text"
-              class="form-control body_medium disabled-field"
-              [value]="transferForm.get('name')?.value"
-              readonly
-            />
-          </div>
-        </div>
-
-        <div class="modal-footer flex-buttons">
-          <button type="button" class="btn-modal-cancel label_large" (click)="closeModal()">Cancelar</button>
-          <button type="button" class="btn-modal-confirm label_large" (click)="confirmTransfer()">Confirmar</button>
-        </div>
-      </div>
-    </div>
-  }
+  <app-deposit-confirmation-modal
+    [visible]="isModalOpen"
+    [formattedAmount]="valorTransferenciaFormatado"
+    [title]="'Confirmar transferência'"
+    [description]="'Confira os dados abaixo antes de concluir a operação.'"
+    [question]="'Tem certeza que deseja enviar'"
+    [amountLabel]="'Valor da transferência'"
+    [detailLines]="nomeDestino ? ['Para ' + nomeDestino] : []"
+    [confirmLabel]="'Confirmar'"
+    [cancelLabel]="'Cancelar'"
+    (cancelled)="closeModal()"
+    (confirmed)="confirmTransfer()"
+  />
 
   @if (showToast) {
     <div class="toast-container">
@@ -125,13 +112,17 @@
       </div>
     </div>
   }
-</div>
+</section>
 
 <app-success-modal
   [(mostrar)]="exibirModalSucesso"
   titulo="Transferência concluída!"
   [subtitulo]="'Valor enviado: ' + valorEnviado"
   [mostrarDataHora]="true"
-  textoBotao="Voltar para o Início"
-  rotaDestino="/cliente/home">
-</app-success-modal>
+  [dataHoraReferencia]="successfulTransferTimestamp"
+  [exibirBotaoSecundario]="true"
+  textoBotaoSecundario="Nova transferência"
+  textoBotao="Voltar ao Início"
+  rotaDestino="/cliente/home"
+  (botaoSecundarioClick)="novaTransferencia()"
+></app-success-modal>

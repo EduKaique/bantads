@@ -13,6 +13,10 @@
     width: inherit;
 }
 
+.input-content--readonly input {
+    cursor: default;
+}
+
 label {
     color: var(--color-foreground-title, #414946);
     text-align: start;

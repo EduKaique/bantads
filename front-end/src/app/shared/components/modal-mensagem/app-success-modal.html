@@ -1,28 +1,49 @@
 @if (mostrar) {
   <div class="modal-overlay">
-    <div class="modal-container">
+    <div
+      class="modal-container"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="success-modal-title"
+    >
       <div class="modal-content">
-        <div class="success-icon">
-          <i>✓</i>
+        <div class="success-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12.5 9.2 16.7 19 6.9" />
+          </svg>
         </div>
-        <h2 class="modal-title">{{ titulo }}</h2>
-        <p class="modal-subtitle">{{ subtitulo }}</p>
+
+        <h2 id="success-modal-title" class="modal-title heading_4">{{ titulo }}</h2>
+
+        @if (subtitulo) {
+          <p class="modal-subtitle body_large">{{ subtitulo }}</p>
+        }
+
         @if (mostrarDataHora) {
-          <div class="modal-datetime">
+          <div class="modal-datetime body_large">
             {{ dataHoraFormatada }}
           </div>
         }
-        <!-- Exibe dados adicionais apenas se foram fornecidos -->
+
         @if (dadosAdicionais.length) {
           <div class="modal-additional">
             @for (dado of dadosAdicionais; track dado) {
-              <p>{{ dado }}</p>
+              <p class="body_medium">{{ dado }}</p>
             }
           </div>
         }
-        <button class="modal-button" (click)="fecharModal()">
-          {{ textoBotao }}
-        </button>
+
+        <div class="modal-actions">
+          @if (exibirBotaoSecundario) {
+            <button type="button" class="button-secondary modal-button" (click)="acionarBotaoSecundario()">
+              {{ textoBotaoSecundario }}
+            </button>
+          }
+
+          <button type="button" class="button-primary modal-button" (click)="fecharModal()">
+            {{ textoBotao }}
+          </button>
+        </div>
       </div>
     </div>
   </div>

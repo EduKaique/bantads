@@ -1,13 +1,6 @@
 [
   {
-    "nome": "Geniéve",
-    "cpf": "98574307084",
-    "email": "ger1@bantads.com.br",
-    "celular": "41999990003",
-    "tipo": "GERENTE"
-  },
-  {
-    "nome": "Godophredo",
+    "nome": "Alterado",
     "cpf": "64065268052",
     "email": "ger2@bantads.com.br",
     "celular": "41999990004",
@@ -21,11 +14,11 @@
     "tipo": "GERENTE"
   },
   {
-    "nome": "Debilolson Silva",
-    "cpf": "33427040046",
-    "email": "debi@bantads.com",
-    "celular": "(41) 99222-9992",
-    "senha": "tadssss",
+    "nome": "Gerente Novo",
+    "cpf": "10055882951",
+    "email": "ger4@bantads.com.br",
+    "celular": "(54) 45454-4545",
+    "senha": "123tads",
     "tipo": "GERENTE"
   }
 ]

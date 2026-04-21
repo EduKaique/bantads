@@ -1,1 +1,253 @@
-[]
+[
+  {
+    "id": "mov-0001",
+    "dataHora": "2020-01-01T10:00:00-03:00",
+    "tipo": "DEPOSITO",
+    "contaOrigem": null,
+    "nomeOrigem": null,
+    "contaDestino": "1291",
+    "nomeDestino": "Catharyna",
+    "valor": 1000
+  },
+  {
+    "id": "mov-0002",
+    "dataHora": "2020-01-01T11:00:00-03:00",
+    "tipo": "DEPOSITO",
+    "contaOrigem": null,
+    "nomeOrigem": null,
+    "contaDestino": "1291",
+    "nomeDestino": "Catharyna",
+    "valor": 900
+  },
+  {
+    "id": "mov-0003",
+    "dataHora": "2020-01-01T12:00:00-03:00",
+    "tipo": "SAQUE",
+    "contaOrigem": "1291",
+    "nomeOrigem": "Catharyna",
+    "contaDestino": null,
+    "nomeDestino": null,
+    "valor": 550
+  },
+  {
+    "id": "mov-0004",
+    "dataHora": "2020-01-01T13:00:00-03:00",
+    "tipo": "SAQUE",
+    "contaOrigem": "1291",
+    "nomeOrigem": "Catharyna",
+    "contaDestino": null,
+    "nomeDestino": null,
+    "valor": 350
+  },
+  {
+    "id": "mov-0005",
+    "dataHora": "2020-01-10T15:00:00-03:00",
+    "tipo": "DEPOSITO",
+    "contaOrigem": null,
+    "nomeOrigem": null,
+    "contaDestino": "1291",
+    "nomeDestino": "Catharyna",
+    "valor": 2000
+  },
+  {
+    "id": "mov-0006",
+    "dataHora": "2020-01-15T08:00:00-03:00",
+    "tipo": "SAQUE",
+    "contaOrigem": "1291",
+    "nomeOrigem": "Catharyna",
+    "contaDestino": null,
+    "nomeDestino": null,
+    "valor": 500
+  },
+  {
+    "id": "mov-0007",
+    "dataHora": "2020-01-20T12:00:00-03:00",
+    "tipo": "TRANSFERENCIA",
+    "contaOrigem": "1291",
+    "nomeOrigem": "Catharyna",
+    "contaDestino": "0950",
+    "nomeDestino": "Cleuddônio",
+    "valor": 1700
+  },
+  {
+    "id": "mov-0008",
+    "dataHora": "2025-01-01T12:00:00-03:00",
+    "tipo": "DEPOSITO",
+    "contaOrigem": null,
+    "nomeOrigem": null,
+    "contaDestino": "0950",
+    "nomeDestino": "Cleuddônio",
+    "valor": 1000
+  },
+  {
+    "id": "mov-0009",
+    "dataHora": "2025-01-02T10:00:00-03:00",
+    "tipo": "DEPOSITO",
+    "contaOrigem": null,
+    "nomeOrigem": null,
+    "contaDestino": "0950",
+    "nomeDestino": "Cleuddônio",
+    "valor": 5000
+  },
+  {
+    "id": "mov-0010",
+    "dataHora": "2025-01-10T10:00:00-03:00",
+    "tipo": "SAQUE",
+    "contaOrigem": "0950",
+    "nomeOrigem": "Cleuddônio",
+    "contaDestino": null,
+    "nomeDestino": null,
+    "valor": 200
+  },
+  {
+    "id": "mov-0011",
+    "dataHora": "2025-02-05T10:00:00-03:00",
+    "tipo": "DEPOSITO",
+    "contaOrigem": null,
+    "nomeOrigem": null,
+    "contaDestino": "0950",
+    "nomeDestino": "Cleuddônio",
+    "valor": 7000
+  },
+  {
+    "id": "mov-0012",
+    "dataHora": "2025-05-05T00:00:00-03:00",
+    "tipo": "DEPOSITO",
+    "contaOrigem": null,
+    "nomeOrigem": null,
+    "contaDestino": "8573",
+    "nomeDestino": "Catianna",
+    "valor": 1000
+  },
+  {
+    "id": "mov-0013",
+    "dataHora": "2025-05-06T00:00:00-03:00",
+    "tipo": "SAQUE",
+    "contaOrigem": "8573",
+    "nomeOrigem": "Catianna",
+    "contaDestino": null,
+    "nomeDestino": null,
+    "valor": 2000
+  },
+  {
+    "id": "mov-0014",
+    "dataHora": "2025-06-01T00:00:00-03:00",
+    "tipo": "DEPOSITO",
+    "contaOrigem": null,
+    "nomeOrigem": null,
+    "contaDestino": "5887",
+    "nomeDestino": "Cutardo",
+    "valor": 150000
+  },
+  {
+    "id": "mov-0015",
+    "dataHora": "2025-07-01T00:00:00-03:00",
+    "tipo": "DEPOSITO",
+    "contaOrigem": null,
+    "nomeOrigem": null,
+    "contaDestino": "7617",
+    "nomeDestino": "Coândrya",
+    "valor": 1500
+  },
+  {
+    "id": "dbysmtmj",
+    "dataHora": "2026-04-07T00:53:10.273Z",
+    "contaOrigem": "5887",
+    "tipo": "SAQUE",
+    "valor": 1000
+  },
+  {
+    "id": "gwdkqntu",
+    "dataHora": "2026-04-07T00:53:45.196Z",
+    "tipo": "TRANSFERENCIA",
+    "contaOrigem": "5887",
+    "nomeOrigem": "Cutardo",
+    "contaDestino": "7617",
+    "nomeDestino": "Coândrya",
+    "valor": 100
+  },
+  {
+    "id": "b6u6r791",
+    "dataHora": "2026-04-07T00:54:23.330Z",
+    "contaOrigem": null,
+    "nomeOrigem": "Sistema/DepÃ³sito",
+    "contaDestino": "5887",
+    "nomeDestino": "Cutardo",
+    "tipo": "DEPOSITO",
+    "valor": 1000
+  },
+  {
+    "id": "fm9gpokc",
+    "dataHora": "2026-04-07T00:55:34.698Z",
+    "contaOrigem": null,
+    "nomeOrigem": "Sistema/DepÃ³sito",
+    "contaDestino": "5887",
+    "nomeDestino": "Cutardo",
+    "tipo": "DEPOSITO",
+    "valor": 100
+  },
+  {
+    "id": "8t7bmjc0",
+    "dataHora": "2026-04-07T00:55:52.875Z",
+    "contaOrigem": "5887",
+    "tipo": "SAQUE",
+    "valor": 100000
+  },
+  {
+    "id": "41oeeguj",
+    "dataHora": "2026-04-07T00:56:12.699Z",
+    "tipo": "TRANSFERENCIA",
+    "contaOrigem": "5887",
+    "nomeOrigem": "Cutardo",
+    "contaDestino": "0950",
+    "nomeDestino": "Cleuddônio",
+    "valor": 25000
+  },
+  {
+    "id": "xy2ejk2h",
+    "dataHora": "2026-04-07T01:41:46.045Z",
+    "contaOrigem": null,
+    "nomeOrigem": "Sistema/DepÃ³sito",
+    "contaDestino": "1291",
+    "nomeDestino": "Catharyna",
+    "tipo": "DEPOSITO",
+    "valor": 200
+  },
+  {
+    "id": "npstbn93",
+    "dataHora": "2026-04-07T01:42:21.714Z",
+    "contaOrigem": "1291",
+    "tipo": "SAQUE",
+    "valor": 1200
+  },
+  {
+    "id": "kls01bae",
+    "dataHora": "2026-04-07T01:42:42.345Z",
+    "contaOrigem": null,
+    "nomeOrigem": "Sistema/DepÃ³sito",
+    "contaDestino": "1291",
+    "nomeDestino": "Catharyna",
+    "tipo": "DEPOSITO",
+    "valor": 400
+  },
+  {
+    "id": "8myxrd3l",
+    "dataHora": "2026-04-07T01:43:14.434Z",
+    "tipo": "TRANSFERENCIA",
+    "contaOrigem": "1291",
+    "nomeOrigem": "Catharyna",
+    "contaDestino": "7833",
+    "nomeDestino": "gabriel braza",
+    "valor": 100
+  },
+  {
+    "id": "oj83fvj7",
+    "dataHora": "2026-04-08T03:51:56.169Z",
+    "contaOrigem": null,
+    "nomeOrigem": "Sistema/DepÃ³sito",
+    "contaDestino": "5887",
+    "nomeDestino": "Cutardo",
+    "tipo": "DEPOSITO",
+    "valor": 5000
+  }
+]
