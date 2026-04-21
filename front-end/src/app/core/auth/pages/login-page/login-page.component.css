@@ -1,26 +1,24 @@
-
 main {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0 8px 8px;
-    padding-right: 0;
-    background-color: #FAFAFA;
-}
-
-section{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-card, #FAFAFA);
 }
 
 .illustration-section {
-    width: 60%;
-    border-radius: var(--radius-lg, 24px);
-    background: var(--color-green-900, #08462E);
-    padding: 0 var(--spacing-3xl, 64px);
-    gap: 16px;
-    padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 60%;
+  height: 100%;
+  border-radius: 0 var(--radius-lg, 24px) var(--radius-lg, 24px) 0;
+  background: var(--color-green-900, #08462E);
+  padding: var(--spacing-3xl, 64px);
+  gap: 16px;
+  box-sizing: border-box;
 }
 
 .title-login {
@@ -34,19 +32,48 @@ section{
 
 .container-illustration {
     display: flex;
+    flex: 1;
     justify-content: center;
+    align-items: center;
     width: 100%;
+    position: relative;
+}
+
+.carousel-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-image {
+  position: absolute;
+  max-width: 90%;
+  max-height: 90%;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
+}
+
+.carousel-image.active {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .form-section {
-    align-items: center;
-    width: 40%;
-    padding: var(--spacing-lg, 32px) var(--spacing-xl, 40px);
+    display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: start;
+    align-items: flex-start;
+    width: 40%;
+    height: 100%;
+    padding: var(--spacing-lg, 32px) var(--spacing-xl, 40px);
     gap: var(--spacing-xl, 40px);
-    flex-shrink: 0;
+    box-sizing: border-box;
     background: var(--color-card, #FAFAFA);
 }
 
@@ -72,6 +99,7 @@ section{
     align-items: flex-start;
     gap: 40px;
     align-self: stretch;
+    width: 100%;
 }
 
 .form-inputs {
@@ -89,6 +117,7 @@ section{
     background-color: var(--color-red-100);
     color: var(--color-red-500);
     border-radius: 16px;
+    box-sizing: border-box;
 }
 
 .row-btn {
@@ -100,19 +129,14 @@ section{
     width: 100%;
 }
 
-.direct-login {
+.text-register {
     text-align: center;
     color: var(--color-text-foreground);
+    width: 100%;
 }
 
-@media (max-width: 720px) {
-    main {
-        padding: 0;
-    }
-    .illustration-section {
-        display: none;
-    }
-    .form-section {
-        width: 100%;
-    }
+.text-register a {
+    cursor: pointer;
+    color: var(--color-green-500);
+    font-weight: bold;
 }
