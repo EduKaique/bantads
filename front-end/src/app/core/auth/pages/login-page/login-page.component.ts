@@ -35,6 +35,11 @@ export class LoginPageComponent implements OnInit {
   loginErrorMessage: string | null = null;
   hide = signal(true);
   private cdr = inject(ChangeDetectorRef);
+  imagensCarousel: string[] = [
+    'assets/illustrations/login.svg',
+    'assets/illustrations/login.svg'
+  ];
+  indiceAtual: number = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -47,6 +52,10 @@ export class LoginPageComponent implements OnInit {
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required]),
     });
+
+    setInterval(() => {
+      this.indiceAtual = (this.indiceAtual + 1) % this.imagensCarousel.length;
+    }, 4000);
   }
 
   clickEvent(event: MouseEvent) {

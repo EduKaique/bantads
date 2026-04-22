@@ -11,11 +11,14 @@
       </p>
     </div>
     <div class="container-illustration">
-      <img
-        src="assets/illustrations/login.svg"
-        alt="Ilustração de Login"
-        width="500"
-      />
+      <div class="carousel-container">
+        @for (img of imagensCarousel; track img; let i = $index) {
+          <img [src]="img" 
+               [class.active]="i === indiceAtual" 
+               class="carousel-image" 
+               alt="BANTADS Apresentação">
+        }
+      </div>
     </div>
   </section>
   <section class="form-section">
