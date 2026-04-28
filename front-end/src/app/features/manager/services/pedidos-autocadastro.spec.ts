@@ -1,6 +1,7 @@
-import { TestBed } from '@angular/core/testing';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+
 import { API_URL } from '../../../core/configs/api.token';
 import { PedidosAutocadastroService } from './pedidos-autocadastro';
 
@@ -47,12 +48,13 @@ describe('PedidosAutocadastroService', () => {
 
     let pedidosOrdenados: unknown[] = [];
 
-    service.listar().subscribe((pedidos) => {
+    service.listar('12345678910').subscribe((pedidos) => {
       pedidosOrdenados = pedidos;
     });
 
-    const requisicao = httpTestingController.expectOne(
-      'http://localhost:3000/manager/pedidos-autocadastro',
+    const requisicao = httpTestingController.expectOne((request) =>
+      request.url === 'http://localhost:3000/manager/pedidos-autocadastro' &&
+      request.params.get('cpfGerente') === '12345678910'
     );
 
     expect(requisicao.request.method).toBe('GET');

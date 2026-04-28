@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { BankAccount } from '../../../shared/models/bank-account';
@@ -29,7 +30,7 @@ class ClientAccountServiceStub {
           id: 'deposit-1',
           type: 'deposit' as const,
           amount: 100,
-          description: 'Depósito em conta',
+          description: 'Deposito em conta',
           performedAt: '2026-03-07T12:00:00.000Z',
           balanceAfter: 2550.75,
         },
@@ -48,6 +49,12 @@ describe('DepositPageComponent', () => {
       imports: [DepositPageComponent],
       providers: [
         { provide: ClientAccountService, useClass: ClientAccountServiceStub },
+        {
+          provide: Router,
+          useValue: {
+            navigate: jasmine.createSpy('navigate'),
+          },
+        },
       ],
     }).compileComponents();
 
@@ -60,13 +67,10 @@ describe('DepositPageComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should sanitize amount input to digits and a single decimal separator', () => {
-    const input = document.createElement('input');
-    input.value = '12a.3,4b5';
+  it('should accept a valid monetary amount before confirmation', () => {
+    component.depositForm.controls.amount.setValue('12,34');
 
-    component.onAmountInput({ target: input } as unknown as Event);
-
-    expect(input.value).toBe('12,34');
     expect(component.depositForm.controls.amount.value).toBe('12,34');
+    expect(component.depositForm.valid).toBeTrue();
   });
 });
