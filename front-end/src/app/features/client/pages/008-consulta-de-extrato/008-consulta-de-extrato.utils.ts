@@ -15,6 +15,8 @@ export interface MovimentacaoExtratoApi {
   valor: number;
 }
 
+type TipoMovimentacao = 'deposito' | 'saque' | 'transferencia';
+
 interface FiltroPersistidoExtrato {
   dataInicio: string;
   dataFim: string;
@@ -32,24 +34,26 @@ export function mapearMovimentacoesDoExtrato(
   numeroConta: string,
 ): ExtratoTransaction[] {
   return movimentacoes.map((movimentacao) => {
+    const tipoMovimentacao = normalizarTipoMovimentacao(movimentacao.tipo);
     const transferenciaRecebida =
-      movimentacao.tipo === 'transferência' &&
+      tipoMovimentacao === 'transferencia' &&
       movimentacao.destino === numeroConta &&
       movimentacao.origem !== numeroConta;
 
     return {
       data: formatarDataParaInput(new Date(movimentacao.data)),
       hora: extrairHoraDaDataIso(movimentacao.data),
-      operacao: mapearTipoOperacao(movimentacao.tipo),
+      operacao: mapearTipoOperacao(tipoMovimentacao),
       remetenteDestinatario: mapearRemetenteDestinatario(
         movimentacao,
         numeroConta,
+        tipoMovimentacao,
       ),
-      categoria: mapearCategoria(movimentacao.tipo),
+      categoria: mapearCategoria(tipoMovimentacao),
       valor: formatCurrency(Math.abs(movimentacao.valor)),
       operacaoColor:
-        movimentacao.tipo === 'saque' ||
-        (movimentacao.tipo === 'transferência' && !transferenciaRecebida)
+        tipoMovimentacao === 'saque' ||
+        (tipoMovimentacao === 'transferencia' && !transferenciaRecebida)
           ? 'red'
           : 'blue',
     };
@@ -146,6 +150,24 @@ export function calcularImpactoDasTransacoes(
   }, 0);
 }
 
+function normalizarTipoMovimentacao(tipo: string): TipoMovimentacao {
+  const tipoNormalizado = tipo
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+
+  if (tipoNormalizado === 'deposito') {
+    return 'deposito';
+  }
+
+  if (tipoNormalizado === 'saque') {
+    return 'saque';
+  }
+
+  return 'transferencia';
+}
+
 function extrairHoraDaDataIso(dataIso: string): string {
   const data = new Date(dataIso);
   const horas = String(data.getHours()).padStart(2, '0');
@@ -153,8 +175,8 @@ function extrairHoraDaDataIso(dataIso: string): string {
   return `${horas}:${minutos}`;
 }
 
-function mapearTipoOperacao(tipo: string): string {
-  if (tipo === 'depósito') {
+function mapearTipoOperacao(tipo: TipoMovimentacao): string {
+  if (tipo === 'deposito') {
     return 'Depósito';
   }
 
@@ -168,8 +190,9 @@ function mapearTipoOperacao(tipo: string): string {
 function mapearRemetenteDestinatario(
   movimentacao: MovimentacaoExtratoApi,
   numeroConta: string,
+  tipoMovimentacao: TipoMovimentacao,
 ): string {
-  if (movimentacao.tipo === 'depósito' || movimentacao.tipo === 'saque') {
+  if (tipoMovimentacao === 'deposito' || tipoMovimentacao === 'saque') {
     return 'Você';
   }
 
@@ -188,8 +211,8 @@ function mapearRemetenteDestinatario(
   return 'Você';
 }
 
-function mapearCategoria(tipo: string): string {
-  if (tipo === 'transferência') {
+function mapearCategoria(tipo: TipoMovimentacao): string {
+  if (tipo === 'transferencia') {
     return 'Transferência';
   }
 
