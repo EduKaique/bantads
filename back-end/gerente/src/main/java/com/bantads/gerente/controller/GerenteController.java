@@ -4,6 +4,7 @@ import com.bantads.gerente.dto.GerenteAtualizacaoDTO;
 import com.bantads.gerente.dto.GerenteInsercaoDTO;
 import com.bantads.gerente.dto.GerenteResponseDTO;
 import com.bantads.gerente.service.GerenteService;
+import com.bantads.gerente.service.SagaGerenteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,9 +20,11 @@ import java.util.List;
 public class GerenteController {
 
     private final GerenteService service;
+    private final SagaGerenteService sagaService;
 
-    public GerenteController(GerenteService service) {
+    public GerenteController(GerenteService service, SagaGerenteService sagaService) {
         this.service = service;
+        this.sagaService = sagaService;
     }
 
     @GetMapping
@@ -37,9 +40,9 @@ public class GerenteController {
     }
 
     @PostMapping
-    @Operation(summary = "Insere um novo gerente")
+    @Operation(summary = "Insere um novo gerente usando SAGA")
     public ResponseEntity<GerenteResponseDTO> inserir(@Valid @RequestBody GerenteInsercaoDTO dto) {
-        GerenteResponseDTO response = service.inserir(dto);
+        GerenteResponseDTO response = sagaService.iniciarInsercaoGerente(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
