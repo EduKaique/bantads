@@ -16,6 +16,10 @@ public class RabbitMqConfiguracao {
     public static final String EXCHANGE_MOVIMENTACAO = "conta.movimentacao.exchange";
     public static final String FILA_MOVIMENTACAO = "conta.movimentacao.queue";
     public static final String CHAVE_MOVIMENTACAO = "conta.movimentacao";
+    
+    public static final String EXCHANGE_CLIENTE = "cliente.exchange";
+    public static final String FILA_CONTA_CLIENTE_ATUALIZADO = "conta.cliente.atualizado.queue";
+    public static final String CHAVE_CLIENTE_ATUALIZADO = "cliente.perfil.alterado";
 
     @Bean
     public DirectExchange exchangeMovimentacao() {
@@ -47,5 +51,17 @@ public class RabbitMqConfiguracao {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(conversorJsonRabbitMq);
         return rabbitTemplate;
+    }
+
+    @Bean
+    public Queue filaContaClienteAtualizado() {
+        return new Queue(FILA_CONTA_CLIENTE_ATUALIZADO, true);
+    }
+
+    @Bean
+    public Binding bindingClienteAtualizado() {
+        return BindingBuilder.bind(filaContaClienteAtualizado())
+            .to(new DirectExchange(EXCHANGE_CLIENTE))
+            .with(CHAVE_CLIENTE_ATUALIZADO);
     }
 }
