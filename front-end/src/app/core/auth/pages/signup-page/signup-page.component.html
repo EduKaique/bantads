@@ -23,7 +23,7 @@
       <app-successful-signup></app-successful-signup>
     </section>
   } @else {
-  <section class="registration-container">
+  <section class="form-section">
     <div class="form-text">
       <h3 class="heading_3">Crie sua conta</h3>
       <p class="body_medium">Preencha suas informações para criar um conta.</p>
@@ -89,7 +89,7 @@
             </div>
 
             <div class="first-button w-full">
-              <button class="button-primary label_large w-full" matStepperNext>
+              <button class="button-primary label_large w-full" type="button" (click)="proximoPasso(stepper)">
                 Próximo
               </button>
             </div>
@@ -184,8 +184,8 @@
                 Voltar
               </button>
               <button
-                class="button-primary label_large"
-                matStepperNext
+              class="button-primary label_large"
+                type="submit"
                 (click)="onSubmit()"
               >
                 Registrar

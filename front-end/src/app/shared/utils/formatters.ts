@@ -2,14 +2,17 @@
 export function formatCpf(cpf: string): string {
   if (!cpf) return '';
 
-  const digits = cpf.replace(/\D/g, '');
+  let digits = cpf.replace(/\D/g, '').slice(0, 11);
 
-  if (digits.length !== 11) return cpf;
+  if (digits.length > 9) {
+    return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+  } else if (digits.length > 6) {
+    return digits.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+  } else if (digits.length > 3) {
+    return digits.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+  }
 
-  return digits.replace(
-    /(\d{3})(\d{3})(\d{3})(\d{2})/,
-    '$1.$2.$3-$4'
-  );
+  return digits;
 }
 
 // ================= CEP =================

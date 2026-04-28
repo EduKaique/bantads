@@ -9,11 +9,11 @@
           <input
             type="text"
             [(ngModel)]="cpfPesquisa"
-            (keyup)="apenasNumeros()"
+            (ngModelChange)="aplicarMascaraCpf($event)"
             (keyup.enter)="pesquisarCliente()"
             placeholder="Digite o CPF..."
             class="search-input"
-            maxlength="11"
+            maxlength="14"
           />
           <button class="search-btn" (click)="pesquisarCliente()" [disabled]="carregando || !validarCpf(cpfPesquisa)">
             {{ carregando ? 'Buscando...' : 'Buscar' }}

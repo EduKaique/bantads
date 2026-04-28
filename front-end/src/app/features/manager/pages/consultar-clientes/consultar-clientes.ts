@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { formatCpf } from '../../../../shared/utils/formatters';
 
 export interface Cliente {
   id: string;
@@ -161,13 +162,7 @@ export class ConsultarClientesComponent implements OnInit {
     let valor = input.value;
 
     if (this.tipoFiltro === 'cpf') {
-      valor = valor.replace(/\D/g, ''); // Remove tudo que não for número
-
-      if (valor.length > 11) valor = valor.slice(0, 11);
-      if (valor.length > 9) valor = valor.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-      else if (valor.length > 6) valor = valor.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
-      else if (valor.length > 3) valor = valor.replace(/(\d{3})(\d{1,3})/, '$1.$2');
-      
+      valor = formatCpf(valor); // Olha que código elegante e limpo!
     } else if (this.tipoFiltro === 'nome') {
       valor = valor.replace(/\d/g, ''); 
     }
