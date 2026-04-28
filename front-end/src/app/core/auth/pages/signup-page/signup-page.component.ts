@@ -151,4 +151,12 @@ export class SignupPageComponent {
     if (control?.hasError('required')) return 'O CPF é obrigatório';
     return 'CPF inválido';
   }
+
+  proximoPasso(stepper: any) {
+    if (this.firstFormGroup.valid) {
+      stepper.next();
+    } else {
+      this.firstFormGroup.markAllAsTouched();
+    }
+  }
 }

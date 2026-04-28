@@ -38,6 +38,7 @@ export interface ClienteDetalhado {
   salario: string;
   saldo: string;
   limite: string;
+  managerDocument?: string;
 }
 
 @Injectable({
@@ -72,6 +73,7 @@ export class DetalheClienteService {
           salario: this.formatarMoeda(cliente.salario),
           saldo: this.formatarMoeda(conta?.availableBalance || 0),
           limite: this.formatarMoeda(conta?.limit || 0),
+          managerDocument: (conta as any)?.managerDocument || (conta as any)?.manager
         };
       }),
     );

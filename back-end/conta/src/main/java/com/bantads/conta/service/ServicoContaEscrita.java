@@ -3,6 +3,7 @@ package com.bantads.conta.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -84,6 +85,37 @@ public class ServicoContaEscrita {
         publicarEvento(criarEvento(conta, TipoMovimentacao.SAQUE, conta.getNumero(), null, valorNormalizado, dataMovimentacao));
 
         return new OperacaoResponse(conta.getNumero(), dataMovimentacao, conta.getSaldo());
+    }
+
+    @Transactional("gerenciadorTransacaoEscrita")
+    public void atualizarLimiteSaga(String cpf, Double novoSalario) {
+        Optional<ContaEscrita> contaOpt = repositorioContaEscrita.findByCliente(cpf);        
+       
+        if (contaOpt.isEmpty()) {
+            System.out.println("SAGA [Aviso]: CPF " + cpf + " não possui conta. Ignorando evento.");
+            return;
+        }
+
+        ContaEscrita conta = contaOpt.get();
+        BigDecimal salario = BigDecimal.valueOf(novoSalario);
+        BigDecimal novoLimite = BigDecimal.ZERO;
+
+        if (salario.compareTo(new BigDecimal("2000.00")) >= 0) {
+            novoLimite = salario.multiply(new BigDecimal("0.5"));
+        }
+
+        BigDecimal saldoAtual = conta.getSaldo();
+        if (saldoAtual.compareTo(BigDecimal.ZERO) < 0) {
+            BigDecimal divida = saldoAtual.abs();
+            if (novoLimite.compareTo(divida) < 0) {
+                novoLimite = divida;
+            }
+        }
+
+        conta.setLimite(normalizarValorMonetario(novoLimite));
+        repositorioContaEscrita.save(conta);
+        
+        System.out.println("SAGA [Sucesso]: Limite do CPF " + cpf + " atualizado para R$ " + novoLimite);
     }
 
     @Transactional("gerenciadorTransacaoEscrita")

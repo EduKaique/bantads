@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { DetalheClienteService, ClienteDetalhado } from '../../services/detalhe-cliente.service';
 import { formatCpf, formatPhone, formatCep } from '../../../../shared/utils/formatters';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-consultar-cliente',
@@ -15,6 +16,7 @@ import { formatCpf, formatPhone, formatCep } from '../../../../shared/utils/form
 export class ConsultarClienteComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly detalheClienteService = inject(DetalheClienteService);
+  private readonly authService = inject(AuthService);
 
   cpfPesquisa: string = '';
   clienteAtual: ClienteDetalhado | null = null;
@@ -32,13 +34,13 @@ export class ConsultarClienteComponent implements OnInit {
       const cpfDaUrl = params.get('cpf');
       if (cpfDaUrl) {
         this.cpfPesquisa = cpfDaUrl;
-        this.pesquisarCliente(); // ✅ sem setTimeout
+        this.pesquisarCliente();
       }
     });
   }
 
-  apenasNumeros(): void {
-    this.cpfPesquisa = this.cpfPesquisa.replace(/\D/g, '');
+  aplicarMascaraCpf(valor: string): void {
+    this.cpfPesquisa = this.formatCpf(valor);
   }
 
   validarCpf(cpf: string): boolean {
@@ -75,6 +77,18 @@ export class ConsultarClienteComponent implements OnInit {
     this.detalheClienteService.obterClienteDetalhadoPorCpf(cpfLimpo).subscribe({
       next: (cliente) => {
         if (cliente) {
+          const gerenteLogado = this.authService.currentUserValue;
+          const cpfGerenteLogado = gerenteLogado?.cpf ? gerenteLogado.cpf.replace(/\D/g, '') : '';
+          const docGerenteConta = cliente.managerDocument ? String(cliente.managerDocument) : '';
+          const managerCpfLimpo = docGerenteConta.replace(/\D/g, '');
+
+          if (managerCpfLimpo && managerCpfLimpo !== cpfGerenteLogado) {
+            this.clienteAtual = null;
+            this.erro = 'Acesso Negado: Este cliente pertence a outro gerente.';
+            this.carregando = false;
+            return;
+          }
+          
           this.clienteAtual = cliente;
           this.erro = '';
         } else {

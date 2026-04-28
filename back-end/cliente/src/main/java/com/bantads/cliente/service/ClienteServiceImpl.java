@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.bantads.cliente.mensageria.ClienteAtualizadoEvent;
+import com.bantads.cliente.mensageria.EventoAlteracaoPerfilInterno;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,9 +19,11 @@ import java.util.stream.Collectors;
 public class ClienteServiceImpl implements ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public ClienteServiceImpl(ClienteRepository clienteRepository) {
+    public ClienteServiceImpl(ClienteRepository clienteRepository, ApplicationEventPublisher eventPublisher) {
         this.clienteRepository = clienteRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -88,7 +93,6 @@ public class ClienteServiceImpl implements ClienteService {
         if (dto.getEmail() != null) cliente.setEmail(dto.getEmail());
         if (dto.getSalario() != null) cliente.setSalario(dto.getSalario());
 
-        // --- NOVOS CAMPOS DE ENDEREÇO ---
         if (dto.getCep() != null) cliente.setCep(dto.getCep());
         if (dto.getLogradouro() != null) cliente.setLogradouro(dto.getLogradouro());
         if (dto.getNumero() != null) cliente.setNumero(dto.getNumero());
@@ -98,6 +102,14 @@ public class ClienteServiceImpl implements ClienteService {
         if (dto.getEstado() != null) cliente.setEstado(dto.getEstado());
 
         clienteRepository.save(cliente);
+        // DISPARAR SAGA (Publicar evento interno após salvar com sucesso)
+        ClienteAtualizadoEvent payload = new ClienteAtualizadoEvent(
+                cliente.getCpf(),
+                cliente.getNome(),
+                cliente.getEmail(),
+                cliente.getSalario()
+        );
+        eventPublisher.publishEvent(new EventoAlteracaoPerfilInterno(payload));
     }
 
     @Override

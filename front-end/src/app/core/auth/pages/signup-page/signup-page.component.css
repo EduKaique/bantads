@@ -1,8 +1,11 @@
 main {
   display: flex;
-  padding: 8px 0 8px 8px;
-  padding-right: 0;
-  background-color: #fafafa;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-card, #FAFAFA);
 }
 
 section {
@@ -13,12 +16,16 @@ section {
 }
 
 .illustration-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   width: 60%;
-  border-radius: var(--radius-lg, 24px);
-  background: var(--color-green-900, #08462e);
-  padding: 0 var(--spacing-3xl, 64px);
+  height: 100%;
+  border-radius: 0 var(--radius-lg, 24px) var(--radius-lg, 24px) 0;
+  background: var(--color-green-900, #08462E);
+  padding: var(--spacing-3xl, 64px);
   gap: 16px;
-  padding-top: 16px;
+  box-sizing: border-box;
 }
 
 .title-login {
@@ -32,7 +39,9 @@ section {
 
 .container-illustration {
   display: flex;
+  flex: 1;
   justify-content: center;
+  align-items: center;
   width: 100%;
 }
 
@@ -58,6 +67,20 @@ section {
   gap: var(--spacing-xl, 40px);
   flex-shrink: 0;
   background: var(--color-card, #fafafa);
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 40%;
+  height: 100%;
+  padding: var(--spacing-lg, 32px) var(--spacing-xl, 40px);
+  gap: var(--spacing-xl, 40px);
+  box-sizing: border-box;
+  background: var(--color-card, #FAFAFA);
+  overflow-y: auto;
 }
 
 .form-text {
@@ -162,4 +185,14 @@ section {
   .registration-container {
     width: 100%;
   }
+}
+
+mat-stepper {
+  width: 100%;
+  background: transparent;
+}
+
+@media (max-width: 720px) {
+  .illustration-section { display: none; }
+  .form-section { width: 100%; align-items: center; }
 }
