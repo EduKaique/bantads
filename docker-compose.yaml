@@ -34,7 +34,7 @@ services:
       - maven-repo:/root/.m2
       - /app/node_modules
     environment:
-    - SECRET=secret        # <- adicionar isso
+    - SECRET=secret        
     - PORT=8080
     restart: unless-stopped
 
