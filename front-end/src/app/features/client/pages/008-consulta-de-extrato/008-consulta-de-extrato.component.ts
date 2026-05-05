@@ -43,6 +43,7 @@ export class ConsultaExtratoPageComponent implements OnInit {
   private readonly clientAccountService = inject(ClientAccountService);
 
   readonly saldoAtual = signal(0);
+  readonly erroCarregamento = signal<string | null>(null);
 
   dataSelecionadaInicio = new Date(2026, 0, 1);
   dataSelecionadaFim = new Date(2026, 11, 31);
@@ -71,12 +72,23 @@ export class ConsultaExtratoPageComponent implements OnInit {
     return 'attach_money';
   }
 
+  isSaldoAtualNegativo(): boolean {
+    return this.saldoAtual() < 0;
+  }
+
   onDataInicioChange(event: { value: Date | null }): void {
     if (!event.value) {
       return;
     }
 
+    // Validar se a data inicial não é posterior à data final
+    if (event.value > this.dataSelecionadaFim) {
+      this.erroCarregamento.set('Data inicial não pode ser posterior à data final');
+      return;
+    }
+
     this.dataSelecionadaInicio = event.value;
+    this.erroCarregamento.set(null);
     this.persistirFiltroDaSessao();
     this.filtrarEAgruparTransacoes();
   }
@@ -86,7 +98,14 @@ export class ConsultaExtratoPageComponent implements OnInit {
       return;
     }
 
+    // Validar se a data final não é anterior à data inicial
+    if (event.value < this.dataSelecionadaInicio) {
+      this.erroCarregamento.set('Data final não pode ser anterior à data inicial');
+      return;
+    }
+
     this.dataSelecionadaFim = event.value;
+    this.erroCarregamento.set(null);
     this.persistirFiltroDaSessao();
     this.filtrarEAgruparTransacoes();
   }
@@ -97,6 +116,7 @@ export class ConsultaExtratoPageComponent implements OnInit {
     if (!cpf) {
       this.transacoes = [];
       this.saldoAtual.set(0);
+      this.erroCarregamento.set('Usuário não autenticado');
       this.filtrarEAgruparTransacoes();
       return;
     }
@@ -117,12 +137,15 @@ export class ConsultaExtratoPageComponent implements OnInit {
           movimentacoes,
           extrato.numeroConta,
         );
+        this.erroCarregamento.set(null);
         this.filtrarEAgruparTransacoes();
       },
-      error: () => {
+      error: (erro) => {
         this.saldoAtual.set(0);
         this.transacoes = [];
+        this.erroCarregamento.set('Erro ao carregar extrato. Tente novamente mais tarde.');
         this.filtrarEAgruparTransacoes();
+        console.error('Erro ao carregar extrato:', erro);
       },
     });
   }

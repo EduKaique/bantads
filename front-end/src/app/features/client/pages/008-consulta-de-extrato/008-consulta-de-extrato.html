@@ -4,16 +4,19 @@
     <div class="header">
       <h1 class="title">Histórico de Transações</h1>
       
-      <div class="balance-section">
+      <div class="balance-section" role="region" aria-label="Saldo atual da conta">
         <span class="balance-label">Saldo Atual</span>
-        <h2 class="balance-amount">{{ saldoAtual() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</h2>
+        <h2 class="balance-amount" [class.negative-balance]="isSaldoAtualNegativo()">
+          {{ saldoAtual() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+        </h2>
       </div>
 
       <div class="date-filters">
         <div class="date-field">
-          <label class="date-label">Data Inicial</label>
+          <label class="date-label" for="data-inicio">Data Inicial</label>
           <div class="input-wrapper">
             <input
+              id="data-inicio"
               matInput
               [matDatepicker]="pickerInicio"
               [value]="dataSelecionadaInicio"
@@ -22,6 +25,7 @@
               class="date-input"
               placeholder="DD/MM/YYYY"
               readonly
+              aria-label="Selecionar data inicial do extrato"
             />
             <mat-datepicker-toggle [for]="pickerInicio" class="calendar-toggle"></mat-datepicker-toggle>
             <mat-datepicker #pickerInicio></mat-datepicker>
@@ -29,9 +33,10 @@
         </div>
 
         <div class="date-field">
-          <label class="date-label">Data Final</label>
+          <label class="date-label" for="data-fim">Data Final</label>
           <div class="input-wrapper">
             <input
+              id="data-fim"
               matInput
               [matDatepicker]="pickerFim"
               [value]="dataSelecionadaFim"
@@ -40,6 +45,7 @@
               class="date-input"
               placeholder="DD/MM/YYYY"
               readonly
+              aria-label="Selecionar data final do extrato"
             />
             <mat-datepicker-toggle [for]="pickerFim" class="calendar-toggle"></mat-datepicker-toggle>
             <mat-datepicker #pickerFim></mat-datepicker>
@@ -49,8 +55,14 @@
     </div>
 
 
-    <div class="transactions-list">
-      <div *ngIf="transacoesPorData.length === 0" class="empty-state">
+    @if (erroCarregamento()) {
+      <div class="error-state" role="alert" aria-live="assertive">
+        <p class="error-message">{{ erroCarregamento() }}</p>
+      </div>
+    }
+
+    <div class="transactions-list" role="region" aria-label="Histórico de transações">
+      <div *ngIf="transacoesPorData.length === 0 && !erroCarregamento()" class="empty-state" role="status">
         <p class="empty-message">Selecione um intervalo de datas para visualizar seu extrato</p>
       </div>
 
@@ -94,9 +106,9 @@
               </div>
 
 
-              <div class="transaction-amount" [class.negative]="transacao.operacaoColor === 'red'">
-                <span class="sign">{{ transacao.operacaoColor === 'red' ? '-' : '+' }}</span>
-                <span class="amount">{{ transacao.valor }}</span>
+              <div class="transaction-amount" [class.negative]="transacao.operacaoColor === 'red'" [attr.aria-label]="(transacao.operacaoColor === 'red' ? 'Saída: ' : 'Entrada: ') + transacao.valor">
+                <span class="sign" aria-hidden="true">{{ transacao.operacaoColor === 'red' ? '-' : '+' }}</span>
+                <span class="amount">{{ transacao.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
               </div>
             </div>
           </div>
