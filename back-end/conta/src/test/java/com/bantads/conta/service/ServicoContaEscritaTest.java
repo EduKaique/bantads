@@ -29,6 +29,8 @@ import com.bantads.conta.dto.TransferenciaResponse;
 import com.bantads.conta.entity.escrita.ContaEscrita;
 import com.bantads.conta.entity.escrita.MovimentacaoEscrita;
 import com.bantads.conta.mensageria.EventoMovimentacaoContaInterno;
+import com.bantads.conta.mensageria.aprovacao.ComandoCriacaoContaAprovacao;
+import com.bantads.conta.mensageria.aprovacao.ResultadoContaAprovacao;
 import com.bantads.conta.repository.escrita.RepositorioContaEscrita;
 import com.bantads.conta.repository.escrita.RepositorioMovimentacaoEscrita;
 
@@ -44,6 +46,9 @@ class ServicoContaEscritaTest {
     @Mock
     private ApplicationEventPublisher publicadorEvento;
 
+    @Mock
+    private ServicoContaLeitura servicoContaLeitura;
+
     @InjectMocks
     private ServicoContaEscrita servicoContaEscrita;
 
@@ -52,6 +57,9 @@ class ServicoContaEscritaTest {
 
     @Captor
     private ArgumentCaptor<EventoMovimentacaoContaInterno> eventoCaptor;
+
+    @Captor
+    private ArgumentCaptor<ContaEscrita> contaCaptor;
 
     private ContaEscrita contaOrigem;
     private ContaEscrita contaDestino;
@@ -135,6 +143,112 @@ class ServicoContaEscritaTest {
         assertEquals(2, movimentacoes.size());
         assertEquals("4321", movimentacoes.getFirst().getConta());
         assertEquals("8765", movimentacoes.getLast().getConta());
+    }
+
+    @Test
+    void deveCriarContaAprovacaoComLimitePelaMetadeDoSalario() {
+        ComandoCriacaoContaAprovacao comando = new ComandoCriacaoContaAprovacao(
+            "saga-1",
+            "12345678901",
+            "33427040046",
+            new BigDecimal("3000.00"),
+            BigDecimal.ZERO,
+            "cliente@bantads.com"
+        );
+
+        when(repositorioContaEscrita.findByCliente("12345678901")).thenReturn(Optional.empty());
+        when(repositorioContaEscrita.existsById(any())).thenReturn(false);
+
+        ResultadoContaAprovacao resultado = servicoContaEscrita.criarContaAprovacao(comando);
+
+        verify(repositorioContaEscrita).save(contaCaptor.capture());
+        ContaEscrita conta = contaCaptor.getValue();
+        verify(servicoContaLeitura).salvarProjecaoConta(conta);
+        assertEquals(true, resultado.sucesso());
+        assertEquals(true, resultado.contaCriada());
+        assertEquals(new BigDecimal("1500.00"), conta.getLimite());
+        assertEquals(BigDecimal.ZERO.setScale(2), conta.getSaldo());
+        assertEquals("12345678901", conta.getCliente());
+        assertEquals("33427040046", conta.getGerente());
+        assertEquals("saga-1", conta.getIdSagaAprovacao());
+        assertEquals(4, conta.getNumero().length());
+    }
+
+    @Test
+    void deveCriarContaAprovacaoComLimiteZeroParaSalarioAbaixoDoMinimo() {
+        ComandoCriacaoContaAprovacao comando = new ComandoCriacaoContaAprovacao(
+            "saga-2",
+            "12345678902",
+            "33427040046",
+            new BigDecimal("1999.99"),
+            BigDecimal.ZERO,
+            "cliente2@bantads.com"
+        );
+
+        when(repositorioContaEscrita.findByCliente("12345678902")).thenReturn(Optional.empty());
+        when(repositorioContaEscrita.existsById(any())).thenReturn(false);
+
+        ResultadoContaAprovacao resultado = servicoContaEscrita.criarContaAprovacao(comando);
+
+        verify(repositorioContaEscrita).save(contaCaptor.capture());
+        assertEquals(true, resultado.sucesso());
+        assertEquals(true, resultado.contaCriada());
+        assertEquals(BigDecimal.ZERO.setScale(2), contaCaptor.getValue().getLimite());
+    }
+
+    @Test
+    void deveResponderSucessoSemRecriarContaExistente() {
+        ContaEscrita conta = criarConta("1234", "12345678901", BigDecimal.ZERO, new BigDecimal("1500.00"));
+        when(repositorioContaEscrita.findByCliente("12345678901")).thenReturn(Optional.of(conta));
+
+        ResultadoContaAprovacao resultado = servicoContaEscrita.criarContaAprovacao(new ComandoCriacaoContaAprovacao(
+            "saga-3",
+            "12345678901",
+            "33427040046",
+            new BigDecimal("3000.00"),
+            BigDecimal.ZERO,
+            "cliente@bantads.com"
+        ));
+
+        assertEquals(true, resultado.sucesso());
+        assertEquals(false, resultado.contaCriada());
+        assertEquals("1234", resultado.numeroConta());
+        verify(repositorioContaEscrita, never()).save(any());
+        verify(servicoContaLeitura).salvarProjecaoConta(conta);
+    }
+
+    @Test
+    void deveRemoverProjecaoAoCompensarContaAprovacao() {
+        ContaEscrita conta = criarConta("1234", "12345678901", BigDecimal.ZERO, new BigDecimal("1500.00"));
+        conta.setIdSagaAprovacao("saga-1");
+        when(repositorioContaEscrita.findById("1234")).thenReturn(Optional.of(conta));
+
+        ResultadoContaAprovacao resultado = servicoContaEscrita.compensarContaAprovacao(
+            "saga-1",
+            "12345678901",
+            "1234"
+        );
+
+        assertEquals(true, resultado.sucesso());
+        verify(repositorioContaEscrita).delete(conta);
+        verify(servicoContaLeitura).removerProjecaoConta("1234");
+    }
+
+    @Test
+    void naoDeveCompensarContaCriadaPorOutraSaga() {
+        ContaEscrita conta = criarConta("1234", "12345678901", BigDecimal.ZERO, new BigDecimal("1500.00"));
+        conta.setIdSagaAprovacao("outra-saga");
+        when(repositorioContaEscrita.findById("1234")).thenReturn(Optional.of(conta));
+
+        ResultadoContaAprovacao resultado = servicoContaEscrita.compensarContaAprovacao(
+            "saga-1",
+            "12345678901",
+            "1234"
+        );
+
+        assertEquals(true, resultado.sucesso());
+        verify(repositorioContaEscrita, never()).delete(any());
+        verify(servicoContaLeitura, never()).removerProjecaoConta(any());
     }
 
     private ContaEscrita criarConta(String numero, String cliente, BigDecimal saldo, BigDecimal limite) {

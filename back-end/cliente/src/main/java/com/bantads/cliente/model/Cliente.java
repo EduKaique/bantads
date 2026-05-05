@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.time.OffsetDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,6 +32,11 @@ public class Cliente {
     @Column(nullable = false)
     private StatusCliente status;
 
+    @Column(length = 11)
+    private String cpfGerenteResponsavel;
+
+    private OffsetDateTime dataSolicitacao;
+
     private String endereco;
     private String cep;
     private String cidade;
@@ -38,4 +45,11 @@ public class Cliente {
     private String numero;
     private String complemento;
     private String bairro;
+
+    @PrePersist
+    public void prepararCadastro() {
+        if (dataSolicitacao == null) {
+            dataSolicitacao = OffsetDateTime.now();
+        }
+    }
 }

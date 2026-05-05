@@ -3,11 +3,11 @@ package com.bantads.auth;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import com.bantads.auth.dto.AutocadastroInfoDTO;
+import com.bantads.auth.dto.InformacaoAutocadastroDTO;
 import com.bantads.auth.model.TipoUsuario;
 import com.bantads.auth.repository.UserRepository;
-import com.bantads.auth.security.Sha256SaltPasswordEncoder;
 import com.bantads.auth.model.User;
 
 @Component
@@ -17,13 +17,13 @@ public class UsuarioSagaConsumer {
     private UserRepository userRepository;
 
     @Autowired
-    private Sha256SaltPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
     @RabbitListener(queues = "saga.autocadastro.auth")
-    public void CriarUsuarioSaga(AutocadastroInfoDTO dto) {
+    public void criarUsuarioSaga(InformacaoAutocadastroDTO dto) {
         try{
             User novoUsuario = new User();
             novoUsuario.setNome(dto.getNome());
@@ -41,7 +41,7 @@ public class UsuarioSagaConsumer {
     }
 
     @RabbitListener(queues = "saga.autocadastro.auth.rollback")
-    public void cancelarUsuarioSaga(AutocadastroInfoDTO dto) {
+    public void cancelarUsuarioSaga(InformacaoAutocadastroDTO dto) {
         userRepository.findByEmail(dto.getEmail())
             .ifPresent(user -> userRepository.delete(user));
         System.out.println("Rollback realizado: Usuário removido do MS Auth.");

@@ -18,9 +18,14 @@ public class ClienteController {
     }
 
     @GetMapping({"", "/", "/manager/pedidos-autocadastro"})
-    public ResponseEntity<?> listarClientes(@RequestParam(required = false) String filtro) {
+    public ResponseEntity<?> listarClientes(
+        @RequestParam(required = false) String filtro,
+        @RequestParam(required = false) String cpfGerente,
+        @RequestHeader(value = "X-Usuario-Cpf", required = false) String cpfGerenteSolicitante,
+        @RequestHeader(value = "X-Usuario-Tipo", required = false) String tipoUsuario
+    ) {
         if ("para_aprovar".equalsIgnoreCase(filtro)) {
-            return ResponseEntity.ok(clienteService.listarParaAprovar());
+            return ResponseEntity.ok(clienteService.listarParaAprovar(cpfGerenteSolicitante, tipoUsuario, cpfGerente));
         }
         return ResponseEntity.ok(clienteService.listarTodos());
     }
@@ -43,9 +48,23 @@ public class ClienteController {
     }
 
     @PostMapping("/{cpf}/aprovar")
-    public ResponseEntity<?> aprovarCliente(@PathVariable String cpf) {
-        clienteService.aprovar(cpf);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<RespostaAprovacaoClienteDTO> aprovarCliente(
+        @PathVariable String cpf,
+        @RequestHeader(value = "X-Usuario-Cpf", required = false) String cpfGerenteSolicitante,
+        @RequestHeader(value = "X-Usuario-Tipo", required = false) String tipoUsuario
+    ) {
+        return ResponseEntity
+            .status(HttpStatus.ACCEPTED)
+            .body(clienteService.aprovar(cpf, cpfGerenteSolicitante, tipoUsuario));
+    }
+
+    @GetMapping("/aprovacoes/{idSaga}")
+    public ResponseEntity<RespostaAprovacaoClienteDTO> consultarAprovacao(
+        @PathVariable String idSaga,
+        @RequestHeader(value = "X-Usuario-Cpf", required = false) String cpfGerenteSolicitante,
+        @RequestHeader(value = "X-Usuario-Tipo", required = false) String tipoUsuario
+    ) {
+        return ResponseEntity.ok(clienteService.consultarAprovacao(idSaga, cpfGerenteSolicitante, tipoUsuario));
     }
 
     @PostMapping("/{cpf}/rejeitar")

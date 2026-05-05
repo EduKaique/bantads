@@ -2,6 +2,7 @@ package com.bantads.conta.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.bantads.conta.dto.OperacaoResponse;
@@ -18,6 +20,8 @@ import com.bantads.conta.entity.escrita.MovimentacaoEscrita;
 import com.bantads.conta.mensageria.EventoMovimentacaoConta;
 import com.bantads.conta.mensageria.EventoMovimentacaoContaInterno;
 import com.bantads.conta.mensageria.TipoMovimentacao;
+import com.bantads.conta.mensageria.aprovacao.ComandoCriacaoContaAprovacao;
+import com.bantads.conta.mensageria.aprovacao.ResultadoContaAprovacao;
 import com.bantads.conta.repository.escrita.RepositorioContaEscrita;
 import com.bantads.conta.repository.escrita.RepositorioMovimentacaoEscrita;
 
@@ -27,15 +31,95 @@ public class ServicoContaEscrita {
     private final RepositorioContaEscrita repositorioContaEscrita;
     private final RepositorioMovimentacaoEscrita repositorioMovimentacaoEscrita;
     private final ApplicationEventPublisher publicadorEvento;
+    private final ServicoContaLeitura servicoContaLeitura;
+    private final SecureRandom sorteador = new SecureRandom();
 
     public ServicoContaEscrita(
         RepositorioContaEscrita repositorioContaEscrita,
         RepositorioMovimentacaoEscrita repositorioMovimentacaoEscrita,
-        ApplicationEventPublisher publicadorEvento
+        ApplicationEventPublisher publicadorEvento,
+        ServicoContaLeitura servicoContaLeitura
     ) {
         this.repositorioContaEscrita = repositorioContaEscrita;
         this.repositorioMovimentacaoEscrita = repositorioMovimentacaoEscrita;
         this.publicadorEvento = publicadorEvento;
+        this.servicoContaLeitura = servicoContaLeitura;
+    }
+
+    @Transactional("gerenciadorTransacaoEscrita")
+    public ResultadoContaAprovacao criarContaAprovacao(ComandoCriacaoContaAprovacao comando) {
+        try {
+            validarComandoCriacaoConta(comando);
+
+            Optional<ContaEscrita> contaExistente = repositorioContaEscrita.findByCliente(comando.cpfCliente());
+            if (contaExistente.isPresent()) {
+                ContaEscrita conta = contaExistente.get();
+                servicoContaLeitura.salvarProjecaoConta(conta);
+                return new ResultadoContaAprovacao(
+                    comando.idSaga(),
+                    comando.cpfCliente(),
+                    true,
+                    conta.getNumero(),
+                    conta.getLimite(),
+                    false,
+                    "Conta ja existente para o cliente"
+                );
+            }
+
+            ContaEscrita conta = new ContaEscrita();
+            conta.setNumero(gerarNumeroConta());
+            conta.setCliente(comando.cpfCliente());
+            conta.setGerente(comando.cpfGerenteResponsavel());
+            conta.setSaldo(normalizarValorMonetario(valorOuZero(comando.saldoInicial())));
+            conta.setLimite(calcularLimite(comando.salario()));
+            conta.setCriacao(OffsetDateTime.now());
+            conta.setIdSagaAprovacao(comando.idSaga());
+
+            repositorioContaEscrita.save(conta);
+            servicoContaLeitura.salvarProjecaoConta(conta);
+
+            return new ResultadoContaAprovacao(
+                comando.idSaga(),
+                comando.cpfCliente(),
+                true,
+                conta.getNumero(),
+                conta.getLimite(),
+                true,
+                "Conta criada com sucesso"
+            );
+        } catch (Exception e) {
+            String idSaga = comando != null ? comando.idSaga() : null;
+            String cpfCliente = comando != null ? comando.cpfCliente() : null;
+            marcarTransacaoAtualParaRollback();
+            return new ResultadoContaAprovacao(
+                idSaga,
+                cpfCliente,
+                false,
+                null,
+                null,
+                false,
+                e.getMessage()
+            );
+        }
+    }
+
+    @Transactional("gerenciadorTransacaoEscrita")
+    public ResultadoContaAprovacao compensarContaAprovacao(String idSaga, String cpfCliente, String numeroConta) {
+        Optional<ContaEscrita> contaExistente = repositorioContaEscrita.findById(numeroConta);
+        if (contaExistente.isPresent() && deveCompensarConta(contaExistente.get(), idSaga, cpfCliente)) {
+            repositorioContaEscrita.delete(contaExistente.get());
+            servicoContaLeitura.removerProjecaoConta(numeroConta);
+        }
+
+        return new ResultadoContaAprovacao(
+            idSaga,
+            cpfCliente,
+            true,
+            numeroConta,
+            null,
+            false,
+            "Conta compensada com sucesso"
+        );
     }
 
     @Transactional("gerenciadorTransacaoEscrita")
@@ -190,6 +274,61 @@ public class ServicoContaEscrita {
 
     private BigDecimal normalizarValorMonetario(BigDecimal valor) {
         return valor.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private void validarComandoCriacaoConta(ComandoCriacaoContaAprovacao comando) {
+        if (comando == null) {
+            throw new IllegalArgumentException("Comando de criacao de conta ausente");
+        }
+        if (estaEmBranco(comando.idSaga()) || estaEmBranco(comando.cpfCliente()) || estaEmBranco(comando.cpfGerenteResponsavel())) {
+            throw new IllegalArgumentException("Dados obrigatorios da conta ausentes");
+        }
+        if (comando.salario() == null || comando.salario().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Salario invalido para abertura de conta");
+        }
+    }
+
+    private BigDecimal calcularLimite(BigDecimal salario) {
+        BigDecimal salarioNormalizado = normalizarValorMonetario(salario);
+        if (salarioNormalizado.compareTo(new BigDecimal("2000.00")) < 0) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        }
+        return normalizarValorMonetario(salarioNormalizado.divide(new BigDecimal("2.00"), RoundingMode.HALF_UP));
+    }
+
+    private BigDecimal valorOuZero(BigDecimal valor) {
+        if (valor == null) {
+            return BigDecimal.ZERO;
+        }
+        return valor;
+    }
+
+    private String gerarNumeroConta() {
+        for (int tentativa = 0; tentativa < 100; tentativa++) {
+            String numero = String.format("%04d", sorteador.nextInt(10000));
+            if (!repositorioContaEscrita.existsById(numero)) {
+                return numero;
+            }
+        }
+        throw new IllegalStateException("Nao foi possivel gerar numero de conta livre");
+    }
+
+    private boolean estaEmBranco(String valor) {
+        return valor == null || valor.isBlank();
+    }
+
+    private boolean deveCompensarConta(ContaEscrita conta, String idSaga, String cpfCliente) {
+        return cpfCliente != null
+            && cpfCliente.equals(conta.getCliente())
+            && idSaga != null
+            && idSaga.equals(conta.getIdSagaAprovacao());
+    }
+
+    private void marcarTransacaoAtualParaRollback() {
+        try {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        } catch (Exception excecao) {
+        }
     }
 
     private MovimentacaoEscrita criarMovimentacao(

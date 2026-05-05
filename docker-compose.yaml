@@ -68,8 +68,10 @@ services:
       - "8081:8080"
     depends_on:
       - mongodb-auth
+      - rabbitmq
     environment:
       - MONGO_URI=mongodb://mongodb-auth:27017/bantads_auth
+      - RABBITMQ_HOST=rabbitmq
     volumes:
       - ./back-end/auth:/app
       - maven-repo:/root/.m2

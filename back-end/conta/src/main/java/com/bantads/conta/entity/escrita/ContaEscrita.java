@@ -31,6 +31,9 @@ public class ContaEscrita {
     @Column(nullable = false)
     private OffsetDateTime criacao;
 
+    @Column(length = 36)
+    private String idSagaAprovacao;
+
     public String getNumero() {
         return numero;
     }
@@ -77,5 +80,13 @@ public class ContaEscrita {
 
     public void setCriacao(OffsetDateTime criacao) {
         this.criacao = criacao;
+    }
+
+    public String getIdSagaAprovacao() {
+        return idSagaAprovacao;
+    }
+
+    public void setIdSagaAprovacao(String idSagaAprovacao) {
+        this.idSagaAprovacao = idSagaAprovacao;
     }
 }
