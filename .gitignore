@@ -47,6 +47,7 @@ front-end/Thumbs.db
 
 back-end/HELP.md
 back-end/target/
+back-end/.m2/
 back-end/.mvn/wrapper/maven-wrapper.jar
 back-end/!**/src/main/**/target/
 back-end/!**/src/test/**/target/

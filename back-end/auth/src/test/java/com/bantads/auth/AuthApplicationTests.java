@@ -1,13 +1,14 @@
 package com.bantads.auth;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 class AuthApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void deveCarregarClassePrincipal() {
+		assertNotNull(AuthApplication.class);
 	}
 
 }

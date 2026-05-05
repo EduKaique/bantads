@@ -6,6 +6,7 @@ public class AutocadastroInfoDTO {
     private String nome;
     private String telefone;
     private Double salario;
+    private String cpfGerenteResponsavel;
     
     private String cep;
     private String logradouro;
@@ -21,6 +22,7 @@ public class AutocadastroInfoDTO {
     public String getNome() { return nome; }
     public String getTelefone() { return telefone; }
     public Double getSalario() { return salario; }
+    public String getCpfGerenteResponsavel() { return cpfGerenteResponsavel; }
     public String getCep() { return cep; }
     public String getLogradouro() { return logradouro; }
     public String getNumero() { return numero; }
@@ -35,6 +37,7 @@ public class AutocadastroInfoDTO {
     public void setNome(String nome) { this.nome = nome; }
     public void setTelefone(String telefone) { this.telefone = telefone; }
     public void setSalario(Double salario) { this.salario = salario; }
+    public void setCpfGerenteResponsavel(String cpfGerenteResponsavel) { this.cpfGerenteResponsavel = cpfGerenteResponsavel; }
     public void setCep(String cep) { this.cep = cep; }
     public void setLogradouro(String logradouro) { this.logradouro = logradouro; }
     public void setNumero(String numero) { this.numero = numero; }

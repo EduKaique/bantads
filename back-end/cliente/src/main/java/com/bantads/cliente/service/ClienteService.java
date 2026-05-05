@@ -10,13 +10,15 @@ public interface ClienteService {
 
     ClienteResponseDTO buscarPorCpf(String cpf);
 
-    List<ClienteParaAprovarResponseDTO> listarParaAprovar();
+    List<ClienteParaAprovarResponseDTO> listarParaAprovar(String cpfGerenteSolicitante, String tipoUsuario, String cpfGerenteFiltro);
 
     List<ClienteResponseDTO> listarTodos();
 
     void alterarPerfil(String cpf, PerfilInfoDTO dto);
 
-    void aprovar(String cpf);
+    RespostaAprovacaoClienteDTO aprovar(String cpf, String cpfGerenteSolicitante, String tipoUsuario);
+
+    RespostaAprovacaoClienteDTO consultarAprovacao(String idSaga, String cpfGerenteSolicitante, String tipoUsuario);
 
     void rejeitar(String cpf, MotivoRejeicaoDTO motivo);
 }

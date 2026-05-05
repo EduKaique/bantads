@@ -1,7 +1,10 @@
 package com.bantads.cliente.dto;
 
 import com.bantads.cliente.model.Cliente;
+import com.bantads.cliente.model.StatusCliente;
 import lombok.Data;
+
+import java.time.OffsetDateTime;
 
 @Data
 public class ClienteParaAprovarResponseDTO {
@@ -10,6 +13,9 @@ public class ClienteParaAprovarResponseDTO {
     private String nome;
     private String email;
     private Double salario;
+    private String cpfGerenteResponsavel;
+    private OffsetDateTime dataSolicitacao;
+    private StatusCliente status;
     
     private String cep;
     private String logradouro;
@@ -25,6 +31,9 @@ public class ClienteParaAprovarResponseDTO {
         dto.setNome(c.getNome());
         dto.setEmail(c.getEmail());
         dto.setSalario(c.getSalario());
+        dto.setCpfGerenteResponsavel(c.getCpfGerenteResponsavel());
+        dto.setDataSolicitacao(c.getDataSolicitacao());
+        dto.setStatus(c.getStatus());
         
         dto.setCep(c.getCep());
         dto.setLogradouro(c.getLogradouro());

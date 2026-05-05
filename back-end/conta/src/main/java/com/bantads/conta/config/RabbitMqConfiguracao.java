@@ -28,6 +28,15 @@ public class RabbitMqConfiguracao {
     public static final String FILA_RESPOSTA_ATRIBUICAO_CONTA = "gerente.resposta-atribuicao.queue";
     public static final String CHAVE_RESPOSTA_ATRIBUICAO_CONTA = "gerente.resposta-atribuicao";
 
+    public static final String EXCHANGE_APROVACAO_CLIENTE = "cliente.aprovacao.exchange";
+    public static final String FILA_CRIAR_CONTA_APROVACAO = "conta.aprovacao.criar.queue";
+    public static final String FILA_COMPENSAR_CONTA_APROVACAO = "conta.aprovacao.compensar.queue";
+    public static final String CHAVE_CRIAR_CONTA_APROVACAO = "aprovacao.conta.criar";
+    public static final String CHAVE_COMPENSAR_CONTA_APROVACAO = "aprovacao.conta.compensar";
+    public static final String CHAVE_CONTA_CRIADA_APROVACAO = "aprovacao.conta.criada";
+    public static final String CHAVE_CONTA_FALHA_APROVACAO = "aprovacao.conta.falha";
+    public static final String CHAVE_CONTA_COMPENSADA_APROVACAO = "aprovacao.conta.compensada";
+
     @Bean
     public DirectExchange exchangeMovimentacao() {
         return new DirectExchange(EXCHANGE_MOVIMENTACAO);
@@ -77,6 +86,35 @@ public class RabbitMqConfiguracao {
         return BindingBuilder.bind(filaRespostaAtribuicaoConta)
             .to(exchangeInsercaoGerente)
             .with(CHAVE_RESPOSTA_ATRIBUICAO_CONTA);
+    }
+
+    @Bean
+    public DirectExchange exchangeAprovacaoCliente() {
+        return new DirectExchange(EXCHANGE_APROVACAO_CLIENTE, true, false);
+    }
+
+    @Bean
+    public Queue filaCriarContaAprovacao() {
+        return new Queue(FILA_CRIAR_CONTA_APROVACAO, true);
+    }
+
+    @Bean
+    public Queue filaCompensarContaAprovacao() {
+        return new Queue(FILA_COMPENSAR_CONTA_APROVACAO, true);
+    }
+
+    @Bean
+    public Binding bindingCriarContaAprovacao(Queue filaCriarContaAprovacao, DirectExchange exchangeAprovacaoCliente) {
+        return BindingBuilder.bind(filaCriarContaAprovacao)
+            .to(exchangeAprovacaoCliente)
+            .with(CHAVE_CRIAR_CONTA_APROVACAO);
+    }
+
+    @Bean
+    public Binding bindingCompensarContaAprovacao(Queue filaCompensarContaAprovacao, DirectExchange exchangeAprovacaoCliente) {
+        return BindingBuilder.bind(filaCompensarContaAprovacao)
+            .to(exchangeAprovacaoCliente)
+            .with(CHAVE_COMPENSAR_CONTA_APROVACAO);
     }
 
     @Bean
