@@ -2,11 +2,12 @@
   <div class="container">
     <div class="header">
       <h1 class="heading_2">
-        <svg class="icon-star" viewBox="0 0 24 24" fill="currentColor">
+        <svg class="icon-star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
         </svg>
-        Melhores Clientes
+        Top 3 Clientes
       </h1>
+      <p class="subtitle">Clientes com maior movimentação e saldo</p>
     </div>
 
     @if (carregando()) {
@@ -32,13 +33,15 @@
                 </div>
                 <span class="label_large nome-cliente">{{ cliente.nome }}</span>
               </div>
-              <button class="botao-adicionar" aria-label="Adicionar" (click)="consultarCliente(cliente)">+</button>
+              <button class="botao-adicionar" [attr.aria-label]="'Consultar detalhes de ' + cliente.nome" (click)="consultarCliente(cliente)" title="Consultar cliente">+</button>
             </div>
 
             <div class="informacoes-card">
               <div class="campo-informacao">
                 <span class="rotulo body_small">Saldo</span>
-                <span class="valor label_large">{{ formatarSaldo(cliente.saldo) }}</span>
+                <span class="valor label_large" [class.negative-balance]="cliente.saldo < 0">
+                  {{ cliente.saldo | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                </span>
               </div>
 
               <div class="campo-informacao">
@@ -47,8 +50,8 @@
               </div>
 
               <div class="campo-informacao">
-                <span class="rotulo body_small">Cidade</span>
-                <span class="valor label_large">{{ cliente.cidade }}/{{ cliente.estado }}</span>
+                <span class="rotulo body_small">Localização</span>
+                <span class="valor label_large" title="{{ cliente.cidade }}, {{ cliente.estado }}">{{ cliente.cidade }}/{{ cliente.estado }}</span>
               </div>
             </div>
           </div>

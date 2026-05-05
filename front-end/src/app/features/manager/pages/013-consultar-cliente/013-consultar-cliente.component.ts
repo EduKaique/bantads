@@ -29,6 +29,11 @@ export class ConsultarClienteComponent implements OnInit {
   formatPhone = formatPhone;
   formatCep = formatCep;
 
+  isSaldoNegativo(saldo: any): boolean {
+    const saldoNumerico = typeof saldo === 'string' ? parseFloat(saldo) : saldo;
+    return saldoNumerico < 0;
+  }
+
   ngOnInit(): void {
     this.activatedRoute.paramMap.subscribe((params) => {
       const cpfDaUrl = params.get('cpf');
@@ -74,6 +79,13 @@ export class ConsultarClienteComponent implements OnInit {
   private carregarClienteDoServidor(): void {
     const cpfLimpo = this.cpfPesquisa.replace(/\D/g, '');
 
+    // Validação adicional antes de fazer a requisição
+    if (!cpfLimpo || cpfLimpo.length !== 11) {
+      this.erro = 'CPF inválido para busca';
+      this.carregando = false;
+      return;
+    }
+
     this.detalheClienteService.obterClienteDetalhadoPorCpf(cpfLimpo).subscribe({
       next: (cliente) => {
         if (cliente) {
@@ -93,13 +105,17 @@ export class ConsultarClienteComponent implements OnInit {
           this.erro = '';
         } else {
           this.clienteAtual = null;
-          this.erro = 'Cliente não encontrado no banco de dados.';
+          this.erro = 'Nenhum cliente encontrado com este CPF.';
         }
         this.carregando = false;
       },
-      error: () => {
+      error: (erro) => {
         this.clienteAtual = null;
-        this.erro = 'Erro ao buscar dados do cliente no servidor.';
+        // Verificar se é erro de conexão ou outro tipo
+        const mensagemErro = erro?.status === 404 
+          ? 'Cliente não encontrado.' 
+          : 'Erro ao buscar dados do cliente. Verifique a conexão e tente novamente.';
+        this.erro = mensagemErro;
         this.carregando = false;
       },
     });
@@ -109,13 +125,17 @@ export class ConsultarClienteComponent implements OnInit {
     this.foiBuscado = true;
     this.clienteAtual = null;
 
-    if (!this.cpfPesquisa.trim()) {
+    // Validação de campo vazio
+    if (!this.cpfPesquisa || !this.cpfPesquisa.trim()) {
       this.erro = 'Por favor, digite um CPF válido';
+      this.carregando = false;
       return;
     }
 
+    // Validação de CPF
     if (!this.validarCpf(this.cpfPesquisa)) {
-      this.erro = 'CPF inválido';
+      this.erro = 'CPF inválido. Verifique os dígitos e tente novamente.';
+      this.carregando = false;
       return;
     }
 

@@ -43,12 +43,17 @@ export class R14Consulta3MelhorComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (clientes) => {
-          this.melhoresClientes.set(clientes);
+          if (!clientes || clientes.length === 0) {
+            this.erro.set('Nenhum cliente disponível no momento.');
+          } else {
+            this.melhoresClientes.set(clientes);
+          }
           this.carregando.set(false);
         },
-        error: () => {
-          this.erro.set('Erro ao carregar os melhores clientes.');
+        error: (erro) => {
+          this.erro.set('Erro ao carregar os melhores clientes. Tente novamente mais tarde.');
           this.carregando.set(false);
+          console.error('Erro ao carregar melhores clientes:', erro);
         },
       });
   }
@@ -63,11 +68,9 @@ export class R14Consulta3MelhorComponent implements OnInit {
     return cpfNormalizado.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   }
 
-  formatarSaldo(saldo: number): string {
-    return saldo.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    });
+  isSaldoNegativo(saldo: any): boolean {
+    const saldoNumerico = typeof saldo === 'string' ? parseFloat(saldo) : saldo;
+    return saldoNumerico < 0;
   }
 
   consultarCliente(cliente: InformacoesMelhorCliente): void {
