@@ -61,12 +61,38 @@ public class UsuarioSagaConsumer {
             userRepository.findByReferenciaId(evento.cpf()).ifPresent(user -> {
                 if (evento.nome() != null) user.setNome(evento.nome());
                 if (evento.email() != null) user.setEmail(evento.email());
+                
+                userRepository.save(user);
+                System.out.println("MS-Auth: E-mail e Nome atualizados via Saga para o CPF: " + evento.cpf());
+            });
+        } catch (Exception e) {  
+            System.err.println("Erro Saga (MS-Auth): Não foi possível atualizar perfil. " + e.getMessage());
+        }
+    }
+
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = "auth.gerente.atualizado.fila", durable = "true"),
+        exchange = @Exchange(value = "gerente.exchange", type = "direct"),
+        key = "gerente.perfil.alterado"
+    ))
+    public void atualizarGerenteSaga(GerenteAtualizadoEvent evento) {
+        try {
+            userRepository.findByReferenciaId(evento.cpf()).ifPresent(user -> {
+                if (evento.nome() != null && !evento.nome().isBlank()) {
+                    user.setNome(evento.nome());
+                }
+                if (evento.email() != null && !evento.email().isBlank()) {
+                    user.setEmail(evento.email());
+                }
+                if (evento.senha() != null && !evento.senha().isBlank()) {
+                    user.setSenha(passwordEncoder.encode(evento.senha()));
+                }
 
                 userRepository.save(user);
-                System.out.println("MS-Auth: E-mail e nome atualizados via Saga para o CPF: " + evento.cpf());
+                System.out.println("MS-Auth: Dados do gerente atualizados via Saga para o CPF: " + evento.cpf());
             });
         } catch (Exception e) {
-            System.err.println("Erro Saga (MS-Auth): Nao foi possivel atualizar perfil. " + e.getMessage());
+            System.err.println("Erro Saga (MS-Auth): Nao foi possivel atualizar gerente. " + e.getMessage());
         }
     }
 }

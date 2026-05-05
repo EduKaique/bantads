@@ -3,8 +3,11 @@ package com.bantads.gerente.service;
 import com.bantads.gerente.dto.GerenteAtualizacaoDTO;
 import com.bantads.gerente.dto.GerenteInsercaoDTO;
 import com.bantads.gerente.dto.GerenteResponseDTO;
+import com.bantads.gerente.mensageria.EventoAlteracaoGerenteInterno;
+import com.bantads.gerente.mensageria.GerenteAtualizadoEvent;
 import com.bantads.gerente.model.Gerente;
 import com.bantads.gerente.repository.GerenteRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +19,11 @@ import java.util.List;
 public class GerenteServiceImpl implements GerenteService {
 
     private final GerenteRepository repository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public GerenteServiceImpl(GerenteRepository repository) {
+    public GerenteServiceImpl(GerenteRepository repository, ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -72,7 +77,16 @@ public class GerenteServiceImpl implements GerenteService {
             gerente.setEmail(dto.getEmail());
         }
 
-        return toResponseDTO(repository.save(gerente));
+        Gerente gerenteSalvo = repository.save(gerente);
+        GerenteAtualizadoEvent evento = new GerenteAtualizadoEvent(
+                gerenteSalvo.getCpf(),
+                gerenteSalvo.getNome(),
+                gerenteSalvo.getEmail(),
+                dto.getSenha()
+        );
+        eventPublisher.publishEvent(new EventoAlteracaoGerenteInterno(evento));
+
+        return toResponseDTO(gerenteSalvo);
     }
 
     @Override

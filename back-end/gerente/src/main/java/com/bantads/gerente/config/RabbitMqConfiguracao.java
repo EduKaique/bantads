@@ -13,6 +13,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConfiguracao {
 
+    public static final String EXCHANGE_GERENTE = "gerente.exchange";
+    public static final String CHAVE_ALTERACAO_GERENTE = "gerente.perfil.alterado";
+
     // SAGA Inserção de Gerente
     public static final String EXCHANGE_INSERCAO_GERENTE = "gerente.insercao.exchange";
     
@@ -27,6 +30,11 @@ public class RabbitMqConfiguracao {
     
     public static final String FILA_RESPOSTA_ATRIBUICAO_CONTA = "gerente.resposta-atribuicao.queue";
     public static final String CHAVE_RESPOSTA_ATRIBUICAO_CONTA = "gerente.resposta-atribuicao";
+
+    @Bean
+    public DirectExchange exchangeGerente() {
+        return new DirectExchange(EXCHANGE_GERENTE, true, false);
+    }
 
     // Exchange
     @Bean
