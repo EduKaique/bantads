@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.bantads.auth.dto.AutocadastroInfoDTO;
 import com.bantads.auth.dto.ClienteAtualizadoEvent; 
+import com.bantads.auth.dto.GerenteAtualizadoEvent;
 import com.bantads.auth.model.TipoUsuario;
 import com.bantads.auth.model.User;
 import com.bantads.auth.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.bantads.auth.dto.AutocadastroInfoDTO;
 
 @Component
 public class UsuarioSagaConsumer {
@@ -68,6 +68,32 @@ public class UsuarioSagaConsumer {
             });
         } catch (Exception e) {  
             System.err.println("Erro Saga (MS-Auth): Não foi possível atualizar perfil. " + e.getMessage());
+        }
+    }
+
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = "auth.gerente.atualizado.fila", durable = "true"),
+        exchange = @Exchange(value = "gerente.exchange", type = "direct"),
+        key = "gerente.perfil.alterado"
+    ))
+    public void atualizarGerenteSaga(GerenteAtualizadoEvent evento) {
+        try {
+            userRepository.findByReferenciaId(evento.cpf()).ifPresent(user -> {
+                if (evento.nome() != null && !evento.nome().isBlank()) {
+                    user.setNome(evento.nome());
+                }
+                if (evento.email() != null && !evento.email().isBlank()) {
+                    user.setEmail(evento.email());
+                }
+                if (evento.senha() != null && !evento.senha().isBlank()) {
+                    user.setSenha(passwordEncoder.encode(evento.senha()));
+                }
+
+                userRepository.save(user);
+                System.out.println("MS-Auth: Dados do gerente atualizados via Saga para o CPF: " + evento.cpf());
+            });
+        } catch (Exception e) {
+            System.err.println("Erro Saga (MS-Auth): Nao foi possivel atualizar gerente. " + e.getMessage());
         }
     }
 }
