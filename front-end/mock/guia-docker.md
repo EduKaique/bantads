@@ -33,9 +33,6 @@ services:
       - ./back-end/api-gateway:/app
       - maven-repo:/root/.m2
       - /app/node_modules
-    environment:
-    - SECRET=secret        
-    - PORT=8080
     restart: unless-stopped
 
   # =========== BANCOS DE DADOS ===========
@@ -71,10 +68,8 @@ services:
       - "8081:8080"
     depends_on:
       - mongodb-auth
-      - rabbitmq
     environment:
       - MONGO_URI=mongodb://mongodb-auth:27017/bantads_auth
-      - SPRING_RABBITMQ_HOST=rabbitmq
     volumes:
       - ./back-end/auth:/app
       - maven-repo:/root/.m2

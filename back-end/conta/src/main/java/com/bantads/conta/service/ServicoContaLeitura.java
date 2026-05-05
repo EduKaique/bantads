@@ -87,6 +87,16 @@ public class ServicoContaLeitura {
         repositorioContaLeitura.saveAll(contasLeitura);
     }
 
+    @Transactional("gerenciadorTransacaoLeitura")
+    public void salvarProjecaoConta(ContaEscrita contaEscrita) {
+        repositorioContaLeitura.save(mapearContaLeitura(contaEscrita));
+    }
+
+    @Transactional("gerenciadorTransacaoLeitura")
+    public void removerProjecaoConta(String numeroConta) {
+        repositorioContaLeitura.deleteById(numeroConta);
+    }
+
     private ContaLeitura buscarConta(String numeroConta) {
         return repositorioContaLeitura.findById(numeroConta)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
@@ -110,6 +120,7 @@ public class ServicoContaLeitura {
         contaLeitura.setLimite(contaEscrita.getLimite());
         contaLeitura.setGerente(contaEscrita.getGerente());
         contaLeitura.setCriacao(contaEscrita.getCriacao());
+        contaLeitura.setIdSagaAprovacao(contaEscrita.getIdSagaAprovacao());
         return contaLeitura;
     }
 }

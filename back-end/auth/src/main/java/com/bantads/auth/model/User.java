@@ -28,6 +28,9 @@ public class User {
     @Field("referencia_id")
     private String referenciaId;
 
+    @Field("id_saga_aprovacao")
+    private String idSagaAprovacao;
+
     public User() {}
 
     public User(String email, String senha, TipoUsuario tipo, String referenciaId, String nome) {
@@ -55,4 +58,7 @@ public class User {
     
     public String getReferenciaId() { return referenciaId; }
     public void setReferenciaId(String referenciaId) { this.referenciaId = referenciaId; }
+
+    public String getIdSagaAprovacao() { return idSagaAprovacao; }
+    public void setIdSagaAprovacao(String idSagaAprovacao) { this.idSagaAprovacao = idSagaAprovacao; }
 }
