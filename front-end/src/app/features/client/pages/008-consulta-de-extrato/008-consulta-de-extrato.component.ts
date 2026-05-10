@@ -45,8 +45,8 @@ export class ConsultaExtratoPageComponent implements OnInit {
   readonly saldoAtual = signal(0);
   readonly erroCarregamento = signal<string | null>(null);
 
-  dataSelecionadaInicio = new Date(2026, 0, 1);
-  dataSelecionadaFim = new Date(2026, 11, 31);
+  dataSelecionadaInicio = new Date(new Date().getFullYear(), 0, 1);
+  dataSelecionadaFim = new Date();
   transacoesPorData: GrupoTransacoes[] = [];
 
   private transacoes: ExtratoTransaction[] = [];
