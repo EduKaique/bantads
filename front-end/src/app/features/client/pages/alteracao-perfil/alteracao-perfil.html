@@ -15,9 +15,10 @@
                     {{ isEditMode ? 'Cancelar' : 'Editar' }}
                 </button>
 
-                <button type="button" class="button-primary label_large" [disabled]="!isEditMode"
+                <button type="button" class="button-primary label_large"
+                    [disabled]="!isEditMode || isLoading || firstFormGroup.invalid || secondFormGroup.invalid"
                     (click)="isEditMode && onSubmit()">
-                    Atualizar
+                    {{ isLoading ? 'Atualizando...' : 'Atualizar' }}
                 </button>
             </div>
         </div>
@@ -99,8 +100,8 @@
       [(mostrar)]="showModal" 
       titulo="Sua conta foi atualizada com sucesso!" 
       [dadosAdicionais]="[
-        'Saldo: ' + balance,
-        'Gerente: ' + managerName
+        'As atualizações de salário e limites estão sendo processadas em segundo plano.',
+        'Pode levar alguns instantes para que o novo limite reflita na sua conta.'
       ]"
       textoBotao="Voltar" 
       [rotaDestino]="'cliente/alteracao-perfil/' + cpf">

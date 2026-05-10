@@ -202,7 +202,7 @@ export class ClientAccountService {
 
       const transaction: AccountTransaction = {
         id: Math.random().toString(36).substring(2, 10),
-        type: 'withdrawal',
+        type: 'saque',
         amount: amount,
         description: request.description?.trim() || 'Saque em conta',
         performedAt: new Date().toISOString(),
@@ -362,7 +362,7 @@ export class ClientAccountService {
 
     return (
       typeof transaction.id === 'string' &&
-      (transaction.type === 'deposit' || transaction.type === 'withdrawal') &&
+      (transaction.type === 'deposito' || transaction.type === 'saque' || transaction.type === 'transferencia') &&
       typeof transaction.amount === 'number' &&
       typeof transaction.description === 'string' &&
       typeof transaction.performedAt === 'string' &&
