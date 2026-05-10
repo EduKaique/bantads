@@ -28,6 +28,13 @@ public class RabbitMqConfiguracao {
     public static final String FILA_RESPOSTA_ATRIBUICAO_CONTA = "gerente.resposta-atribuicao.queue";
     public static final String CHAVE_RESPOSTA_ATRIBUICAO_CONTA = "gerente.resposta-atribuicao";
 
+    // SAGA Remoção de Gerente
+    public static final String EXCHANGE_REMOCAO_GERENTE = "gerente.remocao.exchange";
+    public static final String FILA_TRANSFERENCIA_CONTAS_REMOCAO = "gerente.transferencia-contas-remocao.queue";
+    public static final String CHAVE_TRANSFERENCIA_CONTAS_REMOCAO = "gerente.transferencia-contas-remocao";
+    public static final String FILA_RESPOSTA_TRANSFERENCIA_CONTAS = "gerente.resposta-transferencia-contas.queue";
+    public static final String CHAVE_RESPOSTA_TRANSFERENCIA_CONTAS = "gerente.resposta-transferencia-contas";
+
     public static final String EXCHANGE_APROVACAO_CLIENTE = "cliente.aprovacao.exchange";
     public static final String FILA_CRIAR_CONTA_APROVACAO = "conta.aprovacao.criar.queue";
     public static final String FILA_COMPENSAR_CONTA_APROVACAO = "conta.aprovacao.compensar.queue";
@@ -86,6 +93,40 @@ public class RabbitMqConfiguracao {
         return BindingBuilder.bind(filaRespostaAtribuicaoConta)
             .to(exchangeInsercaoGerente)
             .with(CHAVE_RESPOSTA_ATRIBUICAO_CONTA);
+    }
+
+    // Exchange para SAGA Remoção de Gerente
+    @Bean
+    public DirectExchange exchangeRemocaoGerente() {
+        return new DirectExchange(EXCHANGE_REMOCAO_GERENTE, true, false);
+    }
+
+    // Fila para receber solicitação de transferência de contas
+    @Bean
+    public Queue filaTransferenciaContasRemocao() {
+        return new Queue(FILA_TRANSFERENCIA_CONTAS_REMOCAO, true);
+    }
+
+    // Fila para enviar resposta de transferência
+    @Bean
+    public Queue filaRespostaTransferenciaContas() {
+        return new Queue(FILA_RESPOSTA_TRANSFERENCIA_CONTAS, true);
+    }
+
+    // Binding da fila de transferência ao exchange
+    @Bean
+    public Binding bindingTransferenciaContasRemocao(Queue filaTransferenciaContasRemocao, DirectExchange exchangeRemocaoGerente) {
+        return BindingBuilder.bind(filaTransferenciaContasRemocao)
+            .to(exchangeRemocaoGerente)
+            .with(CHAVE_TRANSFERENCIA_CONTAS_REMOCAO);
+    }
+
+    // Binding da fila de resposta de transferência ao exchange
+    @Bean
+    public Binding bindingRespostaTransferenciaContas(Queue filaRespostaTransferenciaContas, DirectExchange exchangeRemocaoGerente) {
+        return BindingBuilder.bind(filaRespostaTransferenciaContas)
+            .to(exchangeRemocaoGerente)
+            .with(CHAVE_RESPOSTA_TRANSFERENCIA_CONTAS);
     }
 
     @Bean

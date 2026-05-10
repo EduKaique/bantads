@@ -25,14 +25,10 @@ public class SagaGerenteService {
         this.gerenteRepository = gerenteRepository;
     }
 
-    /**
-     * Inicia a SAGA de inserção de gerente
-     */
     public GerenteResponseDTO iniciarInsercaoGerente(GerenteInsercaoDTO dto) {
         String sagaId = UUID.randomUUID().toString();
         orquestrador.iniciarSaga(sagaId, dto);
 
-        // Retorna uma resposta inicial enquanto a SAGA é processada de forma assíncrona
         return GerenteResponseDTO.builder()
             .cpf(dto.getCpf())
             .nome(dto.getNome())
@@ -41,19 +37,12 @@ public class SagaGerenteService {
             .build();
     }
 
-    /**
-     * Consulta o status da SAGA
-     */
     public EstadoSagaInsercao consultarStatusSaga(String sagaId) {
         return orquestrador.obterEstadoSaga(sagaId);
     }
 
-    /**
-     * Busca gerente já inserido pelo CPF
-     */
     public GerenteResponseDTO buscarGerentePorCpf(String cpf) {
-        Gerente gerente = gerenteRepository.findByCpf(cpf)
-            .orElse(null);
+        Gerente gerente = gerenteRepository.findByCpf(cpf).orElse(null);
 
         if (gerente == null) {
             return null;

@@ -1,6 +1,5 @@
 package com.bantads.gerente.mensageria;
 
-import com.bantads.gerente.dto.GerenteInsercaoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,15 +9,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EstadoSagaInsercao {
+public class EstadoSagaRemocao {
 
     private String sagaId;
-    private GerenteInsercaoDTO dto;
+    private String cpfGerenteParaRemover;
     private String status;
-    private String cpfGerenteComMaisContas;
-    private String cpfNovoGerente;
-    private int quantidadeContasGerenteOrigem;
-    private boolean deveAtribuirConta;
+    private String cpfGerenteMenosContas;
+    private int quantidadeContasTransferidas;
     private long dataInicio;
     private String mensagem;
 }

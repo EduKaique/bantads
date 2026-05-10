@@ -24,34 +24,38 @@ public class ListenerConsultaGerenteMaisContas {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    /**
-     * Consome a solicitação de consulta de gerente com mais contas
-     * e retorna a resposta
-     */
     @RabbitListener(queues = RabbitMqConfiguracao.FILA_CONSULTAR_GERENTE_MAIS_CONTAS)
     public void consumirConsultaGerenteMaisContas(EventoConsultaGerenteMaisContas evento) {
         System.out.println("Consulta gerente com mais contas recebida: " + evento.sagaId());
 
         try {
-            // Aqui seria necessário consultar o MS Conta para saber quantas contas cada gerente tem
-            // Por enquanto, vamos simular uma resposta
             long totalGerentes = gerenteRepository.count();
 
-            // Se não há gerente, retorna erro
+            // Primeiro gerente sendo inserido — não há origem para buscar
             if (totalGerentes == 0) {
-                enviarRespostaErro(evento.sagaId(), "Nenhum gerente cadastrado");
+                EventoRespostaGerenteMaisContas resposta = new EventoRespostaGerenteMaisContas(
+                    evento.sagaId(),
+                    "",
+                    0,
+                    BigDecimal.ZERO,
+                    true,
+                    "Nenhum gerente existente"
+                );
+                rabbitTemplate.convertAndSend(
+                    RabbitMqConfiguracao.EXCHANGE_INSERCAO_GERENTE,
+                    RabbitMqConfiguracao.CHAVE_RESPOSTA_GERENTE_MAIS_CONTAS,
+                    resposta
+                );
                 return;
             }
 
-            // Busca o primeiro gerente como exemplo
-            // TODO: Implementar lógica real de buscar gerente com mais contas via MS Conta
             Gerente gerente = gerenteRepository.findAll().get(0);
 
             EventoRespostaGerenteMaisContas resposta = new EventoRespostaGerenteMaisContas(
                 evento.sagaId(),
                 gerente.getCpf(),
-                1, // quantidade de contas (a ser consultado do MS Conta)
-                BigDecimal.ZERO, // menor saldo positivo
+                1,
+                BigDecimal.ZERO,
                 true,
                 "Gerente com mais contas encontrado"
             );

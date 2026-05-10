@@ -5,6 +5,7 @@ import com.bantads.gerente.dto.GerenteInsercaoDTO;
 import com.bantads.gerente.dto.GerenteResponseDTO;
 import com.bantads.gerente.service.GerenteService;
 import com.bantads.gerente.service.SagaGerenteService;
+import com.bantads.gerente.service.SagaRemocaoGerenteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,10 +22,15 @@ public class GerenteController {
 
     private final GerenteService service;
     private final SagaGerenteService sagaService;
+    private final SagaRemocaoGerenteService sagaRemocaoService;
 
-    public GerenteController(GerenteService service, SagaGerenteService sagaService) {
+    public GerenteController(
+            GerenteService service,
+            SagaGerenteService sagaService,
+            SagaRemocaoGerenteService sagaRemocaoService) {
         this.service = service;
         this.sagaService = sagaService;
+        this.sagaRemocaoService = sagaRemocaoService;
     }
 
     @GetMapping
@@ -55,8 +61,9 @@ public class GerenteController {
     }
 
     @DeleteMapping("/{cpf}")
-    @Operation(summary = "Remove um gerente pelo CPF")
-    public ResponseEntity<GerenteResponseDTO> remover(@PathVariable String cpf) {
-        return ResponseEntity.ok(service.remover(cpf));
+    @Operation(summary = "Remove um gerente pelo CPF usando SAGA")
+    public ResponseEntity<Void> remover(@PathVariable String cpf) {
+        sagaRemocaoService.iniciarRemocaoGerente(cpf);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 }
