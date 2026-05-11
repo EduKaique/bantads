@@ -1,17 +1,7 @@
-## Pull Request Template
-
-### Título do PR
-```plain
-[FRONTEND | BACKEND] [Número + Nome da Issue]
-```
-
-### Corpo do PR
-```markdown
 ## 📝 Descrição
 Explique o que foi feito.
 
 ## 🛠 Tipo de Mudança
-(Selecione a opção e retire as outras).
 - ✨ **FEAT**: Nova funcionalidade.
 - 🐛 **FIX**: Correção de bug.
 - ♻️ **REFACTOR**: Melhoria de código sem alterar comportamento.
@@ -28,5 +18,3 @@ Explique o que foi feito.
 - O comportamento deve ser...
 
 ## 📸 Screenshots
-
-```
