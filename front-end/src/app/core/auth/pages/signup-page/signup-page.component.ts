@@ -38,6 +38,12 @@ export class SignupPageComponent {
   hide = signal(true);
   registerSuccess = signal(false);
   registerErrorMessage: string | null = null;
+   imagensCarousel: string[] = [
+    'assets/illustrations/login.svg',
+    'assets/illustrations/login2.svg',
+    'assets/illustrations/login3.svg'
+  ];
+  indiceAtual: number = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -66,6 +72,10 @@ export class SignupPageComponent {
       city: ['', [Validators.required]],
       state: ['', [Validators.required]],
     });
+
+    setInterval(() => {
+      this.indiceAtual = (this.indiceAtual + 1) % this.imagensCarousel.length;
+    }, 4000);
   }
 
   onSubmit(): void {
@@ -159,4 +169,5 @@ export class SignupPageComponent {
       this.firstFormGroup.markAllAsTouched();
     }
   }
+  
 }
