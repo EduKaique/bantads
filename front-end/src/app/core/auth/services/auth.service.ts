@@ -66,11 +66,11 @@ export class AuthService {
     return null;
   }
 
-  public login(email: string, password: string): Observable<UserState> {
+  public login(login: string, senha: string): Observable<UserState> {
     return this.http
-      .post<LoginResponse>(`${this.apiBaseUrl}/auth/login`, {
-        email,
-        password,
+      .post<LoginResponse>(`${this.apiBaseUrl}/login`, {
+        login,
+        senha,
       })
       .pipe(
         map((response) => {
@@ -127,7 +127,6 @@ export class AuthService {
    */
   public signup(data: RegisterRequest): Observable<void> {
     console.log('Dados enviados para cadastro:', data);
-    return this.http.post<void>(`${this.apiBaseUrl}/auth/register`, data);
+    return this.http.post<void>(`${this.apiBaseUrl}/register`, data);
   }
-
 }

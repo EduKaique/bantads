@@ -38,7 +38,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/Logout")
+    @PostMapping("/logout")
     public ResponseEntity<LogoutResponseDTO> logout(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).build();

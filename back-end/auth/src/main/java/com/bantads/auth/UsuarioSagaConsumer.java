@@ -3,6 +3,7 @@ package com.bantads.auth;
 import com.bantads.auth.config.RabbitMqConfiguracao;
 import com.bantads.auth.dto.AutocadastroInfoDTO;
 import com.bantads.auth.dto.ClienteAtualizadoEvent;
+import com.bantads.auth.dto.GerenteAtualizadoEvent;
 import com.bantads.auth.model.TipoUsuario;
 import com.bantads.auth.model.User;
 import com.bantads.auth.repository.UserRepository;
