@@ -6,5 +6,7 @@ package com.bantads.conta.mensageria.saga;
 public record EventoTransferenciaContasRemocao(
     String sagaId,
     String cpfGerenteParaRemover,
-    String cpfGerenteDestino
+    String cpfGerenteDestino,
+    boolean sucesso,
+    String mensagem
 ) {}

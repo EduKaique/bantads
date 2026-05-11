@@ -1,5 +1,7 @@
 package com.bantads.gerente.mensageria;
 
+import java.util.List;
+
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +16,16 @@ public class PublicadorSagaRemocaoGerente {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void publicarConsultaGerenteMenosContas(String sagaId, String cpfGerenteParaRemover) {
-        var evento = new EventoConsultaGerenteMenosContas(sagaId, cpfGerenteParaRemover);
+    public void publicarConsultaGerenteMenosContas(
+        String sagaId,
+        String cpfGerenteParaRemover,
+        List<String> cpfsGerentesCandidatos
+    ) {
+        var evento = new EventoConsultaGerenteMenosContas(
+            sagaId,
+            cpfGerenteParaRemover,
+            cpfsGerentesCandidatos
+        );
         rabbitTemplate.convertAndSend(
             RabbitMqConfiguracao.EXCHANGE_REMOCAO_GERENTE,
             RabbitMqConfiguracao.CHAVE_CONSULTAR_GERENTE_MENOS_CONTAS,

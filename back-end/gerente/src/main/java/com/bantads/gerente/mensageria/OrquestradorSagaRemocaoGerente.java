@@ -36,6 +36,17 @@ public class OrquestradorSagaRemocaoGerente {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Gerente não encontrado");
         }
 
+        var cpfsGerentesCandidatos = gerenteRepository.findAll()
+            .stream()
+            .filter(gerente -> "GERENTE".equalsIgnoreCase(gerente.getTipo()))
+            .map(gerente -> gerente.getCpf())
+            .filter(cpf -> !cpf.equals(cpfGerenteParaRemover))
+            .toList();
+
+        if (cpfsGerentesCandidatos.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nao ha outro gerente para receber as contas");
+        }
+
         EstadoSagaRemocao estado = new EstadoSagaRemocao();
         estado.setSagaId(sagaId);
         estado.setCpfGerenteParaRemover(cpfGerenteParaRemover);
@@ -44,7 +55,11 @@ public class OrquestradorSagaRemocaoGerente {
 
         estadosSagas.put(sagaId, estado);
 
-        publicador.publicarConsultaGerenteMenosContas(sagaId, cpfGerenteParaRemover);
+        publicador.publicarConsultaGerenteMenosContas(
+            sagaId,
+            cpfGerenteParaRemover,
+            cpfsGerentesCandidatos
+        );
     }
 
     public void processarRespostaGerenteMenosContas(EventoRespostaGerenteMenosContas evento) {
@@ -82,6 +97,7 @@ public class OrquestradorSagaRemocaoGerente {
         }
     }
 
+    @Transactional
     public void processarRespostaTransferenciaContas(EventoRespostaTransferenciaContas evento) {
         EstadoSagaRemocao estado = estadosSagas.get(evento.sagaId());
 
@@ -105,7 +121,10 @@ public class OrquestradorSagaRemocaoGerente {
     @Transactional
     private void removerGerente(EstadoSagaRemocao estado) {
         try {
-            gerenteRepository.deleteByCpf(estado.getCpfGerenteParaRemover());
+            var gerente = gerenteRepository.findByCpf(estado.getCpfGerenteParaRemover())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Gerente nao encontrado"));
+
+            gerenteRepository.delete(gerente);
             estado.setStatus("CONCLUIDA");
         } catch (Exception e) {
             estado.setStatus("ERRO");

@@ -1,4 +1,4 @@
-package com.bantads.gerente.mensageria;
+package com.bantads.conta.mensageria.saga;
 
 import java.util.List;
 

@@ -14,6 +14,4 @@ public interface GerenteRepository extends JpaRepository<Gerente, String> {
     boolean existsByCpf(String cpf);
 
     boolean existsByEmail(String email);
-
-    void deleteByCpf(String cpf);
 }
