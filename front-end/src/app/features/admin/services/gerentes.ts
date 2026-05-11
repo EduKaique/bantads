@@ -42,14 +42,14 @@ export class GerentesService {
   }
 
   inserir(dadosGerente: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/admin/gerentes`, dadosGerente);
+    return this.http.post(`${this.apiUrl}/gerentes`, dadosGerente);
   }
 
   atualizar(cpf: string, dadosGerente: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/admin/atualizaPerfil/${cpf}`, dadosGerente);
+    return this.http.put(`${this.apiUrl}/gerentes/${cpf}`, dadosGerente);
   }
   
   remover(cpf: string) {
-    return this.http.delete<any>(`${this.apiUrl}/admin/gerentes/${cpf}`);
+    return this.http.delete<any>(`${this.apiUrl}/gerentes/${cpf}`);
   }
 }
