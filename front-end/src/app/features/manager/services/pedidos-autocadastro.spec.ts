@@ -53,7 +53,8 @@ describe('PedidosAutocadastroService', () => {
     });
 
     const requisicao = httpTestingController.expectOne((request) =>
-      request.url === 'http://localhost:3000/manager/pedidos-autocadastro' &&
+      request.url === 'http://localhost:3000/clientes' &&
+      request.params.get('filtro') === 'para_aprovar' &&
       request.params.get('cpfGerente') === '12345678910'
     );
 
@@ -74,5 +75,25 @@ describe('PedidosAutocadastroService', () => {
         dataSolicitacao: '2026-03-14T10:00:00.000Z',
       },
     ]);
+  });
+
+  it('deve aprovar cliente usando rota de clientes', () => {
+    service.aprovar('76179646090').subscribe();
+
+    const requisicao = httpTestingController.expectOne('http://localhost:3000/clientes/76179646090/aprovar');
+
+    expect(requisicao.request.method).toBe('POST');
+    expect(requisicao.request.body).toEqual({});
+    requisicao.flush({});
+  });
+
+  it('deve rejeitar cliente usando rota de clientes', () => {
+    service.rejeitar('76179646090', 'Documentos inconsistentes').subscribe();
+
+    const requisicao = httpTestingController.expectOne('http://localhost:3000/clientes/76179646090/rejeitar');
+
+    expect(requisicao.request.method).toBe('POST');
+    expect(requisicao.request.body).toEqual({ motivo: 'Documentos inconsistentes' });
+    requisicao.flush({});
   });
 });

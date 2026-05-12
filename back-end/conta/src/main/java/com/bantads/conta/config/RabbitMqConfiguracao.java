@@ -37,6 +37,13 @@ public class RabbitMqConfiguracao {
     public static final String CHAVE_CONTA_FALHA_APROVACAO = "aprovacao.conta.falha";
     public static final String CHAVE_CONTA_COMPENSADA_APROVACAO = "aprovacao.conta.compensada";
 
+    //SAGA Autocadastro
+    public static final String EXCHANGE_AUTOCADASTRO = "autocadastro.exchange";
+    public static final String FILA_SOLICITACAO_GERENTE = "conta.autocadastro.solicitar-gerente.queue";
+    public static final String CHAVE_SOLICITACAO_GERENTE = "autocadastro.solicitar.gerente";
+    public static final String CHAVE_RESPOSTA_GERENTE = "autocadastro.resposta.gerente";
+
+
     @Bean
     public DirectExchange exchangeMovimentacao() {
         return new DirectExchange(EXCHANGE_MOVIMENTACAO);
@@ -142,5 +149,22 @@ public class RabbitMqConfiguracao {
         return BindingBuilder.bind(filaContaClienteAtualizado())
             .to(new DirectExchange(EXCHANGE_CLIENTE))
             .with(CHAVE_CLIENTE_ATUALIZADO);
+    }
+
+    @Bean
+    public DirectExchange exchangeAutocadastro() {
+        return new DirectExchange(EXCHANGE_AUTOCADASTRO, true, false);
+    }
+
+    @Bean
+    public Queue filaSolicitacaoGerenteAutocadastro() {
+        return new Queue(FILA_SOLICITACAO_GERENTE, true);
+    }
+
+    @Bean
+    public Binding bindingSolicitacaoGerenteAutocadastro(Queue filaSolicitacaoGerenteAutocadastro, DirectExchange exchangeAutocadastro) {
+        return BindingBuilder.bind(filaSolicitacaoGerenteAutocadastro)
+            .to(exchangeAutocadastro)
+            .with(CHAVE_SOLICITACAO_GERENTE);
     }
 }

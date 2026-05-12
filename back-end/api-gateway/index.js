@@ -53,7 +53,9 @@ function verifyJWT(req, res, next) {
             return res.status(500).json({ auth: false, message: 'Falha ao autenticar o token.' });
         }
 
-        req.userId = decoded.id; 
+        req.userId = decoded.id;
+        req.headers['x-usuario-cpf'] = decoded.cpf;
+        req.headers['x-usuario-tipo'] = decoded.tipo;
         next();
     });
 }

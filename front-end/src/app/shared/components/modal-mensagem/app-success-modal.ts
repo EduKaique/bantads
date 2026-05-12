@@ -14,10 +14,10 @@ export class AppSuccessModalComponent {
   @Input() textoBotao: string = 'Voltar para Página Inicial';
   @Input() rotaDestino: string | any[] = '/';
   @Input() mostrarDataHora: boolean = false;
-  @Input() dadosAdicionais: string[] = [];
   @Input() dataHoraReferencia?: string | Date;
   @Input() exibirBotaoSecundario = false;
   @Input() textoBotaoSecundario = '';
+  @Input() dadosAdicionais?: string[];
 
   @Output() mostrarChange = new EventEmitter<boolean>();
   @Output() botaoSecundarioClick = new EventEmitter<void>();
