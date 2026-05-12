@@ -1,5 +1,6 @@
 package com.bantads.cliente.service;
 
+import com.bantads.cliente.config.RabbitMqConfiguracao;
 import com.bantads.cliente.dto.AutocadastroInfoDTO;
 import com.bantads.cliente.dto.ClienteParaAprovarResponseDTO;
 import com.bantads.cliente.dto.ClienteResponseDTO;
@@ -9,12 +10,14 @@ import com.bantads.cliente.dto.RespostaAprovacaoClienteDTO;
 import com.bantads.cliente.mensageria.ClienteAtualizadoEvent;
 import com.bantads.cliente.mensageria.EventoAlteracaoPerfilInterno;
 import com.bantads.cliente.mensageria.aprovacao.OrquestradorAprovacaoCliente;
+import com.bantads.cliente.mensageria.autocadastro.EventoSolicitacaoGerenteAutocadastro;
 import com.bantads.cliente.model.Cliente;
 import com.bantads.cliente.model.SagaAprovacaoCliente;
 import com.bantads.cliente.model.StatusCliente;
 import com.bantads.cliente.model.StatusSagaAprovacaoCliente;
 import com.bantads.cliente.repository.ClienteRepository;
 import com.bantads.cliente.repository.RepositorioSagaAprovacaoCliente;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -41,19 +44,22 @@ public class ClienteServiceImpl implements ClienteService {
 
     private final ClienteRepository clienteRepository;
     private final RepositorioSagaAprovacaoCliente repositorioSaga;
-    private final OrquestradorAprovacaoCliente orquestradorAprovacao;
+    private final OrquestradorAprovacaoCliente orquestradorAprovacao; // <-- Restaurado
     private final ApplicationEventPublisher eventPublisher;
+    private final RabbitTemplate rabbitTemplate; // <-- Mantido para o Autocadastro
 
     public ClienteServiceImpl(
         ClienteRepository clienteRepository,
         RepositorioSagaAprovacaoCliente repositorioSaga,
         OrquestradorAprovacaoCliente orquestradorAprovacao,
-        ApplicationEventPublisher eventPublisher
+        ApplicationEventPublisher eventPublisher,
+        RabbitTemplate rabbitTemplate
     ) {
         this.clienteRepository = clienteRepository;
         this.repositorioSaga = repositorioSaga;
         this.orquestradorAprovacao = orquestradorAprovacao;
         this.eventPublisher = eventPublisher;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
@@ -73,7 +79,6 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setEmail(dto.getEmail());
         cliente.setTelefone(dto.getTelefone());
         cliente.setSalario(dto.getSalario());
-        cliente.setCpfGerenteResponsavel(dto.getCpfGerenteResponsavel());
 
         cliente.setCep(dto.getCep());
         cliente.setLogradouro(dto.getLogradouro());
@@ -83,9 +88,19 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setCidade(dto.getCidade());
         cliente.setEstado(dto.getEstado());
 
+        // O gerente é nulo na criação! A SAGA vai preencher depois.
+        cliente.setCpfGerenteResponsavel(null); 
         cliente.setStatus(StatusCliente.PENDENTE);
 
         clienteRepository.save(cliente);
+
+        // DISPARO DA SAGA DE AUTOCADASTRO
+        EventoSolicitacaoGerenteAutocadastro evento = new EventoSolicitacaoGerenteAutocadastro(cliente.getCpf());
+        rabbitTemplate.convertAndSend(
+                RabbitMqConfiguracao.EXCHANGE_AUTOCADASTRO,
+                RabbitMqConfiguracao.CHAVE_SOLICITACAO_GERENTE,
+                evento
+        );
     }
 
     @Override
@@ -167,7 +182,8 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setStatus(StatusCliente.EM_APROVACAO);
         clienteRepository.save(cliente);
 
-        SagaAprovacaoCliente sagaIniciada = orquestradorAprovacao.iniciar(saga, cliente);
+        // <-- Restaurada a chamada ao orquestrador para a SAGA de Aprovação
+        SagaAprovacaoCliente sagaIniciada = orquestradorAprovacao.iniciar(saga, cliente); 
         return RespostaAprovacaoClienteDTO.deEntidade(sagaIniciada);
     }
 
@@ -221,7 +237,7 @@ public class ClienteServiceImpl implements ClienteService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Gerente nao autorizado para aprovar este cliente");
         }
         if (cliente.getSalario() == null || cliente.getSalario() < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Salario invalido para abertura de conta");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Salário invalido para abertura de conta");
         }
         if (estaEmBranco(cliente.getNome()) || estaEmBranco(cliente.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dados obrigatorios do cliente incompletos");
