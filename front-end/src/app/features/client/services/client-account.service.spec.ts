@@ -67,7 +67,7 @@ describe('ClientAccountService', () => {
       2
     );
     expect(updatedAccount.transactions[0].description).toBe('Deposito por PIX');
-    expect(updatedAccount.transactions[0].type).toBe('deposit');
+    expect(updatedAccount.transactions[0].type).toBe('deposito');
   });
 
   it('should reject non-positive deposits', (done) => {
