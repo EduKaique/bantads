@@ -2,11 +2,8 @@ package com.bantads.auth;
 
 import com.bantads.auth.dto.ClienteAtualizadoEvent;
 import com.bantads.auth.dto.GerenteAtualizadoEvent;
-<<<<<<< feat-fix/Ajuste-SAGA-Edit-Gerente-Aesthetics-Login
 import com.bantads.auth.model.TipoUsuario;
 import com.bantads.auth.model.User;
-=======
->>>>>>> main
 import com.bantads.auth.repository.UserRepository;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;

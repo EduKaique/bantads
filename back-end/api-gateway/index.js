@@ -11,7 +11,11 @@ const jwt = require('jsonwebtoken');
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:4200', 'https://curly-bassoon-9rqgpjjwrgrcpwj9-4200.app.github.dev'], // Libera especificamente o seu Angular
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token']
+}));
 app.use(morgan('dev'));
 app.use(cookieParser());
 
@@ -25,10 +29,10 @@ const proxyOptions = {
     }
 };
 
-const authServiceProxy = httpProxy('http://ms-auth:8081', proxyOptions);
-const clienteServiceProxy = httpProxy('http://ms-cliente:8082', proxyOptions);
-const gerenteServiceProxy = httpProxy('http://ms-gerente:8083', proxyOptions);
-const contaServiceProxy = httpProxy('http://conta:8084', proxyOptions);;
+const authServiceProxy = httpProxy('http://ms-auth:8080', proxyOptions);
+const clienteServiceProxy = httpProxy('http://ms-cliente:8080', proxyOptions);
+const gerenteServiceProxy = httpProxy('http://ms-gerente:8080', proxyOptions);
+const contaServiceProxy = httpProxy('http://conta:8080', proxyOptions);;
 
 
 // MIDDLEWARE DE AUTENTICAÇÃO
