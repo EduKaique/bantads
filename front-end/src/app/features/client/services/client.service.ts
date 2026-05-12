@@ -21,12 +21,12 @@ export class ClientService {
   private apiUrl = inject(API_URL);
 
   buscaPerfil(cpf: string): Observable<Client> {
-    return this.http.get<Client>(`${this.apiUrl}/cliente/perfil/${cpf}`);
+    return this.http.get<Client>(`${this.apiUrl}/clientes/${cpf}`);
   }
 
   atualizaUsuario(cpf: string, data: any): Observable<UpdateUserResponseApi> {
     return this.http.put<UpdateUserResponseApi>(
-      `${this.apiUrl}/cliente/alteracao-perfil/${cpf}`,
+      `${this.apiUrl}/clientes/${cpf}`,
       data
     );
   }
