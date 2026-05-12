@@ -25,9 +25,9 @@
           </div>
         }
 
-        @if (dadosAdicionais.length) {
-          <div class="modal-additional">
-            @for (dado of dadosAdicionais; track dado) {
+        @if (dadosAdicionais && dadosAdicionais.length > 0) {
+          <div class="modal-dados-adicionais">
+            @for (dado of dadosAdicionais; track $index) {
               <p class="body_medium">{{ dado }}</p>
             }
           </div>

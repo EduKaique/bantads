@@ -34,7 +34,7 @@ export function createDepositTransaction(
 ): AccountTransaction {
   return {
     id: `deposit-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    type: 'deposit',
+    type: 'deposito',
     amount: input.amount,
     description: input.description,
     performedAt: input.performedAt ?? new Date().toISOString(),

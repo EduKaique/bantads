@@ -1,8 +1,8 @@
 package com.bantads.cliente.config;
 
-import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -31,6 +31,11 @@ public class RabbitMqConfiguracao {
     public static final String CHAVE_ACESSO_CRIADO_APROVACAO = "aprovacao.auth.criado";
     public static final String CHAVE_ACESSO_FALHA_APROVACAO = "aprovacao.auth.falha";
     public static final String CHAVE_ACESSO_COMPENSADO_APROVACAO = "aprovacao.auth.compensado";
+
+    public static final String EXCHANGE_AUTOCADASTRO = "autocadastro.exchange";
+    public static final String FILA_RESPOSTA_GERENTE = "cliente.autocadastro.resposta-gerente.queue";
+    public static final String CHAVE_SOLICITACAO_GERENTE = "autocadastro.solicitar.gerente";
+    public static final String CHAVE_RESPOSTA_GERENTE = "autocadastro.resposta.gerente";
 
     @Bean
     public DirectExchange exchangeCliente() {
@@ -107,5 +112,22 @@ public class RabbitMqConfiguracao {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(conversorJsonRabbitMq);
         return rabbitTemplate;
+    }
+
+    @Bean
+    public DirectExchange exchangeAutocadastro() {
+        return new DirectExchange(EXCHANGE_AUTOCADASTRO, true, false);
+    }
+
+    @Bean
+    public Queue filaRespostaGerenteAutocadastro() {
+        return new Queue(FILA_RESPOSTA_GERENTE, true);
+    }
+
+    @Bean
+    public Binding bindingRespostaGerenteAutocadastro(Queue filaRespostaGerenteAutocadastro, DirectExchange exchangeAutocadastro) {
+        return BindingBuilder.bind(filaRespostaGerenteAutocadastro)
+            .to(exchangeAutocadastro)
+            .with(CHAVE_RESPOSTA_GERENTE);
     }
 }

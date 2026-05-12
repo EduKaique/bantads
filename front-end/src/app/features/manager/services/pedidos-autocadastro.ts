@@ -20,10 +20,12 @@ export class PedidosAutocadastroService {
   private readonly apiUrl = inject(API_URL);
 
   listar(cpfGerente: string): Observable<PedidoAutocadastro[]> {
-    const params = new HttpParams().set('cpfGerente', cpfGerente);
+    const params = new HttpParams()
+      .set('filtro', 'para_aprovar')
+      .set('cpfGerente', cpfGerente);
 
     return this.http
-      .get<PedidoAutocadastroResposta[]>(`${this.apiUrl}/manager/pedidos-autocadastro`, { params })
+      .get<PedidoAutocadastroResposta[]>(`${this.apiUrl}/clientes`, { params })
       .pipe(
         map((resposta) =>
           resposta
@@ -55,10 +57,10 @@ export class PedidosAutocadastroService {
   }
 
   rejeitar(cpf: string, motivo: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/manager/rejeitar-cliente/${cpf}`, { motivo });
+    return this.http.post(`${this.apiUrl}/clientes/${cpf}/rejeitar`, { motivo });
   }
 
   aprovar(cpf: string) {
-    return this.http.post<Client>(`${this.apiUrl}/manager/aprovar-cliente/${cpf}`, {});
+    return this.http.post<Client>(`${this.apiUrl}/clientes/${cpf}/aprovar`, {});
   }
 }

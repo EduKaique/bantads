@@ -97,4 +97,55 @@ describe('GerentesService', () => {
 
     expect(nomesCarregados).toEqual(['Geniéve', 'Godophredo', 'Gyândula']);
   });
+
+  it('deve inserir gerente no endpoint real do gateway', () => {
+    const gerente = {
+      cpf: '12345678901',
+      nome: 'Gerente Teste',
+      email: 'gerente.teste@bantads.com.br',
+      celular: '(41) 99999-0000',
+    };
+
+    service.inserir(gerente).subscribe();
+
+    const requisicao = httpTestingController.expectOne(
+      'http://localhost:3000/gerentes',
+    );
+
+    expect(requisicao.request.method).toBe('POST');
+    expect(requisicao.request.body).toEqual(gerente);
+    requisicao.flush(gerente);
+  });
+
+  it('deve atualizar gerente no endpoint real do gateway', () => {
+    const cpf = '12345678901';
+    const dadosGerente = {
+      nome: 'Gerente Atualizado',
+      email: 'gerente.atualizado@bantads.com.br',
+      celular: '(41) 98888-0000',
+    };
+
+    service.atualizar(cpf, dadosGerente).subscribe();
+
+    const requisicao = httpTestingController.expectOne(
+      `http://localhost:3000/gerentes/${cpf}`,
+    );
+
+    expect(requisicao.request.method).toBe('PUT');
+    expect(requisicao.request.body).toEqual(dadosGerente);
+    requisicao.flush(dadosGerente);
+  });
+
+  it('deve remover gerente no endpoint real do gateway', () => {
+    const cpf = '12345678901';
+
+    service.remover(cpf).subscribe();
+
+    const requisicao = httpTestingController.expectOne(
+      `http://localhost:3000/gerentes/${cpf}`,
+    );
+
+    expect(requisicao.request.method).toBe('DELETE');
+    requisicao.flush({});
+  });
 });
