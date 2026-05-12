@@ -37,7 +37,8 @@ export class LoginPageComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   imagensCarousel: string[] = [
     'assets/illustrations/login.svg',
-    'assets/illustrations/login.svg'
+    'assets/illustrations/login2.svg',
+    'assets/illustrations/login3.svg'
   ];
   indiceAtual: number = 0;
 
