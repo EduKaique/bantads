@@ -25,36 +25,27 @@ public class ListenerAtribuicaoContaSaga {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    /**
-     * Consome a solicitação de atribuição de conta e atualiza o gerente responsável
-     */
     @RabbitListener(queues = RabbitMqConfiguracao.FILA_ATRIBUIR_CONTA)
     @Transactional
     public void consumirSolicitacaoAtribuicaoConta(EventoSolicitacaoAtribuicaoConta evento) {
         System.out.println("Solicitação atribuição conta recebida: " + evento.sagaId());
 
         try {
-            // Busca todas as contas do gerente de origem
             List<ContaEscrita> contasGerenteOrigem = repositorioContaEscrita.findAll()
                 .stream()
                 .filter(c -> c.getGerente().equals(evento.cpfGerenteOrigem()))
                 .toList();
 
-            // Se não há contas para transferir, retorna erro
             if (contasGerenteOrigem.isEmpty()) {
-                enviarRespostaErro(evento.sagaId(), evento.cpfNovoGerente(), 
+                enviarRespostaErro(evento.sagaId(), evento.cpfNovoGerente(),
                     "Gerente de origem não possui contas");
                 return;
             }
 
-            // Pega a primeira conta para transferir (poderia ser qualquer uma)
             ContaEscrita contaParaTransferir = contasGerenteOrigem.get(0);
-
-            // Atualiza o gerente da conta
             contaParaTransferir.setGerente(evento.cpfNovoGerente());
             repositorioContaEscrita.save(contaParaTransferir);
 
-            // Envia resposta de sucesso
             EventoRespostaAtribuicaoConta resposta = new EventoRespostaAtribuicaoConta(
                 evento.sagaId(),
                 evento.cpfNovoGerente(),
@@ -70,8 +61,7 @@ public class ListenerAtribuicaoContaSaga {
 
         } catch (Exception e) {
             System.err.println("Erro ao atribuir conta: " + e.getMessage());
-            e.printStackTrace();
-            enviarRespostaErro(evento.sagaId(), evento.cpfNovoGerente(), 
+            enviarRespostaErro(evento.sagaId(), evento.cpfNovoGerente(),
                 "Erro ao atribuir conta: " + e.getMessage());
         }
     }

@@ -1,14 +1,11 @@
 package com.bantads.gerente.mensageria;
 
-import java.math.BigDecimal;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bantads.gerente.dto.GerenteInsercaoDTO;
-import com.bantads.gerente.dto.GerenteResponseDTO;
 import com.bantads.gerente.model.Gerente;
 import com.bantads.gerente.repository.GerenteRepository;
 
@@ -18,11 +15,7 @@ public class OrquestradorSagaInsercaoGerente {
     private final PublicadorSagaInsercaoGerente publicador;
     private final GerenteRepository gerenteRepository;
 
-    // Armazena o estado das SAGAs em progresso
     private final ConcurrentHashMap<String, EstadoSagaInsercao> estadosSagas = new ConcurrentHashMap<>();
-
-    // Fila de SAGAs aguardando processamento
-    private final ConcurrentLinkedQueue<String> filaProcessamento = new ConcurrentLinkedQueue<>();
 
     public OrquestradorSagaInsercaoGerente(
         PublicadorSagaInsercaoGerente publicador,
@@ -32,12 +25,8 @@ public class OrquestradorSagaInsercaoGerente {
         this.gerenteRepository = gerenteRepository;
     }
 
-    /**
-     * Inicia uma nova SAGA de inserção de gerente
-     */
     @Transactional
     public void iniciarSaga(String sagaId, GerenteInsercaoDTO dto) {
-        // Cria o estado inicial da SAGA
         EstadoSagaInsercao estado = new EstadoSagaInsercao();
         estado.setSagaId(sagaId);
         estado.setDto(dto);
@@ -45,15 +34,10 @@ public class OrquestradorSagaInsercaoGerente {
         estado.setDataInicio(System.currentTimeMillis());
 
         estadosSagas.put(sagaId, estado);
-        filaProcessamento.add(sagaId);
 
-        // Publica a primeira mensagem: consultar gerente com mais contas
         publicador.publicarConsultaGerenteMaisContas(sagaId);
     }
 
-    /**
-     * Processa a resposta da consulta de gerente com mais contas
-     */
     public void processarRespostaGerenteMaisContas(EventoRespostaGerenteMaisContas evento) {
         EstadoSagaInsercao estado = estadosSagas.get(evento.sagaId());
 
@@ -68,24 +52,18 @@ public class OrquestradorSagaInsercaoGerente {
             return;
         }
 
-        // Armazena as informações do gerente com mais contas
         estado.setCpfGerenteComMaisContas(evento.cpfGerenteComMaisContas());
         estado.setQuantidadeContasGerenteOrigem(evento.quantidadeContas());
         estado.setStatus("GERENTE_CONSULTADO");
 
-        // Continua o fluxo: inserir o novo gerente
         inserirNovoGerente(estado);
     }
 
-    /**
-     * Insere o novo gerente no banco de dados
-     */
     @Transactional
     private void inserirNovoGerente(EstadoSagaInsercao estado) {
         try {
             GerenteInsercaoDTO dto = estado.getDto();
 
-            // Valida se o CPF já existe
             if (gerenteRepository.existsByCpf(dto.getCpf())) {
                 estado.setStatus("ERRO");
                 estado.setMensagem("CPF já cadastrado");
@@ -98,7 +76,6 @@ public class OrquestradorSagaInsercaoGerente {
                 return;
             }
 
-            // Cria o novo gerente
             Gerente novoGerente = Gerente.builder()
                 .cpf(dto.getCpf())
                 .nome(dto.getNome())
@@ -110,12 +87,13 @@ public class OrquestradorSagaInsercaoGerente {
             estado.setCpfNovoGerente(gerenteSalvo.getCpf());
             estado.setStatus("GERENTE_INSERIDO");
 
-            // Define se deve atribuir conta ao novo gerente
-            boolean deveAtribuirConta = verificarSeDeveAtribuirConta();
+            boolean deveAtribuirConta = gerenteRepository.count() > 1
+                && estado.getCpfGerenteComMaisContas() != null
+                && !estado.getCpfGerenteComMaisContas().isBlank();
+
             estado.setDeveAtribuirConta(deveAtribuirConta);
 
             if (deveAtribuirConta) {
-                // Publica mensagem para atribuir conta
                 publicador.publicarSolicitacaoAtribuicaoConta(
                     estado.getSagaId(),
                     estado.getCpfNovoGerente(),
@@ -123,7 +101,6 @@ public class OrquestradorSagaInsercaoGerente {
                 );
                 estado.setStatus("AGUARDANDO_ATRIBUICAO_CONTA");
             } else {
-                // SAGA concluída sem atribuir conta
                 estado.setStatus("CONCLUIDA");
             }
         } catch (Exception e) {
@@ -132,9 +109,6 @@ public class OrquestradorSagaInsercaoGerente {
         }
     }
 
-    /**
-     * Processa a resposta de atribuição de conta
-     */
     public void processarRespostaAtribuicaoConta(EventoRespostaAtribuicaoConta evento) {
         EstadoSagaInsercao estado = estadosSagas.get(evento.sagaId());
 
@@ -151,43 +125,13 @@ public class OrquestradorSagaInsercaoGerente {
         }
     }
 
-    /**
-     * Verifica se o novo gerente deve receber uma conta
-     * Regras:
-     * - Se for o primeiro gerente OU houver apenas um gerente com uma única conta -> sem conta
-     * - Caso contrário -> recebe uma conta
-     */
-    private boolean verificarSeDeveAtribuirConta() {
-        long totalGerentes = gerenteRepository.count();
-
-        // Primeiro gerente do banco
-        if (totalGerentes == 1) {
-            return false;
-        }
-
-        // Se há apenas 2 gerentes e um deles tem apenas 1 conta
-        if (totalGerentes == 2) {
-            // Aqui você precisa consultar o MS Conta para saber quantas contas cada gerente tem
-            // Por enquanto, vamos considerar que deve atribuir
-            return true;
-        }
-
-        return true;
-    }
-
-    /**
-     * Retorna o estado da SAGA
-     */
     public EstadoSagaInsercao obterEstadoSaga(String sagaId) {
         return estadosSagas.get(sagaId);
     }
 
-    /**
-     * Limpa as SAGAs concluídas (para evitar memory leak)
-     */
     public void limparSagasAntigas() {
         long tempoAtual = System.currentTimeMillis();
-        long tempoLimite = 1000 * 60 * 60; // 1 hora
+        long tempoLimite = 1000 * 60 * 60;
 
         estadosSagas.entrySet().removeIf(entry -> {
             EstadoSagaInsercao estado = entry.getValue();
