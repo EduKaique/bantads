@@ -16,7 +16,6 @@ public class RabbitMqConfiguracao {
     public static final String EXCHANGE_GERENTE = "gerente.exchange";
     public static final String CHAVE_ALTERACAO_GERENTE = "gerente.perfil.alterado";
 
-    // SAGA Inserção de Gerente
     public static final String EXCHANGE_INSERCAO_GERENTE = "gerente.insercao.exchange";
     
     public static final String FILA_CONSULTAR_GERENTE_MAIS_CONTAS = "gerente.consultar-mais-contas.queue";
@@ -31,7 +30,6 @@ public class RabbitMqConfiguracao {
     public static final String FILA_RESPOSTA_ATRIBUICAO_CONTA = "gerente.resposta-atribuicao.queue";
     public static final String CHAVE_RESPOSTA_ATRIBUICAO_CONTA = "gerente.resposta-atribuicao";
 
-    // SAGA Remoção de Gerente
     public static final String EXCHANGE_REMOCAO_GERENTE = "gerente.remocao.exchange";
     
     public static final String FILA_CONSULTAR_GERENTE_MENOS_CONTAS = "gerente.consultar-menos-contas.queue";
@@ -51,13 +49,11 @@ public class RabbitMqConfiguracao {
         return new DirectExchange(EXCHANGE_GERENTE, true, false);
     }
 
-    // Exchange
     @Bean
     public DirectExchange exchangeInsercaoGerente() {
         return new DirectExchange(EXCHANGE_INSERCAO_GERENTE, true, false);
     }
 
-    // Filas
     @Bean
     public Queue filaConsultarGerenteMaisContas() {
         return new Queue(FILA_CONSULTAR_GERENTE_MAIS_CONTAS, true);
@@ -78,7 +74,6 @@ public class RabbitMqConfiguracao {
         return new Queue(FILA_RESPOSTA_ATRIBUICAO_CONTA, true);
     }
 
-    // Bindings
     @Bean
     public Binding bindingConsultarGerenteMaisContas(Queue filaConsultarGerenteMaisContas, DirectExchange exchangeInsercaoGerente) {
         return BindingBuilder.bind(filaConsultarGerenteMaisContas)
@@ -107,7 +102,6 @@ public class RabbitMqConfiguracao {
             .with(CHAVE_RESPOSTA_ATRIBUICAO_CONTA);
     }
 
-    // ===== SAGA Remoção de Gerente =====
     @Bean
     public DirectExchange exchangeRemocaoGerente() {
         return new DirectExchange(EXCHANGE_REMOCAO_GERENTE, true, false);
@@ -161,13 +155,11 @@ public class RabbitMqConfiguracao {
             .with(CHAVE_RESPOSTA_TRANSFERENCIA_CONTAS);
     }
 
-    // JSON Message Converter
     @Bean
     public JacksonJsonMessageConverter conversorJsonRabbitMq() {
         return new JacksonJsonMessageConverter();
     }
 
-    // RabbitTemplate
     @Bean
     public RabbitTemplate rabbitTemplate(
         ConnectionFactory connectionFactory,
