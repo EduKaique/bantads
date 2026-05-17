@@ -30,11 +30,69 @@ interface ContaAtualMock {
   manager?: string | null;
 }
 
+interface RespostaContaTransferenciaPorCpf {
+  numeroConta: string;
+  saldo?: number | string | null;
+  saldoDisponivel?: number | string | null;
+  limite?: number | string | null;
+}
+
+interface RespostaContaTransferenciaPerfil {
+  cliente?: string | null;
+  cpf?: string | null;
+  nome?: string | null;
+  numero?: string | null;
+  numeroConta?: string | null;
+  saldo?: number | string | null;
+  saldoDisponivel?: number | string | null;
+  limite?: number | string | null;
+}
+
+interface RespostaTransferenciaMock {
+  message?: string;
+  novoSaldoOrigem?: number | string | null;
+  conta?: string;
+  data?: string;
+  destino?: string;
+  saldo?: number | string | null;
+  valor?: number | string | null;
+  transacao?: {
+    dataHora?: string;
+  };
+}
+
 interface RespostaDepositoMock {
   novoSaldoDestino: number;
   transacao?: {
     dataHora?: string;
   };
+}
+
+export interface ContaOrigemTransferencia {
+  numeroConta: string;
+  saldoDisponivel: number;
+}
+
+export interface ContaTransferenciaPerfil {
+  cliente: string;
+  nome: string;
+  numero: string;
+  saldo: number;
+  limite: number;
+  saldoDisponivel: number;
+}
+
+export interface TransferenciaRequest {
+  destino: string;
+  valor: number;
+}
+
+export interface TransferenciaResponse {
+  conta: string;
+  data: string;
+  destino: string;
+  saldo: number;
+  valor: number;
 }
 
 export interface TransacaoExtratoMock {
@@ -59,6 +117,7 @@ export interface ExtratoAtualMock {
   providedIn: 'root',
 })
 export class ClientAccountService {
+  private readonly mockApiUrl = 'http://localhost:3000';
   private readonly authService = inject(AuthService);
   private readonly http = inject(HttpClient);
   private readonly accountStateSubject = new BehaviorSubject<BankAccount>(
@@ -91,7 +150,7 @@ export class ClientAccountService {
           switchMap((contaAtual) =>
             this.http
               .get<TransacaoExtratoMock[]>(
-                `http://localhost:3000/transacoes/cpf/${currentUser.cpf}`,
+                `${this.mockApiUrl}/transacoes/cpf/${currentUser.cpf}`,
               )
               .pipe(
                 map((transacoes) => ({
@@ -123,7 +182,7 @@ export class ClientAccountService {
       return this.buscarContaAtualNoMock().pipe(
         switchMap((contaAtual) =>
           this.http
-            .post<RespostaDepositoMock>('http://localhost:3000/transacoes/deposito', {
+            .post<RespostaDepositoMock>(`${this.mockApiUrl}/transacoes/deposito`, {
               contaDestino: contaAtual.numeroConta,
               valor: amount,
             })
@@ -228,6 +287,110 @@ export class ClientAccountService {
     }
   }
 
+  buscarContaOrigemTransferenciaPorCpf(
+    cpf: string,
+  ): Observable<ContaOrigemTransferencia> {
+    return this.http
+      .get<RespostaContaTransferenciaPorCpf>(
+        `${this.mockApiUrl}/contas/cpf/${cpf}`,
+      )
+      .pipe(
+        switchMap((contaPorCpf) => {
+          const saldo = contaPorCpf.saldo ?? contaPorCpf.saldoDisponivel;
+
+          if (
+            this.temValorMonetario(saldo) ||
+            this.temValorMonetario(contaPorCpf.limite)
+          ) {
+            return of({
+              numeroConta: contaPorCpf.numeroConta,
+              saldoDisponivel: this.calcularSaldoDisponivel(
+                saldo,
+                contaPorCpf.limite,
+              ),
+            });
+          }
+
+          return this.buscarContaTransferenciaPorNumero(
+            contaPorCpf.numeroConta,
+          ).pipe(
+            map((detalhesConta) => ({
+              numeroConta: contaPorCpf.numeroConta,
+              saldoDisponivel: detalhesConta.saldoDisponivel,
+            })),
+          );
+        }),
+      );
+  }
+
+  buscarContaTransferenciaPorNumero(
+    numeroConta: string,
+  ): Observable<ContaTransferenciaPerfil> {
+    return this.http
+      .get<RespostaContaTransferenciaPerfil>(
+        `${this.mockApiUrl}/contas/${numeroConta}`,
+      )
+      .pipe(
+        map((dadosConta) => {
+          const saldo = this.toCurrencyNumber(
+            dadosConta.saldo ?? dadosConta.saldoDisponivel,
+          );
+          const limite = this.toCurrencyNumber(dadosConta.limite);
+          const numero =
+            dadosConta.numero || dadosConta.numeroConta || numeroConta;
+
+          return {
+            cliente: dadosConta.cliente || dadosConta.cpf || '',
+            nome: dadosConta.nome || 'Conta identificada',
+            numero,
+            saldo,
+            limite,
+            saldoDisponivel: this.calcularSaldoDisponivel(saldo, limite),
+          };
+        }),
+      );
+  }
+
+  transferirEntreContas(
+    numeroContaOrigem: string,
+    request: TransferenciaRequest,
+  ): Observable<TransferenciaResponse> {
+    return this.http
+      .post<RespostaTransferenciaMock>(
+        `${this.mockApiUrl}/transacoes/transferir`,
+        {
+          contaOrigem: numeroContaOrigem,
+          contaDestino: request.destino,
+          valor: request.valor,
+        },
+      )
+      .pipe(
+        switchMap((resposta) =>
+          this.buscarSaldoOrigemAposTransferencia(resposta).pipe(
+            map((saldoDisponivelOrigem) => ({
+              conta: resposta.conta || numeroContaOrigem,
+              data:
+                resposta.data ||
+                resposta.transacao?.dataHora ||
+                new Date().toISOString(),
+              destino: resposta.destino || request.destino,
+              saldo: saldoDisponivelOrigem,
+              valor: this.toCurrencyNumber(resposta.valor ?? request.valor),
+            })),
+          ),
+        ),
+      );
+  }
+
+  calcularSaldoDisponivel(
+    saldo: number | string | null | undefined,
+    limite: number | string | null | undefined,
+  ): number {
+    return this.roundCurrency(
+      this.toCurrencyNumber(saldo) + this.toCurrencyNumber(limite),
+    );
+  }
+
   private loadAccountState(): BankAccount {
     const storageKey = this.buildStorageKey();
     const persistedState = localStorage.getItem(storageKey);
@@ -293,7 +456,7 @@ export class ClientAccountService {
     }
 
     return this.http.get<ContaAtualMock>(
-      `http://localhost:3000/contas/cpf/${currentUser.cpf}`,
+      `${this.mockApiUrl}/contas/cpf/${currentUser.cpf}`,
     );
   }
 
@@ -326,6 +489,33 @@ export class ClientAccountService {
     }
 
     return normalizedAmount;
+  }
+
+  private buscarSaldoOrigemAposTransferencia(
+    resposta: RespostaTransferenciaMock,
+  ): Observable<number> {
+    const cpf = this.authService.currentUserValue?.cpf;
+    const saldoDaResposta = resposta.saldo ?? resposta.novoSaldoOrigem;
+
+    if (!cpf) {
+      return of(this.toCurrencyNumber(saldoDaResposta));
+    }
+
+    return this.buscarContaOrigemTransferenciaPorCpf(cpf).pipe(
+      map((contaOrigem) => contaOrigem.saldoDisponivel),
+      catchError(() => of(this.toCurrencyNumber(saldoDaResposta))),
+    );
+  }
+
+  private temValorMonetario(
+    value: number | string | null | undefined,
+  ): value is number | string {
+    return value !== null && value !== undefined;
+  }
+
+  private toCurrencyNumber(value: number | string | null | undefined): number {
+    const numericValue = Number(value ?? 0);
+    return Number.isFinite(numericValue) ? numericValue : 0;
   }
 
   private roundCurrency(value: number): number {

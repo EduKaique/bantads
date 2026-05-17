@@ -5,8 +5,6 @@ import {
   AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -14,32 +12,10 @@ import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
+import { normalizarValorMonetario } from '../../../../shared/utils/currency.utils';
 import { formatCurrency } from '../../../../shared/utils/formatters';
+import { positiveCurrencyAmountValidator } from '../../../../shared/validators/currency.validators';
 import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
-
-const amountPattern = /^\d+(?:[.,]\d{1,2})?$/;
-
-const saqueAmountValidator: ValidatorFn = (
-  control: AbstractControl
-): ValidationErrors | null => {
-  const rawValue = String(control.value ?? '').trim();
-
-  if (!rawValue) {
-    return null;
-  }
-
-  const normalizedValue = normalizarValorMonetario(rawValue);
-
-  if (!rawValue || normalizedValue === null) {
-    return { currencyFormat: true };
-  }
-
-  if (!Number.isFinite(normalizedValue) || normalizedValue <= 0) {
-    return { positiveAmount: true };
-  }
-
-  return null;
-};
 
 @Component({
   selector: 'app-saque-page',
@@ -63,7 +39,7 @@ export class SaquePageComponent {
 
   readonly formatCurrency = formatCurrency;
   readonly saqueForm = this.formBuilder.nonNullable.group({
-    valor: ['', [Validators.required, saqueAmountValidator]],
+    valor: ['', [Validators.required, positiveCurrencyAmountValidator]],
   });
 
   private readonly valorControl = this.saqueForm.controls.valor;
@@ -221,20 +197,4 @@ export class SaquePageComponent {
     const normalizedValue = normalizarValorMonetario(rawValue);
     return normalizedValue ?? 0;
   }
-}
-
-function normalizarValorMonetario(rawValue: string): number | null {
-  const cleanedValue = rawValue
-    .replace(/R\$\s?/g, '')
-    .replace(/\./g, '')
-    .replace(',', '.')
-    .trim();
-
-  if (!cleanedValue || !amountPattern.test(cleanedValue.replace('.', ','))) {
-    return null;
-  }
-
-  const normalizedValue = Number(cleanedValue);
-
-  return Number.isFinite(normalizedValue) ? normalizedValue : null;
 }
