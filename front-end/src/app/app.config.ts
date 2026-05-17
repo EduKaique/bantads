@@ -8,6 +8,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideToastr } from 'ngx-toastr';
 import { NgxSpinnerModule } from 'ngx-spinner';
 
+import { AUTH_API_CONFIG } from './core/configs/auth-api.config';
 import { API_URL } from './core/configs/api.token';
 import { apiInterceptor } from './core/interceptors/api.interceptor';
 import { environment } from '../environments/environment';
@@ -26,6 +27,14 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch(), withInterceptors([apiInterceptor, loadingInterceptor])),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     { provide: API_URL, useValue: environment.apiUrl },
+    {
+      provide: AUTH_API_CONFIG,
+      useValue: {
+        backendUrl: environment.apiUrl,
+        mockUrl: environment.mockApiUrl,
+        source: environment.authSource,
+      },
+    },
     provideAnimations(), 
     provideToastr({      
       timeOut: 3000,

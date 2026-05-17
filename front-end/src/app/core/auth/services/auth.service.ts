@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, map } from 'rxjs';
 import { Router } from '@angular/router';
-import { API_URL } from '../../configs/api.token';
+import { AUTH_API_CONFIG } from '../../configs/auth-api.config';
 import { RegisterRequest } from '../models/register-request';
 import {
   hasScopedStoragePrefix,
@@ -36,7 +36,7 @@ export type UserState = {
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly apiBaseUrl = inject(API_URL);
+  private readonly authApiConfig = inject(AUTH_API_CONFIG);
   private readonly router = inject(Router);
   private readonly userSignal = signal<UserState | null>(this.loadInitialUser());
 
@@ -67,11 +67,10 @@ export class AuthService {
   }
 
   public login(login: string, senha: string): Observable<UserState> {
+    const request = this.buildLoginRequest(login, senha);
+
     return this.http
-      .post<LoginResponse>(`${this.apiBaseUrl}/auth/login`, {
-        email: login,
-        password: senha,
-      })
+      .post<LoginResponse>(request.url, request.body)
       .pipe(
         map((response) => {
           const user: UserState = {
@@ -127,6 +126,37 @@ export class AuthService {
    */
   public signup(data: RegisterRequest): Observable<void> {
     console.log('Dados enviados para cadastro:', data);
-    return this.http.post<void>(`${this.apiBaseUrl}/auth/register`, data);
+    return this.http.post<void>(this.buildSignupUrl(), data);
+  }
+
+  private buildLoginRequest(
+    login: string,
+    senha: string,
+  ): { url: string; body: Record<string, string> } {
+    if (this.authApiConfig.source === 'mock') {
+      return {
+        url: `${this.authApiConfig.mockUrl}/auth/login`,
+        body: {
+          email: login,
+          password: senha,
+        },
+      };
+    }
+
+    return {
+      url: `${this.authApiConfig.backendUrl}/login`,
+      body: {
+        login,
+        senha,
+      },
+    };
+  }
+
+  private buildSignupUrl(): string {
+    if (this.authApiConfig.source === 'mock') {
+      return `${this.authApiConfig.mockUrl}/auth/register`;
+    }
+
+    return `${this.authApiConfig.backendUrl}/register`;
   }
 }
