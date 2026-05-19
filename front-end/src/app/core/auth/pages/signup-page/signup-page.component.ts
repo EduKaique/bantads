@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ViaCepService, Endereco } from '../../../services/viacep.service';
 import { AuthService } from '../../services/auth.service';
-import { RegisterRequest } from '../../models/register-request';
+import { RegisterRequest } from '../../models/auth.models';
 import { CustomValidators } from '../../../../shared/utils/cpf-validator';
 import { ToastService } from '../../../services/toast.service';
 import { SuccessfulSignupComponent } from '../../components/successful-signup/successful-signup.component';
@@ -110,17 +110,19 @@ export class SignupPageComponent {
 
       this.isLoading.set(true);
 
-      this.authService.signup(requestData).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.registerSuccess.set(true);
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.registerErrorMessage = `Cadastro falhou: ${err.error?.message || 'Tente novamente mais tarde.'}`;
-          console.log("Erro:" + err);
-        },
-      });
+      // TODO: Substituir para o clienteService POST /cliente
+
+      // this.authService.signup(requestData).subscribe({ 
+      //   next: () => {
+      //     this.isLoading.set(false);
+      //     this.registerSuccess.set(true);
+      //   },
+      //   error: (err) => {
+      //     this.isLoading.set(false);
+      //     this.registerErrorMessage = `Cadastro falhou: ${err.error?.message || 'Tente novamente mais tarde.'}`;
+      //     console.log("Erro:" + err);
+      //   },
+      // });
     } else {
       this.firstFormGroup.markAllAsTouched();
       this.secondFormGroup.markAllAsTouched();

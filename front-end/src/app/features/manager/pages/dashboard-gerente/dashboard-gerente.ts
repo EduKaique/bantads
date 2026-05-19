@@ -23,7 +23,7 @@ export class DashboardGerenteComponent {
   constructor() {
     const currentUser = this.authService.currentUserValue;
 
-    if (currentUser?.tipo === 'gerente' && currentUser.nome?.trim()) {
+    if (currentUser?.tipo === 'GERENTE' && currentUser.nome?.trim()) {
       this.nomeUsuario.set(currentUser.nome.trim());
     }
   }

@@ -20,7 +20,7 @@
       @if (isMenuOpen()) {
         <div class="profile-dropdown">
           
-          @if (user?.tipo === 'cliente') {
+          @if (user?.tipo === 'CLIENTE') {
             <button (click)="editProfile()">
               <mat-icon>person_edit</mat-icon> Editar Perfil
             </button>

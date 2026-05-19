@@ -60,7 +60,7 @@ export class AuthService {
             nome: response.usuario.nome,
             email: response.usuario.email,
             cpf: response.usuario.cpf,
-            tipo: response.tipo as 'CLIENTE' | 'GERENTE' | 'ADMINISTRADOR',
+            tipo: response.tipo as 'CLIENTE' | 'GERENTE' | 'ADMIN',
             access_token: response.access_token,
           };
           return user;

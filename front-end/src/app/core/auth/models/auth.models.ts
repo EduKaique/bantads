@@ -35,6 +35,6 @@ export type UserState = {
   nome: string;
   email: string;
   cpf: string;
-  tipo: 'CLIENTE' | 'GERENTE' | 'ADMINISTRADOR';
+  tipo: 'CLIENTE' | 'GERENTE' | 'ADMIN';
   access_token: string;
 } | null;
