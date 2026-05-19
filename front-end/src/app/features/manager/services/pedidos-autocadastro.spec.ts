@@ -1,29 +1,27 @@
-import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
-import { API_URL } from '../../../core/configs/api.token';
+import { ClienteService } from '../../../core/services/cliente.service';
 import { PedidosAutocadastroService } from './pedidos-autocadastro';
 
 describe('PedidosAutocadastroService', () => {
   let service: PedidosAutocadastroService;
-  let httpTestingController: HttpTestingController;
+  let clienteService: jasmine.SpyObj<ClienteService>;
 
   beforeEach(() => {
+    clienteService = jasmine.createSpyObj<ClienteService>('ClienteService', [
+      'listarParaAprovar',
+      'aprovarCliente',
+      'rejeitarCliente',
+    ]);
+
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        { provide: API_URL, useValue: 'http://localhost:3000' },
+        { provide: ClienteService, useValue: clienteService },
       ],
     });
 
     service = TestBed.inject(PedidosAutocadastroService);
-    httpTestingController = TestBed.inject(HttpTestingController);
-  });
-
-  afterEach(() => {
-    httpTestingController.verify();
   });
 
   it('deve criar o service', () => {
@@ -35,12 +33,14 @@ describe('PedidosAutocadastroService', () => {
       {
         cpf: '12912861012',
         nome: 'Catharyna',
+        email: 'catharyna@example.com',
         salario: 10000,
         dataSolicitacao: '2026-03-14T10:00:00.000Z',
       },
       {
         cpf: '76179646090',
         nome: 'Coandrya',
+        email: 'coandrya@example.com',
         salario: 1500,
         dataSolicitacao: '2026-03-14T10:20:00.000Z',
       },
@@ -48,19 +48,13 @@ describe('PedidosAutocadastroService', () => {
 
     let pedidosOrdenados: unknown[] = [];
 
+    clienteService.listarParaAprovar.and.returnValue(of(pedidosRecebidos));
+
     service.listar('12345678910').subscribe((pedidos) => {
       pedidosOrdenados = pedidos;
     });
 
-    const requisicao = httpTestingController.expectOne((request) =>
-      request.url === 'http://localhost:3000/clientes' &&
-      request.params.get('filtro') === 'para_aprovar' &&
-      request.params.get('cpfGerente') === '12345678910'
-    );
-
-    expect(requisicao.request.method).toBe('GET');
-    requisicao.flush(pedidosRecebidos);
-
+    expect(clienteService.listarParaAprovar).toHaveBeenCalledWith('12345678910');
     expect(pedidosOrdenados).toEqual([
       {
         cpf: '76179646090',
@@ -77,23 +71,57 @@ describe('PedidosAutocadastroService', () => {
     ]);
   });
 
+  it('deve normalizar salario formatado retornado pela API', () => {
+    clienteService.listarParaAprovar.and.returnValue(of([
+      {
+        cpf: '12912861012',
+        nome: 'Catharyna',
+        email: 'catharyna@example.com',
+        salario: 'R$ 10.000',
+        dataSolicitacao: '2026-03-14T10:00:00.000Z',
+      },
+    ]));
+
+    let pedidosRecebidos: unknown[] = [];
+
+    service.listar('12345678910').subscribe((pedidos) => {
+      pedidosRecebidos = pedidos;
+    });
+
+    expect(pedidosRecebidos).toEqual([
+      {
+        cpf: '12912861012',
+        nome: 'Catharyna',
+        salario: 10000,
+        dataSolicitacao: '2026-03-14T10:00:00.000Z',
+      },
+    ]);
+  });
+
   it('deve aprovar cliente usando rota de clientes', () => {
+    clienteService.aprovarCliente.and.returnValue(of({}));
+
     service.aprovar('76179646090').subscribe();
 
-    const requisicao = httpTestingController.expectOne('http://localhost:3000/clientes/76179646090/aprovar');
-
-    expect(requisicao.request.method).toBe('POST');
-    expect(requisicao.request.body).toEqual({});
-    requisicao.flush({});
+    expect(clienteService.aprovarCliente).toHaveBeenCalledWith('76179646090');
   });
 
   it('deve rejeitar cliente usando rota de clientes', () => {
+    clienteService.rejeitarCliente.and.returnValue(of(void 0));
+
     service.rejeitar('76179646090', 'Documentos inconsistentes').subscribe();
 
-    const requisicao = httpTestingController.expectOne('http://localhost:3000/clientes/76179646090/rejeitar');
+    expect(clienteService.rejeitarCliente).toHaveBeenCalledWith(
+      '76179646090',
+      'Documentos inconsistentes',
+    );
+  });
 
-    expect(requisicao.request.method).toBe('POST');
-    expect(requisicao.request.body).toEqual({ motivo: 'Documentos inconsistentes' });
-    requisicao.flush({});
+  it('deve delegar motivo em branco para validacao do service centralizado', () => {
+    clienteService.rejeitarCliente.and.returnValue(of(void 0));
+
+    service.rejeitar('76179646090', '   ').subscribe();
+
+    expect(clienteService.rejeitarCliente).toHaveBeenCalledWith('76179646090', '   ');
   });
 });

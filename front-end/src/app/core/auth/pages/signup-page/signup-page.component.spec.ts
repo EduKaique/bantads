@@ -4,9 +4,9 @@ import { of } from 'rxjs';
 import { provideNgxMask } from 'ngx-mask';
 
 import { SignupPageComponent } from './signup-page.component';
-import { AuthService } from '../../services/auth.service';
 import { ViaCepService } from '../../../services/viacep.service';
 import { ToastService } from '../../../services/toast.service';
+import { ClienteService } from '../../../services/cliente.service';
 
 describe('SignupPageComponent', () => {
   let component: SignupPageComponent;
@@ -19,9 +19,9 @@ describe('SignupPageComponent', () => {
         provideRouter([]),
         provideNgxMask(),
         {
-          provide: AuthService,
+          provide: ClienteService,
           useValue: {
-            signup: jasmine.createSpy('signup').and.returnValue(of(void 0)),
+            criarCliente: jasmine.createSpy('criarCliente').and.returnValue(of(void 0)),
           },
         },
         {

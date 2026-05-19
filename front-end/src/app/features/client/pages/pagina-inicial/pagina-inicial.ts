@@ -6,7 +6,7 @@ import { CardMenu } from '../../../../shared/components/card-menu/card-menu';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../../../../core/auth/services/auth.service';
-import { ClientService } from '../../services/client.service';
+import { ClienteService } from '../../../../core/services/cliente.service';
 
 @Component({
   selector: 'app-pagina-inicial',
@@ -18,7 +18,7 @@ import { ClientService } from '../../services/client.service';
 export class PaginaInicial implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly clientService = inject(ClientService);
+  private readonly clienteService = inject(ClienteService);
   private readonly destroyRef = inject(DestroyRef);
   
   readonly saldo = signal(0);
@@ -47,10 +47,10 @@ export class PaginaInicial implements OnInit {
   }
 
   private carregarDadosAPI(cpf: string): void {
-    this.clientService.buscaDadosConta(cpf)
+    this.clienteService.buscarContaPorCpf(cpf)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (dadosConta: any) => {
+        next: (dadosConta) => {
           this.saldo.set(dadosConta.saldoDisponivel || 0);
 
           if (dadosConta.nome?.trim()) {

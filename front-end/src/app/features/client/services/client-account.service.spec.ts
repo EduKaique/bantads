@@ -1,17 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 
-import {
-  AuthService,
-  UserState,
-} from '../../../core/auth/services/auth.service';
+import { AuthService } from '../../../core/auth/services/auth.service';
+import { UserState } from '../../../core/auth/models/auth.models';
 import { ClientAccountService } from './client-account.service';
 
 class AuthServiceStub {
   private readonly currentUserSubject = new BehaviorSubject<UserState>({
     nome: 'Artur Falavinha',
     email: 'artur@bantads.com',
-    tipo: 'cliente',
+    cpf: '76179646090',
+    tipo: 'CLIENTE',
     access_token: 'token',
   });
 
@@ -84,7 +83,8 @@ describe('ClientAccountService', () => {
     authService.setCurrentUser({
       nome: 'Employee Session',
       email: 'employee@bantads.com',
-      tipo: 'gerente',
+      cpf: '10020030040',
+      tipo: 'GERENTE',
       access_token: 'token',
     });
 

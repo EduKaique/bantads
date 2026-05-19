@@ -25,8 +25,10 @@ export class ModalRejeitarPedidoComponent {
   }
 
   emitirConfirmacao(): void {
-    if (this.motivoControl.valid) {
-      this.confirmar.emit({ pedido: this.pedido, motivo: this.motivoControl.value });
+    const motivo = this.motivoControl.value.trim();
+
+    if (this.motivoControl.valid && motivo) {
+      this.confirmar.emit({ pedido: this.pedido, motivo });
     } else {
       this.motivoControl.markAsTouched();
     }

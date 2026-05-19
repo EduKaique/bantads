@@ -6,7 +6,7 @@ import { provideNgxMask } from 'ngx-mask';
 
 import { SaquePageComponent } from './saque-page.component';
 import { AuthService } from '../../../../core/auth/services/auth.service';
-import { ClientService } from '../../services/client.service';
+import { ClienteService } from '../../../../core/services/cliente.service';
 import { SaqueService } from '../../services/saque.service';
 import { ToastService } from '../../../../core/services/toast.service';
 
@@ -27,8 +27,8 @@ describe('SaquePageComponent', () => {
     currentUserValue: { cpf: '12345678910' }
   };
 
-  let mockClientService = {
-    buscaDadosConta: jasmine.createSpy('buscaDadosConta').and.returnValue(of({
+  let mockClienteService = {
+    buscarContaPorCpf: jasmine.createSpy('buscarContaPorCpf').and.returnValue(of({
       numeroConta: '123456-7',
       saldoDisponivel: 125.49,
       limite: 5000
@@ -49,7 +49,7 @@ describe('SaquePageComponent', () => {
         provideNgxMask(),
         { provide: Router, useValue: mockRouter },
         { provide: AuthService, useValue: mockAuthService },
-        { provide: ClientService, useValue: mockClientService },
+        { provide: ClienteService, useValue: mockClienteService },
         { provide: SaqueService, useValue: mockSaqueService },
         { provide: ToastService, useValue: mockToastService }
       ]
@@ -64,7 +64,7 @@ describe('SaquePageComponent', () => {
   it('deve criar o componente e carregar o saldo no ngOnInit', () => {
     expect(component).toBeTruthy();
     
-    expect(mockClientService.buscaDadosConta).toHaveBeenCalledWith('12345678910');
+    expect(mockClienteService.buscarContaPorCpf).toHaveBeenCalledWith('12345678910');
     
     expect(component.saldoDisponivel).toBe(5125.49);
   });

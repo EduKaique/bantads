@@ -144,9 +144,12 @@ export class TelaInicialGerenteComponent implements OnInit {
       .aprovar(evento.pedido.cpf)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (clienteCriado) => {
+        next: (respostaAprovacao) => {
           const listaAtualizada = this.pedidosAutocadastro().filter(p => p.cpf !== evento.pedido.cpf);
           this.pedidosAutocadastro.set(listaAtualizada);
+          if ('idSaga' in respostaAprovacao && respostaAprovacao.status !== 'CONCLUIDA') {
+            this.mensagemErro.set(respostaAprovacao.mensagem || 'Aprovacao em processamento.');
+          }
           this.fecharModal();
           this.carregando.set(false);
         },
