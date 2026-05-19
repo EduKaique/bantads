@@ -6,7 +6,7 @@ import { provideNgxMask } from 'ngx-mask';
 
 import { ToastService } from '../../../../core/services/toast.service';
 import { ViaCepService } from '../../../../core/services/viacep.service';
-import { ClientService } from '../../services/client.service';
+import { ClienteService } from '../../../../core/services/cliente.service';
 import { AlteracaoPerfilComponent } from './alteracao-perfil';
 
 describe('AlteracaoPerfilComponent', () => {
@@ -28,16 +28,16 @@ describe('AlteracaoPerfilComponent', () => {
           },
         },
         {
-          provide: ClientService,
+          provide: ClienteService,
           useValue: {
-            buscaPerfil: () =>
+            buscarClientePorCpf: () =>
               of({
-                name: 'Cliente Teste',
+                nome: 'Cliente Teste',
                 cpf: '12345678901',
                 email: 'cliente@bantads.com.br',
-                phoneNumber: '41999999999',
-                salary: 2500,
-                address: {
+                telefone: '41999999999',
+                salario: 2500,
+                endereco: {
                   cep: '80000000',
                   logradouro: 'Rua Teste',
                   numero: '100',

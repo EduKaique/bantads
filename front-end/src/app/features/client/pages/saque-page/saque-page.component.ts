@@ -6,14 +6,13 @@ import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { ClienteService } from '../../../../core/services/cliente.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { ClientService } from '../../services/client.service';
 import { SaqueService } from '../../services/saque.service';
 
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
 import { normalizarValorMonetario } from '../../../../shared/utils/currency.utils';
 import { formatCurrency } from '../../../../shared/utils/formatters';
-import { normalizarValorMonetario } from '../../../../shared/utils/currency.utils';
 import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
 import { saqueAmountValidator } from '../../../../shared/utils/saque.validators';
 
@@ -36,13 +35,13 @@ export class SaquePageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly saqueService = inject(SaqueService);
-  private readonly clientService = inject(ClientService);
+  private readonly clienteService = inject(ClienteService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   
   readonly formatCurrency = formatCurrency;
   readonly saqueForm = this.formBuilder.nonNullable.group({
-    valor: ['', [Validators.required, positiveCurrencyAmountValidator]],
+    valor: ['', [Validators.required, saqueAmountValidator]],
   });
 
   private readonly valorControl = this.saqueForm.controls.valor;
@@ -173,7 +172,7 @@ export class SaquePageComponent implements OnInit {
   }
 
  private carregarSaldo(cpf: string): void {
-    this.clientService.buscaDadosConta(cpf)
+    this.clienteService.buscarContaPorCpf(cpf)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (dadosConta) => {

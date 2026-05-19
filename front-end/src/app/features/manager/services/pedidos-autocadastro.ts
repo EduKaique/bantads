@@ -1,49 +1,55 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient,HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { API_URL } from '../../../core/configs/api.token';
 import { PedidoAutocadastro } from '../../../shared/models/pedido-autocadastro';
-import { Client } from '../../../shared/models/client';
-
-interface PedidoAutocadastroResposta {
-  cpf: string;
-  nome: string;
-  salario: number;
-  dataSolicitacao: string;
-}
+import { ClienteService } from '../../../core/services/cliente.service';
+import {
+  AprovacaoClienteResponse,
+  ClienteParaAprovarResponse,
+} from '../../../shared/models/cliente.models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PedidosAutocadastroService {
-  private readonly http = inject(HttpClient);
-  private readonly apiUrl = inject(API_URL);
+  private readonly clienteService = inject(ClienteService);
 
   listar(cpfGerente: string): Observable<PedidoAutocadastro[]> {
-    const params = new HttpParams()
-      .set('filtro', 'para_aprovar')
-      .set('cpfGerente', cpfGerente);
-
-    return this.http
-      .get<PedidoAutocadastroResposta[]>(`${this.apiUrl}/clientes`, { params })
-      .pipe(
-        map((resposta) =>
-          resposta
-            .map((pedidoAutocadastro) => this.mapearPedidoAutocadastro(pedidoAutocadastro))
-            .sort((pedidoAtual, proximoPedido) => this.ordenarPorDataDesc(pedidoAtual, proximoPedido)),
-        ),
-      );
+    return this.clienteService.listarParaAprovar(cpfGerente).pipe(
+      map((resposta) =>
+        resposta
+          .map((pedidoAutocadastro) => this.mapearPedidoAutocadastro(pedidoAutocadastro))
+          .sort((pedidoAtual, proximoPedido) => this.ordenarPorDataDesc(pedidoAtual, proximoPedido)),
+      ),
+    );
   }
 
   private mapearPedidoAutocadastro(
-    pedidoAutocadastroResposta: PedidoAutocadastroResposta,
+    pedidoAutocadastroResposta: ClienteParaAprovarResponse,
   ): PedidoAutocadastro {
     return {
       cpf: pedidoAutocadastroResposta.cpf,
       nome: pedidoAutocadastroResposta.nome,
-      salario: pedidoAutocadastroResposta.salario,
+      salario: this.normalizarSalario(pedidoAutocadastroResposta.salario),
       dataSolicitacao: pedidoAutocadastroResposta.dataSolicitacao,
     };
+  }
+
+  private normalizarSalario(salario: number | string | undefined): number {
+    if (typeof salario === 'number') {
+      return salario;
+    }
+
+    if (!salario) {
+      return 0;
+    }
+
+    const valorNormalizado = salario
+      .replace(/[^\d,.-]/g, '')
+      .replace(/\./g, '')
+      .replace(',', '.');
+
+    const valorNumerico = Number(valorNormalizado);
+    return Number.isFinite(valorNumerico) ? valorNumerico : 0;
   }
 
   private ordenarPorDataDesc(
@@ -56,11 +62,11 @@ export class PedidosAutocadastroService {
     );
   }
 
-  rejeitar(cpf: string, motivo: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/clientes/${cpf}/rejeitar`, { motivo });
+  rejeitar(cpf: string, motivo: string): Observable<void> {
+    return this.clienteService.rejeitarCliente(cpf, motivo);
   }
 
-  aprovar(cpf: string) {
-    return this.http.post<Client>(`${this.apiUrl}/clientes/${cpf}/aprovar`, {});
+  aprovar(cpf: string): Observable<AprovacaoClienteResponse> {
+    return this.clienteService.aprovarCliente(cpf);
   }
 }

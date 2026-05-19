@@ -3,14 +3,14 @@ import { FormBuilder, Validators, FormGroup, ReactiveFormsModule } from '@angula
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ClientService } from '../../services/client.service';
+import { ClienteService } from '../../../../core/services/cliente.service';
 import { ViaCepService, Endereco } from '../../../../core/services/viacep.service';
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
 import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ChangeDetectorRef } from '@angular/core';
-import { Client } from '../../../../shared/models/client';
 import { formatCep, formatCpf, formatCurrency, formatPhone, removeNonDigits } from '../../../../shared/utils/formatters';
+import { DadosClienteResponse, PerfilInfo } from '../../../../shared/models/cliente.models';
 
 @Component({
   selector: 'app-alteracao-perfil',
@@ -30,7 +30,7 @@ export class AlteracaoPerfilComponent implements OnInit {
   firstFormGroup!: FormGroup;
   secondFormGroup!: FormGroup;
 
-  clienteOriginal!: Client;
+  clienteOriginal!: DadosClienteResponse;
   cpf!: string;
 
   isLoading = false;
@@ -54,7 +54,7 @@ export class AlteracaoPerfilComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private clientService: ClientService,
+    private clienteService: ClienteService,
     private router: Router,
     private route: ActivatedRoute,
     private viaCepService: ViaCepService,
@@ -96,26 +96,27 @@ export class AlteracaoPerfilComponent implements OnInit {
   }
 
   loadClientData() {
-    this.clientService.buscaPerfil(removeNonDigits(this.cpf)).subscribe({
+    this.clienteService.buscarClientePorCpf(removeNonDigits(this.cpf)).subscribe({
       next: (cliente) => {
         this.clienteOriginal = cliente;
 
         this.firstFormGroup.patchValue({
-          nameUser: cliente.name,
+          nameUser: cliente.nome,
           cpfUser: formatCpf(cliente.cpf),
-          phoneUser: formatPhone(cliente.phoneNumber),
+          phoneUser: formatPhone(cliente.telefone || cliente.celular || ''),
           email: cliente.email,
-          salary: formatCurrency(cliente.salary),
+          salary: formatCurrency(cliente.salario || 0),
         });
 
+        const endereco = cliente.endereco;
         this.secondFormGroup.patchValue({
-          cep: formatCep(cliente.address?.cep || ''),
-          address: cliente.address?.logradouro || '',
-          number: cliente.address?.numero || '',
-          complement: cliente.address?.complemento || '',
-          neighborhood: cliente.address?.bairro || '',
-          city: cliente.address?.cidade || '',
-          state: cliente.address?.uf || ''
+          cep: formatCep(cliente.cep || endereco?.cep || ''),
+          address: cliente.logradouro || endereco?.logradouro || '',
+          number: cliente.numero || endereco?.numero || '',
+          complement: cliente.complemento || endereco?.complemento || '',
+          neighborhood: cliente.bairro || endereco?.bairro || '',
+          city: cliente.cidade || endereco?.cidade || '',
+          state: cliente.estado || cliente.uf || endereco?.uf || ''
         });
       },
       error: () => {
@@ -141,31 +142,21 @@ export class AlteracaoPerfilComponent implements OnInit {
       (personalData.salary || '0').replace(/\./g, '').replace(',', '.')
     );
 
-    const body = {
-      name: personalData.nameUser,
-      phoneNumber: removeNonDigits(personalData.phoneUser),
+    const body: PerfilInfo = {
+      nome: personalData.nameUser,
       email: personalData.email,
-      salary: salaryNumber,
-      address: {
-        cep: removeNonDigits(addressData.cep),
-        logradouro: addressData.address,
-        numero: addressData.number,
-        complemento: addressData.complement || '',
-        bairro: addressData.neighborhood,
-        cidade: addressData.city,
-        estado: addressData.state
-      }
+      salario: salaryNumber,
+      cep: removeNonDigits(addressData.cep),
+      logradouro: addressData.address,
+      numero: addressData.number,
+      complemento: addressData.complement || '',
+      bairro: addressData.neighborhood,
+      cidade: addressData.city,
+      estado: addressData.state
     };
 
-    this.clientService.atualizaUsuario(this.cpf, body).subscribe({
-      next: (response) => {
-        this.balance = response.balance;
-        this.managerName = response.managerName;
-
-        this.firstFormGroup.patchValue({
-          limit: formatCurrency(response.limit)
-        });
-
+    this.clienteService.atualizarPerfil(this.cpf, body).subscribe({
+      next: () => {
         this.showModal = true;
         this.isLoading = false;
         this.cdr.markForCheck();

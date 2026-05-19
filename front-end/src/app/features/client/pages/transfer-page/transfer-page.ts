@@ -377,7 +377,7 @@ export class TransferPage implements OnInit {
   }
 
   private parseAmount(rawValue: string | null | undefined): number {
-    const normalizedValue = normalizarValorMonetario(rawValue);
+    const normalizedValue = normalizarValorMonetario(rawValue ?? '');
     return normalizedValue ?? 0;
   }
 

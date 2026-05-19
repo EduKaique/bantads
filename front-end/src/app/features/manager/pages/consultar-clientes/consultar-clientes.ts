@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -6,6 +6,8 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { formatCpf } from '../../../../shared/utils/formatters';
+import { API_URL } from '../../../../core/configs/api.token';
+import { ClienteService } from '../../../../core/services/cliente.service';
 
 export interface Cliente {
   id: string;
@@ -26,6 +28,8 @@ export interface Cliente {
   styleUrls: ['./consultar-clientes.css']
 })
 export class ConsultarClientesComponent implements OnInit {
+  private readonly apiUrl = inject(API_URL);
+  private readonly clienteService = inject(ClienteService);
   
   tipoFiltro: 'nome' | 'cpf' = 'nome';
   termoBusca: string = '';
@@ -60,8 +64,8 @@ export class ConsultarClientesComponent implements OnInit {
     const cpfGerenteLogado = gerenteLogado?.cpf ? gerenteLogado.cpf.replace(/\D/g, '') : '';
 
     forkJoin({
-      clientes: this.http.get<any[]>('http://localhost:3000/clientes'),
-      contas: this.http.get<any[]>('http://localhost:3000/contas')
+      clientes: this.clienteService.listarTodosClientes(),
+      contas: this.http.get<any[]>(`${this.apiUrl}/contas`)
     }).subscribe({
       next: (res) => {
         const clientesDoGerente: Cliente[] = [];
@@ -80,11 +84,11 @@ export class ConsultarClientesComponent implements OnInit {
             
             if (managerCpfLimpo === cpfGerenteLogado) {
               clientesDoGerente.push({
-                id: cliente.id || Math.random().toString(),
+                id: String(cliente.id || Math.random()),
                 cpf: cliente.cpf,
                 nome: cliente.nome,
-                cidade: cliente.endereco?.cidade || '-',
-                estado: cliente.endereco?.uf || '-',
+                cidade: cliente.cidade || cliente.endereco?.cidade || '-',
+                estado: cliente.estado || cliente.uf || cliente.endereco?.uf || '-',
                 saldo: conta.availableBalance || 0,
                 limite: conta.limit || 0,
                 numeroConta: conta.accountNumber || '-'

@@ -4,15 +4,12 @@ import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { API_URL } from '../configs/api.token';
+import { ClienteService } from './cliente.service';
 import { DashboardEstatisticas } from '../../shared/models/dashboard-estatisticas';
 import { Gerente } from '../../shared/models/gerente';
 import { GerenteDashboard } from '../../shared/models/gerente-dashboard';
 import { GerentesService } from './gerentes.service';
-
-interface ClienteResumo {
-  cpf: string;
-  cpfGerente: string;
-}
+import { ClienteResponse } from '../../shared/models/cliente.models';
 
 interface ContaResumo {
   holderDocument: string;
@@ -23,7 +20,7 @@ interface ContaResumo {
 interface DadosDashboard {
   gerentes: Gerente[];
   contas: ContaResumo[];
-  clientes: ClienteResumo[];
+  clientes: ClienteResponse[];
 }
 
 @Injectable({
@@ -33,6 +30,7 @@ export class GerentesDashboardService {
   private readonly http = inject(HttpClient);
   private readonly gerentesService = inject(GerentesService);
   private readonly apiUrl = inject(API_URL);
+  private readonly clienteService = inject(ClienteService);
 
   obterEstatisticas(): Observable<DashboardEstatisticas> {
     return this.obterDadosDashboard().pipe(
@@ -76,13 +74,13 @@ export class GerentesDashboardService {
     return forkJoin({
       gerentes: this.gerentesService.listar(),
       contas: this.http.get<ContaResumo[]>(`${this.apiUrl}/contas`),
-      clientes: this.http.get<ClienteResumo[]>(`${this.apiUrl}/clientes`),
+      clientes: this.clienteService.listarTodosClientes(),
     });
   }
 
   private mapearGerenteDashboard(
     gerente: Gerente,
-    clientes: ClienteResumo[],
+    clientes: ClienteResponse[],
     contas: ContaResumo[],
   ): GerenteDashboard {
     const resumo = this.calcularResumoFinanceiroGerente(
@@ -101,7 +99,7 @@ export class GerentesDashboardService {
 
   private calcularResumoFinanceiroGerente(
     cpfGerente: string,
-    clientes: ClienteResumo[],
+    clientes: ClienteResponse[],
     contas: ContaResumo[],
   ): {
     totalClientes: number;
@@ -123,7 +121,8 @@ export class GerentesDashboardService {
       clientes
         .filter(
           (cliente) =>
-            this.normalizarCpf(cliente.cpfGerente) === cpfGerenteNormalizado,
+            this.normalizarCpf(this.obterCpfGerente(cliente)) ===
+            cpfGerenteNormalizado,
         )
         .forEach((cliente) => {
           cpfsClientes.add(this.normalizarCpf(cliente.cpf));
@@ -145,5 +144,9 @@ export class GerentesDashboardService {
 
   private normalizarCpf(cpf: string): string {
     return cpf ? cpf.replace(/\D/g, '') : '';
+  }
+
+  private obterCpfGerente(cliente: ClienteResponse): string {
+    return cliente.cpfGerente || cliente.cpfGerenteResponsavel || '';
   }
 }

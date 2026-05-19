@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 
 import { PaginaInicial } from './pagina-inicial';
 import { AuthService } from '../../../../core/auth/services/auth.service';
-import { ClientAccountService } from '../../services/client-account.service';
+import { ClienteService } from '../../../../core/services/cliente.service';
 
 registerLocaleData(localePt);
 
@@ -26,18 +26,19 @@ describe('PaginaInicial', () => {
             currentUserValue: {
               nome: 'Cliente Teste',
               email: 'cliente@bantads.com.br',
-              tipo: 'cliente',
+              cpf: '12345678910',
+              tipo: 'CLIENTE',
               access_token: 'token',
             },
           },
         },
         {
-          provide: ClientAccountService,
+          provide: ClienteService,
           useValue: {
-            getCurrentAccount: jasmine.createSpy('getCurrentAccount').and.returnValue(
+            buscarContaPorCpf: jasmine.createSpy('buscarContaPorCpf').and.returnValue(
               of({
-                availableBalance: 3450.75,
-                holderName: 'Cliente Teste',
+                saldoDisponivel: 3450.75,
+                nome: 'Cliente Teste',
               }),
             ),
           },

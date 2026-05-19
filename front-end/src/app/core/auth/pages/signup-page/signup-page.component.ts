@@ -11,11 +11,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ViaCepService, Endereco } from '../../../services/viacep.service';
-import { AuthService } from '../../services/auth.service';
-import { RegisterRequest } from '../../models/auth.models';
 import { CustomValidators } from '../../../../shared/utils/cpf-validator';
 import { ToastService } from '../../../services/toast.service';
 import { SuccessfulSignupComponent } from '../../components/successful-signup/successful-signup.component';
+import { ClienteService } from '../../../services/cliente.service';
+import {
+  AutocadastroInfo,
+  isCpfDuplicadoError,
+} from '../../../../shared/models/cliente.models';
 
 @Component({
   selector: 'app-signup-page',
@@ -47,7 +50,7 @@ export class SignupPageComponent {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
+    private clienteService: ClienteService,
     private router: Router,
     private viaCepService: ViaCepService,
     private toast: ToastService,
@@ -93,11 +96,12 @@ export class SignupPageComponent {
         return parseFloat(cleanString);
       };
 
-      const requestData: RegisterRequest = {
+      const requestData: AutocadastroInfo = {
         nome: personalData.nameUser,
         cpf: removeNonDigits(personalData.cpfUser),
         email: personalData.email,
         salario: parseCurrency(personalData.salary),
+        telefone: removeNonDigits(personalData.phoneUser),
         celular: removeNonDigits(personalData.phoneUser),
         cep: removeNonDigits(addressData.cep),
         logradouro: addressData.address,
@@ -110,19 +114,18 @@ export class SignupPageComponent {
 
       this.isLoading.set(true);
 
-      // TODO: Substituir para o clienteService POST /cliente
-
-      // this.authService.signup(requestData).subscribe({ 
-      //   next: () => {
-      //     this.isLoading.set(false);
-      //     this.registerSuccess.set(true);
-      //   },
-      //   error: (err) => {
-      //     this.isLoading.set(false);
-      //     this.registerErrorMessage = `Cadastro falhou: ${err.error?.message || 'Tente novamente mais tarde.'}`;
-      //     console.log("Erro:" + err);
-      //   },
-      // });
+      this.clienteService.criarCliente(requestData).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.registerSuccess.set(true);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.registerErrorMessage = isCpfDuplicadoError(err)
+            ? 'Cadastro falhou: CPF ja cadastrado.'
+            : `Cadastro falhou: ${err.error?.message || 'Tente novamente mais tarde.'}`;
+        },
+      });
     } else {
       this.firstFormGroup.markAllAsTouched();
       this.secondFormGroup.markAllAsTouched();

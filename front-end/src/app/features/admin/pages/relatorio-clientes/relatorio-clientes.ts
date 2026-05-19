@@ -14,6 +14,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { API_URL } from '../../../../core/configs/api.token';
+import { ClienteService } from '../../../../core/services/cliente.service';
 
 // Interface para tipar os dados da nossa tabela
 export interface RelatorioCliente {
@@ -43,6 +45,8 @@ export interface RelatorioCliente {
 export class RelatorioClientesComponent implements OnInit, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly http = inject(HttpClient);
+  private readonly apiUrl = inject(API_URL);
+  private readonly clienteService = inject(ClienteService);
 
   @ViewChild(MatSort) private ordenador!: MatSort;
 
@@ -79,9 +83,9 @@ export class RelatorioClientesComponent implements OnInit, AfterViewInit {
 
     // Dispara as 3 requisições ao mesmo tempo
     forkJoin({
-      clientes: this.http.get<any[]>('http://localhost:3000/clientes'),
-      contas: this.http.get<any[]>('http://localhost:3000/contas'),
-      gerentes: this.http.get<any[]>('http://localhost:3000/gerentes')
+      clientes: this.clienteService.listarRelatorioClientes(),
+      contas: this.http.get<any[]>(`${this.apiUrl}/contas`),
+      gerentes: this.http.get<any[]>(`${this.apiUrl}/gerentes`)
     })
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
