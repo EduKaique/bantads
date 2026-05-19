@@ -1,9 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
+import { API_URL } from '../../../core/configs/api.token';
+import { HttpClient } from '@angular/common/http';
 
-export interface ContaResumo {
-  saldo: number;
-  limite: number;
+export interface SaqueRequest {
+  contaOrigem: string;
+  valor: number;
+}
+
+export interface SaqueResponse {
+  message: string;
+  novoSaldoOrigem: number;
 }
 
 @Injectable({
@@ -11,27 +18,10 @@ export interface ContaResumo {
 })
 export class SaqueService {
 
-  private contaMock: ContaResumo = {
-    saldo: 5125.49,
-    limite: 5000.00,
-  };
+  private readonly http = inject(HttpClient);
+  private readonly apiBaseUrl = inject(API_URL);
 
-  getSaldoDisponivel(): Observable<ContaResumo> {
-    return of(this.contaMock);
-  }
-
-  realizarSaque(valor: number): Observable<boolean> {
-    if (valor <= 0) {
-      return throwError(() => new Error('Valor do saque deve ser maior que zero.'));
-    }
-
-    const saldoTotal = this.contaMock.saldo + this.contaMock.limite;
-
-    if (valor > saldoTotal) {
-      return throwError(() => new Error('Saldo insuficiente para este saque.'));
-    }
-
-    this.contaMock.saldo -= valor;
-    return of(true);
+  realizarSaque(request: SaqueRequest): Observable<SaqueResponse> {
+    return this.http.post<SaqueResponse>(`${this.apiBaseUrl}/transacoes/saque`, request);
   }
 }

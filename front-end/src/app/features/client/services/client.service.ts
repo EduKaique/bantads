@@ -31,4 +31,8 @@ export class ClientService {
     );
   }
 
+  buscaDadosConta(cpf: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/contas/cpf/${cpf}`);
+  }
+
 }
