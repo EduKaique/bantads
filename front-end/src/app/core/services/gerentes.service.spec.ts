@@ -1,8 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { API_URL } from '../../../core/configs/api.token';
-import { GerentesService } from './gerentes';
+
+import { API_URL } from '../configs/api.token';
+import { GerentesService } from './gerentes.service';
 
 describe('GerentesService', () => {
   let service: GerentesService;
@@ -33,7 +37,7 @@ describe('GerentesService', () => {
     const gerentesRecebidos = [
       {
         cpf: '98574307084',
-        nome: 'Geniéve',
+        nome: 'Genieve',
         email: 'ger1@bantads.com.br',
         celular: '(41) 8888-0001',
       },
@@ -65,7 +69,7 @@ describe('GerentesService', () => {
     const gerentesRecebidos = [
       {
         cpf: '23862179060',
-        nome: 'Gyândula',
+        nome: 'Gyandula',
         email: 'ger3@bantads.com.br',
         celular: '(41) 8888-0003',
       },
@@ -77,7 +81,7 @@ describe('GerentesService', () => {
       },
       {
         cpf: '98574307084',
-        nome: 'Geniéve',
+        nome: 'Genieve',
         email: 'ger1@bantads.com.br',
         celular: '(41) 8888-0001',
       },
@@ -95,7 +99,66 @@ describe('GerentesService', () => {
 
     requisicao.flush(gerentesRecebidos);
 
-    expect(nomesCarregados).toEqual(['Geniéve', 'Godophredo', 'Gyândula']);
+    expect(nomesCarregados).toEqual(['Genieve', 'Godophredo', 'Gyandula']);
+  });
+
+  it('deve buscar o dashboard quando numero for informado', () => {
+    const dashboardRecebido = [
+      {
+        cpf: '12345678901',
+        nome: 'Gerente Teste',
+        email: 'gerente.teste@bantads.com.br',
+        celular: '(41) 99999-0000',
+        totalClientes: 2,
+        totalSaldoPositivo: 1000,
+        totalSaldoNegativo: 50,
+      },
+    ];
+
+    let dashboardCarregado = [] as typeof dashboardRecebido;
+
+    service.listar(3).subscribe((dashboard) => {
+      dashboardCarregado = dashboard;
+    });
+
+    const requisicao = httpTestingController.expectOne(
+      (request) =>
+        request.url === 'http://localhost:3000/gerentes' &&
+        request.params.get('numero') === '3',
+    );
+
+    expect(requisicao.request.method).toBe('GET');
+    requisicao.flush(dashboardRecebido);
+
+    expect(dashboardCarregado).toEqual(dashboardRecebido);
+  });
+
+  it('deve rejeitar numero invalido para dashboard', (done) => {
+    service.listar(0).subscribe({
+      error: (erro: Error) => {
+        expect(erro.message).toBe('O parametro numero deve ser um inteiro positivo.');
+        done();
+      },
+    });
+  });
+
+  it('deve buscar gerente por cpf', () => {
+    const cpf = '12345678901';
+    const gerente = {
+      cpf,
+      nome: 'Gerente Teste',
+      email: 'gerente.teste@bantads.com.br',
+      celular: '(41) 99999-0000',
+    };
+
+    service.buscarPorCpf(cpf).subscribe();
+
+    const requisicao = httpTestingController.expectOne(
+      `http://localhost:3000/gerentes/${cpf}`,
+    );
+
+    expect(requisicao.request.method).toBe('GET');
+    requisicao.flush(gerente);
   });
 
   it('deve inserir gerente no endpoint real do gateway', () => {
@@ -122,7 +185,7 @@ describe('GerentesService', () => {
     const dadosGerente = {
       nome: 'Gerente Atualizado',
       email: 'gerente.atualizado@bantads.com.br',
-      celular: '(41) 98888-0000',
+      senha: '123tads',
     };
 
     service.atualizar(cpf, dadosGerente).subscribe();
@@ -133,7 +196,7 @@ describe('GerentesService', () => {
 
     expect(requisicao.request.method).toBe('PUT');
     expect(requisicao.request.body).toEqual(dadosGerente);
-    requisicao.flush(dadosGerente);
+    requisicao.flush({ cpf, ...dadosGerente });
   });
 
   it('deve remover gerente no endpoint real do gateway', () => {
@@ -146,6 +209,10 @@ describe('GerentesService', () => {
     );
 
     expect(requisicao.request.method).toBe('DELETE');
-    requisicao.flush({});
+    requisicao.flush({
+      cpf,
+      nome: 'Gerente Teste',
+      email: 'gerente.teste@bantads.com.br',
+    });
   });
 });

@@ -3,7 +3,7 @@ import { of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { provideNgxMask } from 'ngx-mask';
 import { ListagemGerentesComponent } from './listagem-gerentes';
-import { GerentesService } from '../../services/gerentes';
+import { GerentesService } from '../../../../core/services/gerentes.service';
 
 describe('ListagemGerentesComponent', () => {
   let component: ListagemGerentesComponent;
@@ -32,7 +32,7 @@ describe('ListagemGerentesComponent', () => {
           email: 'ger3@bantads.com.br',
           celular: '(41) 8888-0003',
         },
-      ]),
+      ]) as any,
     );
 
     await TestBed.configureTestingModule({

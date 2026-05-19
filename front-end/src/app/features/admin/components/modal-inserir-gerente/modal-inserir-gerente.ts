@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
+import { DadoGerenteInsercao } from '../../../../shared/models/gerente';
 
 @Component({
   selector: 'app-modal-inserir-gerente',
@@ -14,7 +15,7 @@ export class ModalInserirGerenteComponent {
   private formBuilder = inject(FormBuilder);
 
   @Output() fechar = new EventEmitter<void>();
-  @Output() salvar = new EventEmitter<any>();
+  @Output() salvar = new EventEmitter<DadoGerenteInsercao>();
 
   formulario = this.formBuilder.nonNullable.group({
     nome: ['', Validators.required],
