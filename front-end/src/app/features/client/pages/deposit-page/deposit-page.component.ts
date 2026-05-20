@@ -9,14 +9,14 @@ import {
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
-import { AppSuccessModalComponent } from '../../../shared/components/modal-mensagem/app-success-modal';
-import { DepositRequest } from '../../../shared/models/deposit-request';
-import { normalizarValorMonetario } from '../../../shared/utils/currency.utils';
-import { formatCurrency } from '../../../shared/utils/formatters';
-import { positiveCurrencyAmountValidator } from '../../../shared/validators/currency.validators';
-import { InputPrimaryComponent } from '../../../shared/components/input-primary/input-primary.component';
-import { DepositConfirmationModalComponent } from '../components/deposit-confirmation-modal.component';
-import { ClientAccountService } from '../services/client-account.service';
+import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
+import { DepositRequest } from '../../../../shared/models/deposit-request';
+import { normalizarValorMonetario } from '../../../../shared/utils/currency.utils';
+import { formatCurrency } from '../../../../shared/utils/formatters';
+import { positiveCurrencyAmountValidator } from '../../../../shared/validators/currency.validators';
+import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
+import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
+import { ClientAccountService } from '../../services/client-account.service';
 
 @Component({
   selector: 'app-deposit-page',

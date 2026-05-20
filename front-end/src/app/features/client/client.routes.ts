@@ -1,5 +1,5 @@
 import {Routes} from '@angular/router';
-import { DepositPageComponent } from './pages/deposit-page.component';
+import { DepositPageComponent } from './pages/deposit-page/deposit-page.component';
 import { SaquePageComponent } from './pages/saque-page/saque-page.component';
 import { SaqueSucessoPageComponent } from './pages/saque-sucesso-page/saque-sucesso-page.component';
 import { ConsultaExtratoPageComponent } from './pages/008-consulta-de-extrato/008-consulta-de-extrato.component';

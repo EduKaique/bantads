@@ -2,8 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
-import { BankAccount } from '../../../shared/models/bank-account';
-import { ClientAccountService } from '../services/client-account.service';
+import { BankAccount } from '../../../../shared/models/bank-account';
+import { ClientAccountService } from '../../services/client-account.service';
 import { DepositPageComponent } from './deposit-page.component';
 
 class ClientAccountServiceStub {
