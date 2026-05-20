@@ -79,7 +79,7 @@ export class ClientAccountService {
   getExtratoAtual(): Observable<ExtratoAtualMock> {
     const currentUser = this.authService.currentUserValue;
 
-    if (!currentUser?.cpf || currentUser.tipo !== 'cliente') {
+    if (!currentUser?.cpf || currentUser.tipo !== 'CLIENTE') {
       return throwError(
         () => new Error('Apenas clientes podem consultar o extrato.'),
       );
@@ -110,7 +110,7 @@ export class ClientAccountService {
   depositIntoCurrentAccount(request: DepositRequest): Observable<BankAccount> {
     const currentUser = this.authService.currentUserValue;
 
-    if (currentUser && currentUser.tipo !== 'cliente') {
+    if (currentUser && currentUser.tipo !== 'CLIENTE') {
       return throwError(
         () => new Error('Apenas clientes podem realizar depositos.'),
       );
@@ -180,7 +180,7 @@ export class ClientAccountService {
   }): Observable<BankAccount> {
     const currentUser = this.authService.currentUserValue;
 
-    if (currentUser && currentUser.tipo !== 'cliente') {
+    if (currentUser && currentUser.tipo !== 'CLIENTE') {
       return throwError(
         () => new Error('Apenas clientes podem realizar saques.'),
       );
@@ -257,7 +257,7 @@ export class ClientAccountService {
   private sincronizarContaComMock(): void {
     const currentUser = this.authService.currentUserValue;
 
-    if (!currentUser?.cpf || currentUser.tipo !== 'cliente') {
+    if (!currentUser?.cpf || currentUser.tipo !== 'CLIENTE') {
       return;
     }
 
@@ -307,7 +307,7 @@ export class ClientAccountService {
   private resolveHolderName(): string {
     const currentUser = this.authService.currentUserValue;
 
-    if (currentUser?.tipo === 'cliente' && currentUser.nome.trim()) {
+    if (currentUser?.tipo === 'CLIENTE' && currentUser.nome.trim()) {
       return currentUser.nome.trim();
     }
 

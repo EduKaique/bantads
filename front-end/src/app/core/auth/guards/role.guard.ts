@@ -27,8 +27,7 @@ export class RoleGuard implements CanActivate {
       return false;
     }
 
-    console.log(currentUser.tipo === expectedRole)
-    if (currentUser.tipo === expectedRole) {
+    if (currentUser.tipo.toUpperCase() === expectedRole.toUpperCase()) {
       return true;
     }
 
