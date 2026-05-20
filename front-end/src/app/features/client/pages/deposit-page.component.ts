@@ -4,8 +4,6 @@ import {
   AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,34 +11,12 @@ import { finalize } from 'rxjs';
 
 import { AppSuccessModalComponent } from '../../../shared/components/modal-mensagem/app-success-modal';
 import { DepositRequest } from '../../../shared/models/deposit-request';
+import { normalizarValorMonetario } from '../../../shared/utils/currency.utils';
 import { formatCurrency } from '../../../shared/utils/formatters';
+import { positiveCurrencyAmountValidator } from '../../../shared/validators/currency.validators';
 import { InputPrimaryComponent } from '../../../shared/components/input-primary/input-primary.component';
 import { DepositConfirmationModalComponent } from '../components/deposit-confirmation-modal.component';
 import { ClientAccountService } from '../services/client-account.service';
-
-const amountPattern = /^\d+(?:[.,]\d{1,2})?$/;
-
-const depositAmountValidator: ValidatorFn = (
-  control: AbstractControl
-): ValidationErrors | null => {
-  const rawValue = String(control.value ?? '').trim();
-
-  if (!rawValue) {
-    return null;
-  }
-
-  const normalizedValue = normalizarValorMonetario(rawValue);
-
-  if (!rawValue || normalizedValue === null) {
-    return { currencyFormat: true };
-  }
-
-  if (!Number.isFinite(normalizedValue) || normalizedValue <= 0) {
-    return { positiveAmount: true };
-  }
-
-  return null;
-};
 
 @Component({
   selector: 'app-deposit-page',
@@ -63,7 +39,7 @@ export class DepositPageComponent {
   readonly formatCurrency = formatCurrency;
   readonly account$ = this.clientAccountService.getCurrentAccount();
   readonly depositForm = this.formBuilder.nonNullable.group({
-    amount: ['', [Validators.required, depositAmountValidator]],
+    amount: ['', [Validators.required, positiveCurrencyAmountValidator]],
   });
 
   private readonly amountControl = this.depositForm.controls.amount;
@@ -203,20 +179,4 @@ export class DepositPageComponent {
     this.isConfirmationVisible = false;
     this.pendingDeposit = null;
   }
-}
-
-function normalizarValorMonetario(rawValue: string): number | null {
-  const valorLimpo = rawValue
-    .replace(/R\$\s?/g, '')
-    .replace(/\./g, '')
-    .replace(',', '.')
-    .trim();
-
-  if (!valorLimpo || !amountPattern.test(valorLimpo.replace('.', ','))) {
-    return null;
-  }
-
-  const valorNormalizado = Number(valorLimpo);
-
-  return Number.isFinite(valorNormalizado) ? valorNormalizado : null;
 }

@@ -11,6 +11,7 @@ import { ClientService } from '../../services/client.service';
 import { SaqueService } from '../../services/saque.service';
 
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
+import { normalizarValorMonetario } from '../../../../shared/utils/currency.utils';
 import { formatCurrency } from '../../../../shared/utils/formatters';
 import { normalizarValorMonetario } from '../../../../shared/utils/currency.utils';
 import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
@@ -41,7 +42,7 @@ export class SaquePageComponent implements OnInit {
   
   readonly formatCurrency = formatCurrency;
   readonly saqueForm = this.formBuilder.nonNullable.group({
-    valor: ['', [Validators.required, saqueAmountValidator]],
+    valor: ['', [Validators.required, positiveCurrencyAmountValidator]],
   });
 
   private readonly valorControl = this.saqueForm.controls.valor;
