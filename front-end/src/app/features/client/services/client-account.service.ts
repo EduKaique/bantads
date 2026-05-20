@@ -1,3 +1,4 @@
+//ESTE ARQUIVO SERÁ EXCLUÍDO APÓS SUCESSO NA INTEGRAÇÃO COM O BACKEND VIA conta.service.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
