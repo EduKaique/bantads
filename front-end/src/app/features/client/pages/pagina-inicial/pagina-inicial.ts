@@ -1,10 +1,12 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { CurrencyPipe } from '@angular/common';
 import { CardMenu } from '../../../../shared/components/card-menu/card-menu';
 import { Router } from '@angular/router';
+
 import { AuthService } from '../../../../core/auth/services/auth.service';
-import { HttpClient } from '@angular/common/http';
+import { ClientService } from '../../services/client.service';
 
 @Component({
   selector: 'app-pagina-inicial',
@@ -13,11 +15,12 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './pagina-inicial.html',
   styleUrl: './pagina-inicial.css',
 })
-export class PaginaInicial {
+export class PaginaInicial implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly http = inject(HttpClient);
-
+  private readonly clientService = inject(ClientService);
+  private readonly destroyRef = inject(DestroyRef);
+  
   readonly saldo = signal(0);
   readonly nomeUsuario = signal('Cliente BanTads');
 
@@ -27,7 +30,9 @@ export class PaginaInicial {
       : `Pague o que me deve, ${this.nomeUsuario()}!`
   );
 
-  constructor() {
+  constructor() {}
+  
+  ngOnInit(): void {
     const currentUser = this.authService.currentUserValue;
 
     if (currentUser?.nome?.trim()) {
@@ -35,24 +40,25 @@ export class PaginaInicial {
     }
 
     if (currentUser?.cpf) {
-      this.carregarDadosConta(currentUser.cpf);
+      this.carregarDadosAPI(currentUser.cpf);
     } else {
-      console.error('Usuário não identificado');
+      console.error('Usuário não identificado na sessão');
     }
   }
 
-  private carregarDadosConta(cpf: string): void {
-    this.http.get<any>(`http://localhost:3000/contas/cpf/${cpf}`)
+  private carregarDadosAPI(cpf: string): void {
+    this.clientService.buscaDadosConta(cpf)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (dadosConta) => {
+        next: (dadosConta: any) => {
           this.saldo.set(dadosConta.saldoDisponivel || 0);
 
           if (dadosConta.nome?.trim()) {
             this.nomeUsuario.set(dadosConta.nome.trim());
           }
         },
-        error: (erro) => {
-          console.error('Erro ao buscar dados da conta:', erro);
+        error: (erro: any) => {
+          console.error('Erro ao buscar dados da conta via Service:', erro);
         }
       });
   }

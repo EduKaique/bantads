@@ -1,4 +1,3 @@
-# Estágio Base (Com dependências e Maven)
 FROM eclipse-temurin:21-jdk-jammy AS base
 WORKDIR /app
 COPY .mvn .mvn

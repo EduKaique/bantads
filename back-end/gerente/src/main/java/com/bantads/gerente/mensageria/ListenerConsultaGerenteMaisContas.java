@@ -31,7 +31,6 @@ public class ListenerConsultaGerenteMaisContas {
         try {
             long totalGerentes = gerenteRepository.count();
 
-            // Primeiro gerente sendo inserido — não há origem para buscar
             if (totalGerentes == 0) {
                 EventoRespostaGerenteMaisContas resposta = new EventoRespostaGerenteMaisContas(
                     evento.sagaId(),

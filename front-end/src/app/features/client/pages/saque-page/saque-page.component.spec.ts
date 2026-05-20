@@ -1,85 +1,72 @@
-import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
+import { provideNgxMask } from 'ngx-mask';
 
-import { AuthService } from '../../../../core/auth/services/auth.service';
-import { ClientAccountService } from '../../services/client-account.service';
 import { SaquePageComponent } from './saque-page.component';
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { ClientService } from '../../services/client.service';
+import { SaqueService } from '../../services/saque.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 describe('SaquePageComponent', () => {
   let component: SaquePageComponent;
   let fixture: ComponentFixture<SaquePageComponent>;
-  let httpTestingController: HttpTestingController;
+
+  let mockRouter = { 
+    navigate: jasmine.createSpy('navigate') 
+  };
+  
+  let mockToastService = {
+    success: jasmine.createSpy('success'),
+    error: jasmine.createSpy('error')
+  };
+
+  let mockAuthService = {
+    currentUserValue: { cpf: '12345678910' }
+  };
+
+  let mockClientService = {
+    buscaDadosConta: jasmine.createSpy('buscaDadosConta').and.returnValue(of({
+      numeroConta: '123456-7',
+      saldoDisponivel: 125.49,
+      limite: 5000
+    }))
+  };
+
+  let mockSaqueService = {
+    realizarSaque: jasmine.createSpy('realizarSaque').and.returnValue(of({
+      message: 'Saque realizado com sucesso!',
+      novoSaldoOrigem: 25.49
+    }))
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SaquePageComponent],
+      imports: [SaquePageComponent, BrowserAnimationsModule], 
       providers: [
-        {
-          provide: MatDialog,
-          useValue: {
-            open: jasmine.createSpy('open'),
-          },
-        },
-        {
-          provide: Router,
-          useValue: {
-            navigate: jasmine.createSpy('navigate'),
-          },
-        },
-        {
-          provide: AuthService,
-          useValue: {
-            currentUserValue: {
-              cpf: '12345678910',
-            },
-          },
-        },
-        {
-          provide: ClientAccountService,
-          useValue: {
-            getCurrentAccount: () =>
-              of({
-                accountId: 'client-main-account',
-                branch: '0001',
-                accountNumber: '123456-7',
-                holderName: 'Artur Falavinha',
-                holderDocument: '12345678910',
-                availableBalance: 125.49,
-                limit: 5000,
-                manager: 'Gerente Teste',
-                transactions: [],
-              }),
-            withdrawFromCurrentAccount: jasmine
-              .createSpy('withdrawFromCurrentAccount')
-              .and.returnValue(of(null)),
-          },
-        },
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ],
+        provideNgxMask(),
+        { provide: Router, useValue: mockRouter },
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: ClientService, useValue: mockClientService },
+        { provide: SaqueService, useValue: mockSaqueService },
+        { provide: ToastService, useValue: mockToastService }
+      ]
     }).compileComponents();
 
-    httpTestingController = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(SaquePageComponent);
     component = fixture.componentInstance;
-    httpTestingController.expectOne('http://localhost:3000/contas/cpf/12345678910').flush({
-      numeroConta: '123456-7',
-      saldoDisponivel: 125.49,
-      limite: 5000,
-    });
-    fixture.detectChanges();
+    
+    fixture.detectChanges(); 
   });
 
-  afterEach(() => {
-    httpTestingController.verify();
-  });
-
-  it('deve criar o componente', () => {
+  it('deve criar o componente e carregar o saldo no ngOnInit', () => {
     expect(component).toBeTruthy();
+    
+    expect(mockClientService.buscaDadosConta).toHaveBeenCalledWith('12345678910');
+    
+    expect(component.saldoDisponivel).toBe(5125.49);
   });
 
   it('deve aceitar valor monetario valido', () => {

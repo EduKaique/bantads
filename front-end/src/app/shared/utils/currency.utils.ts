@@ -1,10 +1,8 @@
-export const amountPattern = /^\d+(?:[.,]\d{1,2})?$/;
+const amountPattern = /^\d+(?:[.,]\d{1,2})?$/;
 
-export function normalizarValorMonetario(
-  rawValue: string | null | undefined,
-): number | null {
+export function normalizarValorMonetario(rawValue: string): number | null {
   const cleanedValue = rawValue
-    ?.replace(/R\$\s?/g, '')
+    .replace(/R\$\s?/g, '')
     .replace(/\./g, '')
     .replace(',', '.')
     .trim();
