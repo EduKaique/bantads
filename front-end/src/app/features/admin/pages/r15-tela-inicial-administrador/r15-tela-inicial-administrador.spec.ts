@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
 import { R15TelaInicialAdministrador } from './r15-tela-inicial-administrador';
-import { GerentesDashboardService } from '../../services/gerentes-dashboard';
+import { GerentesDashboardService } from '../../../../core/services/gerentes-dashboard.service';
 
 describe('R15TelaInicialAdministrador', () => {
   let component: R15TelaInicialAdministrador;
