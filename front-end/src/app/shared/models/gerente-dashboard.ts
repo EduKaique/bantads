@@ -1,7 +1,3 @@
-import { Gerente } from './gerente';
+import { ItemDashboardResponse } from './gerente';
 
-export interface GerenteDashboard extends Gerente {
-  totalClientes: number;
-  totalSaldoPositivo: number;
-  totalSaldoNegativo: number;
-}
+export type GerenteDashboard = ItemDashboardResponse;

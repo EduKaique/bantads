@@ -16,6 +16,7 @@
           formControlName="accountNumber"
           placeholder="Ex: 1291"
           [errorMessage]="accountNumberErrorMessage"
+          [readonly]="carregandoDados"
           class="transfer-field transfer-field--grow"
         ></app-input-primary>
 
@@ -23,7 +24,7 @@
           type="button"
           class="button-secondary transfer-form__search-button label_large"
           (click)="searchAccount()"
-          [disabled]="buscandoConta"
+          [disabled]="carregandoDados || buscandoConta"
         >
           @if (!buscandoConta) {
             <mat-icon>search</mat-icon>
@@ -62,6 +63,7 @@
           decimalMarker=","
           placeholder="R$ 0,00"
           [errorMessage]="amountErrorMessage"
+          [readonly]="carregandoDados"
           class="transfer-field"
         ></app-input-primary>
 
@@ -83,9 +85,9 @@
         <button
           type="submit"
           class="button-primary transfer-form__submit label_large"
-          [disabled]="isModalOpen || buscandoConta"
+          [disabled]="carregandoDados || isModalOpen || buscandoConta"
         >
-          Enviar
+          {{ carregandoDados ? 'Carregando...' : 'Enviar' }}
         </button>
       </div>
     </form>
@@ -105,13 +107,6 @@
     (confirmed)="confirmTransfer()"
   />
 
-  @if (showToast) {
-    <div class="toast-container">
-      <div class="toast-content body_medium">
-        <span>{{ toastMessage }}</span>
-      </div>
-    </div>
-  }
 </section>
 
 <app-success-modal

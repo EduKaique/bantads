@@ -1,35 +1,14 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap, map } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { Observable, tap, map, catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { API_URL } from '../../configs/api.token';
-import { RegisterRequest } from '../models/register-request';
 import {
   hasScopedStoragePrefix,
   PREFIXO_FILTRO_EXTRATO,
   PREFIXO_PRIMEIRO_ACESSO_EXTRATO,
 } from '../../../shared/utils/session-storage.utils';
-
-interface LoginResponse {
-  access_token: string;
-  token_type: string;
-  tipo: string;
-  usuario: {
-    id: number;
-    nome: string;
-    email: string;
-    cpf: string;
-  };
-}
-
-export type UserState = {
-  id?: number;
-  nome: string;
-  email?: string;
-  cpf?: string;
-  tipo: 'cliente' | 'gerente' | 'administrador';
-  access_token: string;
-} | null;
+import { LoginResponse, LogoutResponse, UserState } from '../models/auth.models';
 
 @Injectable({
   providedIn: 'root',
@@ -60,26 +39,28 @@ export class AuthService {
         return JSON.parse(userJson);
       } catch (e) {
         console.error('Erro ao carregar usuário', e);
-        this.logout();
+        this.clearLocalSession();
       }
     }
     return null;
   }
 
+  /**
+   * Realiza o login do usuário.
+   * @param login 
+   * @param senha 
+   * @returns Observable com os dados do usuário e token de acesso, ou erro 401 em caso de falha de autenticação. 
+   */
   public login(login: string, senha: string): Observable<UserState> {
     return this.http
-      .post<LoginResponse>(`${this.apiBaseUrl}/login`, {
-        login,
-        senha,
-      })
+      .post<LoginResponse>(`${this.apiBaseUrl}/login`, { login, senha })
       .pipe(
         map((response) => {
           const user: UserState = {
-            id: response.usuario.id,
             nome: response.usuario.nome,
             email: response.usuario.email,
             cpf: response.usuario.cpf,
-            tipo: response.tipo.toLowerCase() as 'cliente' | 'gerente' | 'administrador',
+            tipo: response.tipo as 'CLIENTE' | 'GERENTE' | 'ADMIN',
             access_token: response.access_token,
           };
           return user;
@@ -89,15 +70,49 @@ export class AuthService {
           localStorage.setItem('token', user.access_token);
           this.userSignal.set(user);
         }),
+        catchError(this.handleAuthError) 
       );
   }
 
-  public logout(): void {
+  /**
+   * Realiza o logout do usuário.
+   * @returns Observable com os dados de logout ou erro.
+   */
+  public logout(): Observable<LogoutResponse> {
+    const token = localStorage.getItem('token');
+    
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http
+      .post<LogoutResponse>(`${this.apiBaseUrl}/logout`, {}, { headers })
+      .pipe(
+        tap(() => {
+          this.clearLocalSession();
+          this.router.navigate(['/login']);
+        }),
+        catchError((error) => {
+          this.clearLocalSession();
+          this.router.navigate(['/login']);
+          return this.handleAuthError(error);
+        })
+      );
+  }
+
+  private handleAuthError(error: HttpErrorResponse) {
+    if (error.status === 401) {
+      console.error('Erro 401: Acesso não autorizado.');
+      return throwError(() => new Error('Credenciais incorretas ou sessão expirada.'));
+    }
+    return throwError(() => new Error('Ocorreu um erro no servidor. Tente novamente mais tarde.'));
+  }
+
+  private clearLocalSession(): void {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('token');
     this.limparMarcadoresDeSessaoDoExtrato();
     this.userSignal.set(null);
-    this.router.navigate(['/login']);
   }
 
   private limparMarcadoresDeSessaoDoExtrato(): void {
@@ -105,10 +120,7 @@ export class AuthService {
 
     for (let indice = 0; indice < sessionStorage.length; indice++) {
       const chave = sessionStorage.key(indice);
-
-      if (!chave) {
-        continue;
-      }
+      if (!chave) continue;
 
       if (
         hasScopedStoragePrefix(chave, PREFIXO_PRIMEIRO_ACESSO_EXTRATO) ||
@@ -121,12 +133,4 @@ export class AuthService {
     chavesParaRemover.forEach((chave) => sessionStorage.removeItem(chave));
   }
 
-  /**
-   * Realiza o cadastro de um novo cliente.
-   * @param data Objeto com dados pessoais e endereço
-   */
-  public signup(data: RegisterRequest): Observable<void> {
-    console.log('Dados enviados para cadastro:', data);
-    return this.http.post<void>(`${this.apiBaseUrl}/register`, data);
-  }
 }

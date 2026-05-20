@@ -16,8 +16,8 @@ import { startWith } from 'rxjs';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
-import { Gerente } from '../../../../shared/models/gerente';
-import { GerentesService } from '../../services/gerentes';
+import { DadoGerenteAtualizacao, DadoGerenteInsercao, Gerente } from '../../../../shared/models/gerente';
+import { GerentesService } from '../../../../core/services/gerentes.service';
 import { ModalInserirGerenteComponent } from '../../components/modal-inserir-gerente/modal-inserir-gerente';
 import { ModalAtualizarGerente } from '../../components/modal-atualizar-gerente/modal-atualizar-gerente';
 import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
@@ -153,7 +153,7 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
     this.mostrarModalAtualizar.set(false);
   }
 
-  processarInsercao(dados: any): void {
+  processarInsercao(dados: DadoGerenteInsercao): void {
     this.carregando.set(true);
     this.gerentesService.inserir(dados).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
@@ -168,7 +168,7 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  processarAtualizacao(dados: any): void {
+  processarAtualizacao(dados: DadoGerenteAtualizacao): void {
     const gerente = this.gerenteSelecionado();
 
     if (!gerente) return;
@@ -213,9 +213,9 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
     this.gerentesService.remover(gerente.cpf)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (resposta) => {
+        next: () => {
           this.carregarGerentes(); 
-          this.tituloModalSucesso.set(resposta.message || 'Gerente removido com sucesso!'); 
+          this.tituloModalSucesso.set('Gerente removido com sucesso!'); 
           this.mostrarModalSucesso.set(true);
         },
         error: (erro) => {

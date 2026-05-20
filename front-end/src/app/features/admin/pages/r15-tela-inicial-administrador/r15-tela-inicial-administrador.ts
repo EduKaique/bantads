@@ -9,7 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { GerentesDashboardService } from '../../services/gerentes-dashboard';
+import { GerentesDashboardService } from '../../../../core/services/gerentes-dashboard.service';
 import { CardGerenteDashboardComponent } from '../../components/card-gerente-dashboard/card-gerente-dashboard';
 import { GerenteDashboard } from '../../../../shared/models/gerente-dashboard';
 import { DashboardEstatisticas } from '../../../../shared/models/dashboard-estatisticas';

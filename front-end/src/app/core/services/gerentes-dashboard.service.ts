@@ -3,10 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { API_URL } from '../../../core/configs/api.token';
-import { DashboardEstatisticas } from '../../../shared/models/dashboard-estatisticas';
-import { Gerente } from '../../../shared/models/gerente';
-import { GerenteDashboard } from '../../../shared/models/gerente-dashboard';
+import { API_URL } from '../configs/api.token';
+import { DashboardEstatisticas } from '../../shared/models/dashboard-estatisticas';
+import { Gerente } from '../../shared/models/gerente';
+import { GerenteDashboard } from '../../shared/models/gerente-dashboard';
+import { GerentesService } from './gerentes.service';
 
 interface ClienteResumo {
   cpf: string;
@@ -30,6 +31,7 @@ interface DadosDashboard {
 })
 export class GerentesDashboardService {
   private readonly http = inject(HttpClient);
+  private readonly gerentesService = inject(GerentesService);
   private readonly apiUrl = inject(API_URL);
 
   obterEstatisticas(): Observable<DashboardEstatisticas> {
@@ -72,7 +74,7 @@ export class GerentesDashboardService {
 
   private obterDadosDashboard(): Observable<DadosDashboard> {
     return forkJoin({
-      gerentes: this.http.get<Gerente[]>(`${this.apiUrl}/gerentes`),
+      gerentes: this.gerentesService.listar(),
       contas: this.http.get<ContaResumo[]>(`${this.apiUrl}/contas`),
       clientes: this.http.get<ClienteResumo[]>(`${this.apiUrl}/clientes`),
     });

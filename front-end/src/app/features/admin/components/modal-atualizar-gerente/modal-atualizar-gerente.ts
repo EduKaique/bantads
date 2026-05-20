@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { OnChanges, SimpleChanges, Input } from '@angular/core';
+import { DadoGerenteAtualizacao, Gerente } from '../../../../shared/models/gerente';
 
 @Component({
   selector: 'app-modal-atualizar-gerente',
@@ -14,13 +15,13 @@ import { OnChanges, SimpleChanges, Input } from '@angular/core';
 })
 export class ModalAtualizarGerente implements OnChanges {
 
-  @Input() gerente: any;
+  @Input() gerente: Gerente | null = null;
 
   private formBuilder = inject(FormBuilder);
 
 
   @Output() fechar = new EventEmitter<void>();
-  @Output() salvar = new EventEmitter<any>();
+  @Output() salvar = new EventEmitter<DadoGerenteAtualizacao>();
 
   formulario = this.formBuilder.nonNullable.group({
     nome: ['', Validators.required],
@@ -56,11 +57,11 @@ export class ModalAtualizarGerente implements OnChanges {
   emitirSalvamento(): void {
     if (this.formulario.valid && !this.formulario.pristine) {
       const form = this.formulario.getRawValue();
-      const payload: any = {};
+      const payload: DadoGerenteAtualizacao = {};
 
-      if (form.nome) payload.name = form.nome;
+      if (form.nome) payload.nome = form.nome;
       if (form.email) payload.email = form.email;
-      if (form.senha) payload.password = form.senha;
+      if (form.senha) payload.senha = form.senha;
       this.salvar.emit(payload);
     }
   }

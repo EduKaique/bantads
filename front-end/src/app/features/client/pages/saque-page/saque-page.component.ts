@@ -1,45 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { ToastService } from '../../../../core/services/toast.service';
+import { ClientService } from '../../services/client.service';
+import { SaqueService } from '../../services/saque.service';
+
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
+import { normalizarValorMonetario } from '../../../../shared/utils/currency.utils';
 import { formatCurrency } from '../../../../shared/utils/formatters';
+import { normalizarValorMonetario } from '../../../../shared/utils/currency.utils';
 import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
-
-const amountPattern = /^\d+(?:[.,]\d{1,2})?$/;
-
-const saqueAmountValidator: ValidatorFn = (
-  control: AbstractControl
-): ValidationErrors | null => {
-  const rawValue = String(control.value ?? '').trim();
-
-  if (!rawValue) {
-    return null;
-  }
-
-  const normalizedValue = normalizarValorMonetario(rawValue);
-
-  if (!rawValue || normalizedValue === null) {
-    return { currencyFormat: true };
-  }
-
-  if (!Number.isFinite(normalizedValue) || normalizedValue <= 0) {
-    return { positiveAmount: true };
-  }
-
-  return null;
-};
+import { saqueAmountValidator } from '../../../../shared/utils/saque.validators';
 
 @Component({
   selector: 'app-saque-page',
@@ -54,16 +30,19 @@ const saqueAmountValidator: ValidatorFn = (
   styleUrls: ['./saque-page.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SaquePageComponent {
+export class SaquePageComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
-  private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
-
+  private readonly saqueService = inject(SaqueService);
+  private readonly clientService = inject(ClientService);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
+  
   readonly formatCurrency = formatCurrency;
   readonly saqueForm = this.formBuilder.nonNullable.group({
-    valor: ['', [Validators.required, saqueAmountValidator]],
+    valor: ['', [Validators.required, positiveCurrencyAmountValidator]],
   });
 
   private readonly valorControl = this.saqueForm.controls.valor;
@@ -73,13 +52,15 @@ export class SaquePageComponent {
   isSubmitting = false;
   exibirModalConfirmacao = false;
 
-  constructor() {
+  constructor() {}
+
+  ngOnInit(): void {
     const usuarioLogado = this.authService.currentUserValue;
 
     if (usuarioLogado?.cpf) {
       this.carregarSaldo(usuarioLogado.cpf);
     } else {
-      console.error('Usuário não identificado');
+      this.toastService.error('Erro de Sessão', 'Utilizador não identificado.');
     }
   }
 
@@ -156,7 +137,6 @@ export class SaquePageComponent {
 
   confirmarSaque(): void {
     const valorNumerico = this.parseValor(this.valorControl.value);
-
     if (!valorNumerico) {
       this.valorControl.setErrors({ positiveAmount: true });
       return;
@@ -164,53 +144,49 @@ export class SaquePageComponent {
 
     this.isSubmitting = true;
 
-    const payload = {
+    this.saqueService.realizarSaque({
       contaOrigem: this.minhaContaLogada,
       valor: valorNumerico,
-    };
-
-    this.http
-      .post<any>('http://localhost:3000/transacoes/saque', payload)
-      .pipe(
-        finalize(() => {
-          this.isSubmitting = false;
-          this.exibirModalConfirmacao = false;
-        })
-      )
-      .subscribe({
-        next: () => {
-          const cpf = this.authService.currentUserValue?.cpf;
-          if (cpf) {
-            this.carregarSaldo(cpf);
-          }
-
-          this.router.navigate(['/cliente/saque/sucesso'], {
-            state: {
-              valor: valorNumerico,
-              dataHora: new Date().toISOString(),
-            },
-          });
-        },
-        error: (erro) => {
-          this.valorControl.setErrors({ saldoInsuficiente: true });
-          console.error(erro);
-        },
-      });
-  }
-
-  private carregarSaldo(cpf: string): void {
-    this.http.get<any>(`http://localhost:3000/contas/cpf/${cpf}`).subscribe({
-      next: (dadosConta) => {
-        this.minhaContaLogada = dadosConta.numeroConta;
-        const limite = dadosConta.limite || 0;
-        this.saldoDisponivel = (dadosConta.saldoDisponivel || 0) + limite;
+    })
+    .pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        this.isSubmitting = false;
+        this.exibirModalConfirmacao = false;
         this.changeDetectorRef.markForCheck();
+      })
+    )
+    .subscribe({
+      next: () => {
+        const cpf = this.authService.currentUserValue?.cpf;
+        if (cpf) this.carregarSaldo(cpf);
+        this.toastService.success('Sucesso', 'Saque realizado com sucesso!');
+        this.router.navigate(['/cliente/saque/sucesso'], {
+          state: { valor: valorNumerico, dataHora: new Date().toISOString() },
+        });
       },
-      error: (erro) => {
-        console.error('Erro ao buscar saldo:', erro);
-        this.changeDetectorRef.markForCheck();
+      error: () => {
+        this.valorControl.setErrors({ saldoInsuficiente: true });
+        this.toastService.error('Operação recusada', 'Não foi possível processar o saque.');
       },
     });
+  }
+
+ private carregarSaldo(cpf: string): void {
+    this.clientService.buscaDadosConta(cpf)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (dadosConta) => {
+          this.minhaContaLogada = dadosConta.numeroConta;
+          const limite = dadosConta.limite || 0;
+          this.saldoDisponivel = (dadosConta.saldoDisponivel || 0) + limite;
+          this.changeDetectorRef.markForCheck();
+        },
+        error: () => {
+          this.toastService.error('Erro', 'Falha ao buscar saldo.');
+          this.changeDetectorRef.markForCheck();
+        },
+      });
   }
 
   private hasFieldError(control: AbstractControl): boolean {
@@ -221,20 +197,4 @@ export class SaquePageComponent {
     const normalizedValue = normalizarValorMonetario(rawValue);
     return normalizedValue ?? 0;
   }
-}
-
-function normalizarValorMonetario(rawValue: string): number | null {
-  const cleanedValue = rawValue
-    .replace(/R\$\s?/g, '')
-    .replace(/\./g, '')
-    .replace(',', '.')
-    .trim();
-
-  if (!cleanedValue || !amountPattern.test(cleanedValue.replace('.', ','))) {
-    return null;
-  }
-
-  const normalizedValue = Number(cleanedValue);
-
-  return Number.isFinite(normalizedValue) ? normalizedValue : null;
 }
