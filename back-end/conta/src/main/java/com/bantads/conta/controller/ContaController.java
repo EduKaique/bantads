@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bantads.conta.dto.ContaPerfilResponse;
 import com.bantads.conta.dto.ContaPorCpfResponse;
+import com.bantads.conta.dto.ContaResumoResponse;
 import com.bantads.conta.dto.ExtratoResponse;
 import com.bantads.conta.dto.ItemExtratoResponse;
 import com.bantads.conta.dto.OperacaoResponse;
@@ -37,6 +38,11 @@ public class ContaController {
     ) {
         this.servicoContaEscrita = servicoContaEscrita;
         this.servicoContaLeitura = servicoContaLeitura;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ContaResumoResponse>> listarContas() {
+        return ResponseEntity.ok(servicoContaLeitura.listarContas());
     }
 
     @GetMapping("/{numero}/saldo")
