@@ -10,6 +10,7 @@ public class ClienteResponseDTO {
     private String nome;
     private String email;
     private String telefone;
+    private String cpfGerenteResponsavel;
     
     private String cep;
     private String logradouro;
@@ -25,6 +26,7 @@ public class ClienteResponseDTO {
         dto.setNome(c.getNome());
         dto.setEmail(c.getEmail());
         dto.setTelefone(c.getTelefone());
+        dto.setCpfGerenteResponsavel(c.getCpfGerenteResponsavel());
         
         dto.setCep(c.getCep());
         dto.setLogradouro(c.getLogradouro());

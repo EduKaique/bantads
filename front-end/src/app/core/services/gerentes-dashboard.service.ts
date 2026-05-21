@@ -35,19 +35,19 @@ export class GerentesDashboardService {
   obterEstatisticas(): Observable<DashboardEstatisticas> {
     return this.obterDadosDashboard().pipe(
       map(({ gerentes, clientes, contas }) => {
-        const totalGerentesPositivos = gerentes.filter((gerente) => {
-          const resumo = this.calcularResumoFinanceiroGerente(
-            gerente.cpf,
-            clientes,
-            contas,
-          );
-
-          return resumo.saldoNegativo <= resumo.saldoPositivo;
-        }).length;
+        const resumosGerentes = gerentes.map((gerente) =>
+          this.calcularResumoFinanceiroGerente(gerente.cpf, clientes, contas),
+        );
+        const totalGerentesPositivos = resumosGerentes.filter(
+          (resumo) => resumo.saldoNegativo <= resumo.saldoPositivo,
+        ).length;
 
         return {
           totalGerentes: gerentes.length,
-          totalClientes: clientes.length,
+          totalClientes: resumosGerentes.reduce(
+            (total, resumo) => total + resumo.totalClientes,
+            0,
+          ),
           totalGerentesPositivos,
           totalGerentesNegativos: gerentes.length - totalGerentesPositivos,
         };
@@ -113,21 +113,21 @@ export class GerentesDashboardService {
         cpfGerenteNormalizado,
     );
 
-    const cpfsClientes = new Set(
-      contasGerente.map((conta) => this.normalizarCpf(conta.holderDocument)),
-    );
+    const cpfsClientes = new Set<string>();
 
-    if (cpfsClientes.size === 0) {
-      clientes
-        .filter(
-          (cliente) =>
-            this.normalizarCpf(this.obterCpfGerente(cliente)) ===
-            cpfGerenteNormalizado,
-        )
-        .forEach((cliente) => {
-          cpfsClientes.add(this.normalizarCpf(cliente.cpf));
-        });
-    }
+    contasGerente.forEach((conta) => {
+      this.adicionarCpf(cpfsClientes, conta.holderDocument);
+    });
+
+    clientes
+      .filter(
+        (cliente) =>
+          this.normalizarCpf(this.obterCpfGerente(cliente)) ===
+          cpfGerenteNormalizado,
+      )
+      .forEach((cliente) => {
+        this.adicionarCpf(cpfsClientes, cliente.cpf);
+      });
 
     return {
       totalClientes: cpfsClientes.size,
@@ -144,6 +144,14 @@ export class GerentesDashboardService {
 
   private normalizarCpf(cpf: string): string {
     return cpf ? cpf.replace(/\D/g, '') : '';
+  }
+
+  private adicionarCpf(cpfs: Set<string>, cpf: string): void {
+    const cpfNormalizado = this.normalizarCpf(cpf);
+
+    if (cpfNormalizado) {
+      cpfs.add(cpfNormalizado);
+    }
   }
 
   private obterCpfGerente(cliente: ClienteResponse): string {
