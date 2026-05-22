@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { ClienteService } from '../../../../core/services/cliente.service';
+import { ContaService } from '../../../../core/services/conta.service';
 
 @Component({
   selector: 'app-pagina-inicial',
@@ -21,6 +22,8 @@ export class PaginaInicial implements OnInit {
   private readonly clienteService = inject(ClienteService);
   private readonly destroyRef = inject(DestroyRef);
   
+  private readonly contaService = inject(ContaService);
+
   readonly saldo = signal(0);
   readonly nomeUsuario = signal('Cliente BanTads');
 
@@ -40,22 +43,17 @@ export class PaginaInicial implements OnInit {
     }
 
     if (currentUser?.cpf) {
-      this.carregarDadosAPI(currentUser.cpf);
+      this.carregarDadosConta(currentUser.cpf);
     } else {
       console.error('Usuário não identificado na sessão');
     }
   }
 
-  private carregarDadosAPI(cpf: string): void {
-    this.clienteService.buscarContaPorCpf(cpf)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+  private carregarDadosConta(cpf: string): void {
+    this.contaService.buscarContaPorCpf(cpf)
       .subscribe({
         next: (dadosConta) => {
           this.saldo.set(dadosConta.saldoDisponivel || 0);
-
-          if (dadosConta.nome?.trim()) {
-            this.nomeUsuario.set(dadosConta.nome.trim());
-          }
         },
         error: (erro: any) => {
           console.error('Erro ao buscar dados da conta via Service:', erro);
