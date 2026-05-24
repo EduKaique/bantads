@@ -1,3 +1,5 @@
+export type TipoMovimentacao = 'DEPOSITO' | 'SAQUE' | 'TRANSFERENCIA' | string;
+
 export interface OperacaoResponse {
   conta: string;
   data: string;
@@ -25,7 +27,7 @@ export interface SaldoResponse {
 
 export interface ItemExtratoResponse {
   data: string;
-  tipo: 'DEPOSITO' | 'SAQUE' | 'TRANSFERENCIA' | string;
+  tipo: TipoMovimentacao;
   origem: string | null;
   destino: string | null;
   valor: number;
@@ -49,4 +51,35 @@ export interface ContaPerfilResponse {
   limite: number;
   gerente: string;
   criacao: string;
+}
+
+export interface ContaOrigemTransferencia {
+  numeroConta: string;
+  saldo: number;
+  limite: number;
+  saldoDisponivel: number;
+}
+
+export interface ContaTransferenciaPerfil {
+  cliente: string;
+  nome: string;
+  numero: string;
+  saldo: number;
+  limite: number;
+  saldoDisponivel: number;
+}
+
+export interface TransacaoExtrato {
+  id: string;
+  dataHora: string;
+  tipo: TipoMovimentacao;
+  contaOrigem: string | null;
+  contaDestino: string | null;
+  valor: number;
+}
+
+export interface ExtratoAtual {
+  numeroConta: string;
+  saldoAtual: number;
+  transacoes: TransacaoExtrato[];
 }

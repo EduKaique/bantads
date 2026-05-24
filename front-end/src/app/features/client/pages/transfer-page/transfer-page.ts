@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { ContaService } from '../../../../core/services/conta.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
 import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
@@ -18,7 +19,6 @@ import { normalizarValorMonetario } from '../../../../shared/utils/currency.util
 import { formatCpf, formatCurrency } from '../../../../shared/utils/formatters';
 import { positiveCurrencyAmountValidator } from '../../../../shared/validators/currency.validators';
 import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
-import { ClientAccountService } from '../../services/client-account.service';
 
 @Component({
   selector: 'app-transfer-page',
@@ -37,7 +37,7 @@ import { ClientAccountService } from '../../services/client-account.service';
 export class TransferPage implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
-  private readonly clientAccountService = inject(ClientAccountService);
+  private readonly contaService = inject(ContaService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toast = inject(ToastService);
 
@@ -67,6 +67,7 @@ export class TransferPage implements OnInit {
   minhaContaLogada = '';
   saldoDisponivel = 0;
   availableBalance = 0;
+  limiteContaOrigem = 0;
 
   carregandoDados = false;
   buscandoConta = false;
@@ -193,7 +194,7 @@ export class TransferPage implements OnInit {
 
     this.buscandoConta = true;
 
-    this.clientAccountService
+    this.contaService
       .buscarContaTransferenciaPorNumero(numeroDigitado)
       .pipe(
         finalize(() => {
@@ -288,7 +289,7 @@ export class TransferPage implements OnInit {
       valor: transferAmount,
     };
 
-    this.clientAccountService
+    this.contaService
       .transferirEntreContas(this.minhaContaLogada, payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -296,7 +297,9 @@ export class TransferPage implements OnInit {
           this.closeModal();
 
           if (resposta.saldo !== null && resposta.saldo !== undefined) {
-            this.atualizarSaldoDisponivel(Number(resposta.saldo));
+            this.atualizarSaldoDisponivel(
+              Number(resposta.saldo) + this.limiteContaOrigem,
+            );
           }
 
           this.valorEnviado = formatCurrency(transferAmount);
@@ -329,7 +332,7 @@ export class TransferPage implements OnInit {
   private carregarSaldoOrigem(cpf: string): void {
     this.carregandoDados = true;
 
-    this.clientAccountService
+    this.contaService
       .buscarContaOrigemTransferenciaPorCpf(cpf)
       .pipe(
         finalize(() => {
@@ -340,6 +343,7 @@ export class TransferPage implements OnInit {
       .subscribe({
         next: (dadosConta) => {
           this.minhaContaLogada = dadosConta.numeroConta;
+          this.limiteContaOrigem = dadosConta.limite;
           this.atualizarSaldoDisponivel(dadosConta.saldoDisponivel);
         },
         error: (erro) => {

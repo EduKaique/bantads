@@ -24,6 +24,11 @@ describe('TelaInicialGerenteComponent', () => {
   let fixture: ComponentFixture<TelaInicialGerenteComponent>;
 
   beforeEach(async () => {
+    localStorage.setItem(
+      'currentUser',
+      JSON.stringify({ cpf: '12345678910', tipo: 'GERENTE' }),
+    );
+
     await TestBed.configureTestingModule({
       imports: [TelaInicialGerenteComponent],
       providers: [
@@ -38,6 +43,10 @@ describe('TelaInicialGerenteComponent', () => {
     fixture = TestBed.createComponent(TelaInicialGerenteComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    localStorage.removeItem('currentUser');
   });
 
   it('should create', () => {

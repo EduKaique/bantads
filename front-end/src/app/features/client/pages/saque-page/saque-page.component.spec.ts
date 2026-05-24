@@ -6,9 +6,7 @@ import { provideNgxMask } from 'ngx-mask';
 
 import { SaquePageComponent } from './saque-page.component';
 import { AuthService } from '../../../../core/auth/services/auth.service';
-import { ClienteService } from '../../../../core/services/cliente.service';
-import { SaqueService } from '../../services/saque.service';
-import { ToastService } from '../../../../core/services/toast.service';
+import { ContaService } from '../../../../core/services/conta.service';
 
 describe('SaquePageComponent', () => {
   let component: SaquePageComponent;
@@ -18,28 +16,28 @@ describe('SaquePageComponent', () => {
     navigate: jasmine.createSpy('navigate') 
   };
   
-  let mockToastService = {
-    success: jasmine.createSpy('success'),
-    error: jasmine.createSpy('error')
-  };
-
   let mockAuthService = {
     currentUserValue: { cpf: '12345678910' }
   };
 
-  let mockClienteService = {
+  let mockContaService = {
     buscarContaPorCpf: jasmine.createSpy('buscarContaPorCpf').and.returnValue(of({
       numeroConta: '123456-7',
-      saldoDisponivel: 125.49,
-      limite: 5000
-    }))
-  };
-
-  let mockSaqueService = {
-    realizarSaque: jasmine.createSpy('realizarSaque').and.returnValue(of({
-      message: 'Saque realizado com sucesso!',
-      novoSaldoOrigem: 25.49
-    }))
+      saldoDisponivel: 125.49
+    })),
+    buscarConta: jasmine.createSpy('buscarConta').and.returnValue(of({
+      cliente: '12345678910',
+      numero: '123456-7',
+      saldo: 125.49,
+      limite: 5000,
+      gerente: 'Gerente Teste',
+      criacao: '2026-04-14T00:00:00Z'
+    })),
+    sacar: jasmine.createSpy('sacar').and.returnValue(of({
+      conta: '123456-7',
+      data: '2026-04-14T00:00:00Z',
+      saldo: 25.49
+    })),
   };
 
   beforeEach(async () => {
@@ -49,9 +47,7 @@ describe('SaquePageComponent', () => {
         provideNgxMask(),
         { provide: Router, useValue: mockRouter },
         { provide: AuthService, useValue: mockAuthService },
-        { provide: ClienteService, useValue: mockClienteService },
-        { provide: SaqueService, useValue: mockSaqueService },
-        { provide: ToastService, useValue: mockToastService }
+        { provide: ContaService, useValue: mockContaService },
       ]
     }).compileComponents();
 
@@ -64,7 +60,7 @@ describe('SaquePageComponent', () => {
   it('deve criar o componente e carregar o saldo no ngOnInit', () => {
     expect(component).toBeTruthy();
     
-    expect(mockClienteService.buscarContaPorCpf).toHaveBeenCalledWith('12345678910');
+    expect(mockContaService.buscarContaPorCpf).toHaveBeenCalledWith('12345678910');
     
     expect(component.saldoDisponivel).toBe(5125.49);
   });
