@@ -50,7 +50,7 @@ export function mapearMovimentacoesDoExtrato(
         tipoMovimentacao,
       ),
       categoria: mapearCategoria(tipoMovimentacao),
-      valor: formatCurrency(Math.abs(movimentacao.valor)),
+      valor: Math.abs(Number(movimentacao.valor) || 0),
       operacaoColor:
         tipoMovimentacao === 'saque' ||
         (tipoMovimentacao === 'transferencia' && !transferenciaRecebida)
@@ -145,8 +145,9 @@ export function calcularImpactoDasTransacoes(
   transacoes: ExtratoTransaction[],
 ): number {
   return transacoes.reduce((saldo, transacao) => {
-    const valor = parseValorMonetario(transacao.valor);
-    return transacao.operacaoColor === 'blue' ? saldo + valor : saldo - valor;
+    return transacao.operacaoColor === 'blue'
+      ? saldo + transacao.valor
+      : saldo - transacao.valor;
   }, 0);
 }
 
@@ -264,18 +265,12 @@ function calcularSaldoDoDia(
       return saldo;
     }
 
-    const valor = parseValorMonetario(transacao.valor);
-    return transacao.operacaoColor === 'blue' ? saldo - valor : saldo + valor;
+    return transacao.operacaoColor === 'blue'
+      ? saldo - transacao.valor
+      : saldo + transacao.valor;
   }, saldoAtual);
 
   return formatCurrency(saldoCalculado);
-}
-
-function parseValorMonetario(valor: string): number {
-  return (
-    Number(valor.replace(/R\$\s?/g, '').replace(/\./g, '').replace(',', '.')) ||
-    0
-  );
 }
 
 function ordenarPorHora(

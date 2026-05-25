@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {
   BehaviorSubject,
   Observable,
@@ -50,13 +50,15 @@ export class ContaService {
 
   buscarContaPorCpf(cpf: string): Observable<ContaPorCpfResponse> {
     return this.http.get<ContaPorCpfResponse>(
-      `${this.apiUrl}/contas/cpf/${cpf}`,
+      `${this.apiUrl}/contas/cpf/${this.normalizarDocumento(cpf)}`,
+      this.withBearerAuth(),
     );
   }
 
   buscarConta(numeroConta: string): Observable<ContaPerfilResponse> {
     return this.http.get<ContaPerfilResponse>(
       `${this.apiUrl}/contas/${numeroConta}`,
+      this.withBearerAuth(),
     );
   }
 
@@ -64,6 +66,7 @@ export class ContaService {
     return this.http.post<OperacaoResponse>(
       `${this.apiUrl}/contas/${numeroConta}/depositar`,
       { valor },
+      this.withBearerAuth(),
     );
   }
 
@@ -71,6 +74,7 @@ export class ContaService {
     return this.http.post<OperacaoResponse>(
       `${this.apiUrl}/contas/${numeroConta}/sacar`,
       { valor },
+      this.withBearerAuth(),
     );
   }
 
@@ -81,18 +85,21 @@ export class ContaService {
     return this.http.post<TransferenciaResponse>(
       `${this.apiUrl}/contas/${numeroConta}/transferir`,
       request,
+      this.withBearerAuth(),
     );
   }
 
   consultarSaldo(numeroConta: string): Observable<SaldoResponse> {
     return this.http.get<SaldoResponse>(
       `${this.apiUrl}/contas/${numeroConta}/saldo`,
+      this.withBearerAuth(),
     );
   }
 
   consultarExtrato(numeroConta: string): Observable<ExtratoResponse> {
     return this.http.get<ExtratoResponse>(
       `${this.apiUrl}/contas/${numeroConta}/extrato`,
+      this.withBearerAuth(),
     );
   }
 
@@ -188,14 +195,18 @@ export class ContaService {
     numeroConta: string,
   ): Observable<ContaTransferenciaPerfil> {
     return this.buscarConta(numeroConta).pipe(
-      map((perfil) => ({
-        cliente: perfil.cliente,
-        nome: 'Conta identificada',
-        numero: perfil.numero,
-        saldo: perfil.saldo,
-        limite: perfil.limite,
-        saldoDisponivel: this.calcularSaldoDisponivel(perfil.saldo, perfil.limite),
-      })),
+      switchMap((perfil) =>
+        this.buscarNomeCliente(perfil.cliente).pipe(
+          map((nome) => ({
+            cliente: perfil.cliente,
+            nome,
+            numero: perfil.numero,
+            saldo: perfil.saldo,
+            limite: perfil.limite,
+            saldoDisponivel: this.calcularSaldoDisponivel(perfil.saldo, perfil.limite),
+          })),
+        ),
+      ),
     );
   }
 
@@ -340,9 +351,11 @@ export class ContaService {
     if (persistedState) {
       try {
         const parsedState: unknown = JSON.parse(persistedState);
-        if (this.isBankAccount(parsedState)) {
+        if (this.isBankAccount(parsedState) && this.isAccountFromCurrentUser(parsedState)) {
           return parsedState;
         }
+
+        localStorage.removeItem(storageKey);
       } catch {
         localStorage.removeItem(storageKey);
       }
@@ -398,6 +411,18 @@ export class ContaService {
     return error instanceof Error ? error : new Error(fallback);
   }
 
+  private buscarNomeCliente(cpf: string): Observable<string> {
+    return this.http
+      .get<{ nome?: string }>(
+        `${this.apiUrl}/clientes/${this.normalizarDocumento(cpf)}`,
+        this.withBearerAuth(),
+      )
+      .pipe(
+        map((cliente) => cliente.nome?.trim() || 'Conta identificada'),
+        catchError(() => of('Conta identificada')),
+      );
+  }
+
   private roundCurrency(value: number): number {
     return Math.round((value + Number.EPSILON) * 100) / 100;
   }
@@ -414,5 +439,38 @@ export class ContaService {
       typeof account.availableBalance === 'number' &&
       Array.isArray(account.transactions)
     );
+  }
+
+  private isAccountFromCurrentUser(account: BankAccount): boolean {
+    const cpfUsuarioAtual = this.authService.currentUserValue?.cpf;
+
+    if (!cpfUsuarioAtual) {
+      return true;
+    }
+
+    return (
+      this.normalizarDocumento(account.holderDocument) ===
+      this.normalizarDocumento(cpfUsuarioAtual)
+    );
+  }
+
+  private withBearerAuth(): { headers?: HttpHeaders } {
+    const token =
+      localStorage.getItem('token') ||
+      this.authService.currentUserValue?.access_token;
+
+    if (!token) {
+      return {};
+    }
+
+    return {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${token}`,
+      }),
+    };
+  }
+
+  private normalizarDocumento(valor: string): string {
+    return valor.replace(/\D/g, '');
   }
 }

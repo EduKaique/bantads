@@ -35,7 +35,7 @@ describe('TransferPage', () => {
     contaService.buscarContaTransferenciaPorNumero.and.returnValue(
       of({
         cliente: '09506382000',
-        nome: 'Conta identificada',
+        nome: 'Joao Silva',
         numero: '5678',
         saldo: 99836.4,
         limite: 10000,
@@ -108,7 +108,7 @@ describe('TransferPage', () => {
       contaService.buscarContaTransferenciaPorNumero,
     ).toHaveBeenCalledWith('5678');
     expect(component.contaEncontrada).toBeTrue();
-    expect(component.transferForm.get('name')?.value).toBe('Conta identificada');
+    expect(component.transferForm.get('name')?.value).toBe('Joao Silva');
     expect(component.transferForm.get('cpf')?.value).toBe('095.063.820-00');
   });
 
