@@ -8,11 +8,13 @@ public interface ClienteService {
 
     void autocadastrar(AutocadastroInfoDTO dto);
 
-    ClienteResponseDTO buscarPorCpf(String cpf);
+    ClienteResponseDTO buscarPorCpf(String cpf, String cpfUsuario, String tipoUsuario);
 
     List<ClienteParaAprovarResponseDTO> listarParaAprovar(String cpfGerenteSolicitante, String tipoUsuario, String cpfGerenteFiltro);
 
     List<ClienteResponseDTO> listarTodos();
+
+    List<ClienteResponseDTO> listarRelatorioAdministrativo(String tipoUsuario);
 
     void alterarPerfil(String cpf, PerfilInfoDTO dto);
 
