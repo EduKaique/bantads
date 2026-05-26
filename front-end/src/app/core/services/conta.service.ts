@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import {
   BehaviorSubject,
   Observable,
@@ -29,6 +29,7 @@ import {
   TransferenciaRequest,
   TransferenciaResponse,
 } from '../../shared/models/conta';
+import { ContaConsulta } from '../../shared/models/consultas-gerenciais';
 import {
   PREFIXO_ARMAZENAMENTO_CONTA_CLIENTE,
   buildScopedStorageKey,
@@ -60,6 +61,57 @@ export class ContaService {
       `${this.apiUrl}/contas/${numeroConta}`,
       this.withBearerAuth(),
     );
+  }
+
+  buscarPerfilContaPorCpf(cpf: string): Observable<ContaConsulta | null> {
+    return this.buscarContaPorCpf(cpf).pipe(
+      switchMap((contaResumida) =>
+        this.buscarConta(contaResumida.numeroConta).pipe(
+          map((perfil) => this.mapearContaConsulta(cpf, contaResumida, perfil)),
+        ),
+      ),
+      catchError((erro: unknown) => {
+        if (erro instanceof HttpErrorResponse && erro.status === 404) {
+          return of(null);
+        }
+
+        return throwError(() => erro);
+      }),
+    );
+  }
+
+  private mapearContaConsulta(
+    cpf: string,
+    contaResumida: ContaPorCpfResponse,
+    perfil: ContaConsulta,
+  ): ContaConsulta {
+    const cpfNormalizado = this.normalizarDocumento(cpf);
+    const gerenteCompatibilidade =
+      perfil.manager && this.normalizarDocumento(perfil.manager).length === 11
+        ? perfil.manager
+        : '';
+
+    return {
+      ...contaResumida,
+      ...perfil,
+      cliente: perfil.cliente || perfil.holderDocument || perfil.cpf || cpfNormalizado,
+      numero: perfil.numero || perfil.accountNumber || perfil.numeroConta || contaResumida.numeroConta,
+      saldo: perfil.saldo ?? perfil.availableBalance ?? perfil.saldoDisponivel ?? contaResumida.saldoDisponivel,
+      limite: perfil.limite ?? perfil.limit ?? contaResumida.limite,
+      gerente:
+        perfil.gerente ||
+        perfil.managerDocument ||
+        contaResumida.gerente ||
+        contaResumida.managerDocument ||
+        gerenteCompatibilidade,
+      holderDocument: perfil.holderDocument || perfil.cpf || cpfNormalizado,
+      accountNumber: perfil.accountNumber || perfil.numeroConta || contaResumida.numeroConta,
+      availableBalance:
+        perfil.availableBalance ?? perfil.saldoDisponivel ?? contaResumida.saldoDisponivel,
+      limit: perfil.limit ?? perfil.limite ?? contaResumida.limite,
+      managerDocument: perfil.managerDocument || contaResumida.managerDocument,
+      manager: perfil.manager || contaResumida.manager,
+    };
   }
 
   depositar(numeroConta: string, valor: number): Observable<OperacaoResponse> {

@@ -42,6 +42,10 @@ export interface ExtratoResponse {
 export interface ContaPorCpfResponse {
   numeroConta: string;
   saldoDisponivel: number;
+  limite?: number;
+  gerente?: string;
+  manager?: string;
+  managerDocument?: string;
 }
 
 export interface ContaPerfilResponse {
