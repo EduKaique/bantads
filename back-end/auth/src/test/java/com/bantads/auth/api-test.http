@@ -1,0 +1,46 @@
+@baseUrl = http://localhost:8080
+
+### 1. Testar o Gateway (Espera-se Erro de Token/401)
+GET {{baseUrl}}/clientes
+Content-Type: application/json
+
+### 2. Autocadastro de um Cliente
+### 2. Autocadastro de um Cliente
+POST {{baseUrl}}/clientes
+Content-Type: application/json
+
+{
+  "cpf": "10020030040", 
+  "nome": "Maria de Souza",
+  "email": "maria.souza@bantads.com", 
+  "senha": "senha-da-maria", 
+  "salario": 4500,
+  "celular": "41988888888",
+  "cep": "80000000",
+  "logradouro": "Rua XV de Novembro",
+  "numero": 200,
+  "complemento": "Apto 25",
+  "bairro": "Centro",
+  "cidade": "Curitiba",
+  "uf": "PR"
+}
+
+
+### 4. Buscar Conta pelo CPF (Usando o Token do Login)
+# A variável authToken pega a resposta do bloco de login acima automaticamente
+@authToken = {{login.response.body.access_token}}
+
+GET {{baseUrl}}/contas/cpf/12345678901
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+### 5. Realizar Saque (Usando o Token)
+POST {{baseUrl}}/transacoes/saque
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "contaOrigem": "numero-da-conta-aqui",
+  "valor": 50.00
+}
