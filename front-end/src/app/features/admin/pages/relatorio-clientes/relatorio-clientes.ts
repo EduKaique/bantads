@@ -91,9 +91,14 @@ export class RelatorioClientesComponent implements OnInit, AfterViewInit {
     .subscribe({
       next: (res) => {
         // JOIN MANUAL exigido pela R16
+        const gerentesPorCpf = new Map(
+          res.gerentes.map((gerente) => [this.normalizarCpf(gerente.cpf), gerente.nome])
+        );
+
         const dadosMapeados = res.clientes.map(cliente => {
           // Busca a conta que pertence a este cliente
           const conta = res.contas.find(c => c.holderDocument === cliente.cpf);
+          const cpfGerente = conta && conta.managerDocument ? conta.managerDocument : '-';
           
           return {
             cpfCliente: cliente.cpf,
@@ -103,8 +108,8 @@ export class RelatorioClientesComponent implements OnInit, AfterViewInit {
             numeroConta: conta ? conta.accountNumber : '-',
             saldo: conta ? conta.availableBalance : 0,
             limite: conta ? conta.limit : 0,
-            cpfGerente: conta && conta.managerDocument ? conta.managerDocument : '-',
-            nomeGerente: conta && conta.manager ? conta.manager : '-'
+            cpfGerente,
+            nomeGerente: gerentesPorCpf.get(this.normalizarCpf(cpfGerente)) || '-'
           };
         });
 
@@ -119,5 +124,9 @@ export class RelatorioClientesComponent implements OnInit, AfterViewInit {
         this.carregando.set(false);
       }
     });
+  }
+
+  private normalizarCpf(cpf: string): string {
+    return cpf ? cpf.replace(/\D/g, '') : '';
   }
 }

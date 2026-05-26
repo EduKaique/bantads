@@ -76,6 +76,14 @@ public class ServicoContaLeitura {
     }
 
     @Transactional(readOnly = true, transactionManager = "gerenciadorTransacaoLeitura")
+    public List<ContaResumoResponse> listarContasPorGerente(String cpfGerente) {
+        return repositorioContaLeitura.findByGerente(normalizarCpf(cpfGerente))
+            .stream()
+            .map(this::mapearContaResumo)
+            .toList();
+    }
+
+    @Transactional(readOnly = true, transactionManager = "gerenciadorTransacaoLeitura")
     public ContaPorCpfResponse consultarContaPorCpf(String cpf) {
         ContaLeitura conta = repositorioContaLeitura.findByCliente(cpf)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada para o CPF informado."));
@@ -111,6 +119,10 @@ public class ServicoContaLeitura {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada."));
     }
 
+    private String normalizarCpf(String cpf) {
+        return cpf == null ? "" : cpf.replaceAll("\\D", "");
+    }
+
     private ItemExtratoResponse mapearItemExtrato(MovimentacaoLeitura movimentacao) {
         return new ItemExtratoResponse(
             movimentacao.getData(),
@@ -127,7 +139,6 @@ public class ServicoContaLeitura {
             conta.getCliente(),
             conta.getSaldo(),
             conta.getLimite(),
-            conta.getGerente(),
             conta.getGerente()
         );
     }

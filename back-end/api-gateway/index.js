@@ -60,6 +60,19 @@ function verifyJWT(req, res, next) {
     });
 }
 
+function requireAdmin(req, res, next) {
+    const tipoUsuario = String(req.headers['x-usuario-tipo'] || '').toUpperCase();
+
+    if (tipoUsuario !== 'ADMIN' && tipoUsuario !== 'ADMINISTRADOR') {
+        return res.status(403).json({
+            auth: false,
+            message: 'Acesso restrito a administradores.'
+        });
+    }
+
+    next();
+}
+
 
 // ROTAS PÚBLICAS 
 app.get('/reboot', (req, res, next) => {
@@ -82,6 +95,10 @@ app.post('/logout', verifyJWT, (req, res, next) => {
 
 app.use('/clientes', verifyJWT, (req, res, next) => {
     clienteServiceProxy(req, res, next);
+});
+
+app.get('/contas', verifyJWT, requireAdmin, (req, res, next) => {
+    contaServiceProxy(req, res, next);
 });
 
 app.use('/contas', verifyJWT, (req, res, next) => {

@@ -7,7 +7,6 @@ public record ContaResumoResponse(
     String holderDocument,
     BigDecimal availableBalance,
     BigDecimal limit,
-    String managerDocument,
-    String manager
+    String managerDocument
 ) {
 }
