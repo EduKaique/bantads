@@ -96,22 +96,14 @@ export class ConsultasGerenciaisService {
     }
 
     return forkJoin({
-      clientes: this.clienteService.listarTodosClientes(),
+      cliente: this.clienteService.buscarClientePorCpf(cpfNormalizado),
       gerentes: this.gerentesService.listar(),
     }).pipe(
-      switchMap(({ clientes, gerentes }) => {
-        const cliente = clientes.find(
-          (item) => this.normalizarDocumento(item.cpf) === cpfNormalizado,
-        );
-
-        if (!cliente) {
-          return of(null);
-        }
-
-        return this.contaService.buscarPerfilContaPorCpf(cpfNormalizado).pipe(
+      switchMap(({ cliente, gerentes }) =>
+        this.contaService.buscarPerfilContaPorCpf(cpfNormalizado).pipe(
           map((conta) => this.mapearClienteDetalhado(cliente, conta, gerentes)),
-        );
-      }),
+        ),
+      ),
     );
   }
 

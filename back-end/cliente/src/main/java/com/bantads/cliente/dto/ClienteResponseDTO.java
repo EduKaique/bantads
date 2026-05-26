@@ -21,12 +21,19 @@ public class ClienteResponseDTO {
     private String estado;
 
     public static ClienteResponseDTO fromEntity(Cliente c) {
+        return fromEntity(c, false);
+    }
+
+    public static ClienteResponseDTO fromEntity(Cliente c, boolean incluirSalario) {
         ClienteResponseDTO dto = new ClienteResponseDTO();
         dto.setCpf(c.getCpf());
         dto.setNome(c.getNome());
         dto.setEmail(c.getEmail());
         dto.setTelefone(c.getTelefone());
-        dto.setSalario(c.getSalario());
+
+        if (incluirSalario) {
+            dto.setSalario(c.getSalario());
+        }
         
         dto.setCep(c.getCep());
         dto.setLogradouro(c.getLogradouro());
