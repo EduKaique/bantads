@@ -1,20 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/services/auth.service';
-import { ClienteService } from '../../../../core/services/cliente.service';
-import { ToastService } from '../../../../core/services/toast.service';
-import { SaqueService } from '../../services/saque.service';
-
+import { ContaService } from '../../../../core/services/conta.service';
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
 import { normalizarValorMonetario } from '../../../../shared/utils/currency.utils';
 import { formatCurrency } from '../../../../shared/utils/formatters';
+import { positiveCurrencyAmountValidator } from '../../../../shared/validators/currency.validators';
 import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
-import { saqueAmountValidator } from '../../../../shared/utils/saque.validators';
 
 @Component({
   selector: 'app-saque-page',
@@ -29,19 +30,16 @@ import { saqueAmountValidator } from '../../../../shared/utils/saque.validators'
   styleUrls: ['./saque-page.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SaquePageComponent implements OnInit {
+export class SaquePageComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
+  private readonly contaService = inject(ContaService);
   private readonly authService = inject(AuthService);
-  private readonly saqueService = inject(SaqueService);
-  private readonly clienteService = inject(ClienteService);
-  private readonly toastService = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
-  
+
   readonly formatCurrency = formatCurrency;
   readonly saqueForm = this.formBuilder.nonNullable.group({
-    valor: ['', [Validators.required, saqueAmountValidator]],
+    valor: ['', [Validators.required, positiveCurrencyAmountValidator]],
   });
 
   private readonly valorControl = this.saqueForm.controls.valor;
@@ -51,15 +49,13 @@ export class SaquePageComponent implements OnInit {
   isSubmitting = false;
   exibirModalConfirmacao = false;
 
-  constructor() {}
-
-  ngOnInit(): void {
+  constructor() {
     const usuarioLogado = this.authService.currentUserValue;
 
     if (usuarioLogado?.cpf) {
       this.carregarSaldo(usuarioLogado.cpf);
     } else {
-      this.toastService.error('Erro de Sessão', 'Utilizador não identificado.');
+      console.error('Usuário não identificado');
     }
   }
 
@@ -136,6 +132,7 @@ export class SaquePageComponent implements OnInit {
 
   confirmarSaque(): void {
     const valorNumerico = this.parseValor(this.valorControl.value);
+
     if (!valorNumerico) {
       this.valorControl.setErrors({ positiveAmount: true });
       return;
@@ -143,46 +140,52 @@ export class SaquePageComponent implements OnInit {
 
     this.isSubmitting = true;
 
-    this.saqueService.realizarSaque({
-      contaOrigem: this.minhaContaLogada,
-      valor: valorNumerico,
-    })
-    .pipe(
-      takeUntilDestroyed(this.destroyRef),
-      finalize(() => {
-        this.isSubmitting = false;
-        this.exibirModalConfirmacao = false;
-        this.changeDetectorRef.markForCheck();
-      })
-    )
-    .subscribe({
-      next: () => {
-        const cpf = this.authService.currentUserValue?.cpf;
-        if (cpf) this.carregarSaldo(cpf);
-        this.toastService.success('Sucesso', 'Saque realizado com sucesso!');
-        this.router.navigate(['/cliente/saque/sucesso'], {
-          state: { valor: valorNumerico, dataHora: new Date().toISOString() },
-        });
-      },
-      error: () => {
-        this.valorControl.setErrors({ saldoInsuficiente: true });
-        this.toastService.error('Operação recusada', 'Não foi possível processar o saque.');
-      },
-    });
+    this.contaService
+      .sacar(this.minhaContaLogada, valorNumerico)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+          this.exibirModalConfirmacao = false;
+        })
+      )
+      .subscribe({
+        next: (resposta) => {
+          const cpf = this.authService.currentUserValue?.cpf;
+          if (cpf) {
+            this.carregarSaldo(cpf);
+          }
+
+          this.router.navigate(['/cliente/saque/sucesso'], {
+            state: {
+              valor: valorNumerico,
+              dataHora: resposta.data,
+            },
+          });
+        },
+        error: (erro) => {
+          this.valorControl.setErrors({ saldoInsuficiente: true });
+          console.error(erro);
+        },
+      });
   }
 
- private carregarSaldo(cpf: string): void {
-    this.clienteService.buscarContaPorCpf(cpf)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (dadosConta) => {
+  private carregarSaldo(cpf: string): void {
+    this.contaService
+      .buscarContaPorCpf(cpf)
+      .pipe(
+        switchMap((dadosConta) => {
           this.minhaContaLogada = dadosConta.numeroConta;
-          const limite = dadosConta.limite || 0;
-          this.saldoDisponivel = (dadosConta.saldoDisponivel || 0) + limite;
+          return this.contaService.buscarConta(dadosConta.numeroConta);
+        })
+      )
+      .subscribe({
+        next: (contaPerfil) => {
+          const limite = contaPerfil.limite || 0;
+          this.saldoDisponivel = (contaPerfil.saldo || 0) + limite;
           this.changeDetectorRef.markForCheck();
         },
-        error: () => {
-          this.toastService.error('Erro', 'Falha ao buscar saldo.');
+        error: (erro) => {
+          console.error('Erro ao buscar saldo:', erro);
           this.changeDetectorRef.markForCheck();
         },
       });

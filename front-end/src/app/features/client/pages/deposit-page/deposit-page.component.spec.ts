@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { provideNgxMask } from 'ngx-mask';
 import { of } from 'rxjs';
 
 import { BankAccount } from '../../../../shared/models/bank-account';
-import { ClientAccountService } from '../../services/client-account.service';
+import { ContaService } from '../../../../core/services/conta.service';
 import { DepositPageComponent } from './deposit-page.component';
 
-class ClientAccountServiceStub {
+class ContaServiceStub {
   private readonly account: BankAccount = {
     accountId: 'client-main-account',
     branch: '0001',
@@ -28,7 +29,7 @@ class ClientAccountServiceStub {
       transactions: [
         {
           id: 'deposit-1',
-          type: 'deposit' as const,
+          type: 'deposito' as const,
           amount: 100,
           description: 'Deposito em conta',
           performedAt: '2026-03-07T12:00:00.000Z',
@@ -48,7 +49,8 @@ describe('DepositPageComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DepositPageComponent],
       providers: [
-        { provide: ClientAccountService, useClass: ClientAccountServiceStub },
+        provideNgxMask(),
+        { provide: ContaService, useClass: ContaServiceStub },
         {
           provide: Router,
           useValue: {

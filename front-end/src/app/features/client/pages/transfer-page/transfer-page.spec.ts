@@ -3,19 +3,19 @@ import { provideNgxMask } from 'ngx-mask';
 import { of } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { ContaService } from '../../../../core/services/conta.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { formatCurrency } from '../../../../shared/utils/formatters';
-import { ClientAccountService } from '../../services/client-account.service';
 import { TransferPage } from './transfer-page';
 
 describe('TransferPage', () => {
   let component: TransferPage;
   let fixture: ComponentFixture<TransferPage>;
-  let clientAccountService: jasmine.SpyObj<ClientAccountService>;
+  let contaService: jasmine.SpyObj<ContaService>;
 
   beforeEach(async () => {
-    clientAccountService = jasmine.createSpyObj<ClientAccountService>(
-      'ClientAccountService',
+    contaService = jasmine.createSpyObj<ContaService>(
+      'ContaService',
       [
         'buscarContaOrigemTransferenciaPorCpf',
         'buscarContaTransferenciaPorNumero',
@@ -23,17 +23,19 @@ describe('TransferPage', () => {
       ],
     );
 
-    clientAccountService.buscarContaOrigemTransferenciaPorCpf.and.returnValue(
+    contaService.buscarContaOrigemTransferenciaPorCpf.and.returnValue(
       of({
         numeroConta: '1234',
+        saldo: 1500,
+        limite: 0,
         saldoDisponivel: 1500,
       }),
     );
 
-    clientAccountService.buscarContaTransferenciaPorNumero.and.returnValue(
+    contaService.buscarContaTransferenciaPorNumero.and.returnValue(
       of({
         cliente: '09506382000',
-        nome: 'Conta identificada',
+        nome: 'Joao Silva',
         numero: '5678',
         saldo: 99836.4,
         limite: 10000,
@@ -41,7 +43,7 @@ describe('TransferPage', () => {
       }),
     );
 
-    clientAccountService.transferirEntreContas.and.returnValue(
+    contaService.transferirEntreContas.and.returnValue(
       of({
         conta: '1234',
         data: '2026-04-13T12:00:00Z',
@@ -60,14 +62,14 @@ describe('TransferPage', () => {
             currentUserValue: {
               cpf: '12345678900',
               nome: 'Cliente Teste',
-              tipo: 'cliente',
+              tipo: 'CLIENTE',
               access_token: 'token',
             },
           },
         },
         {
-          provide: ClientAccountService,
-          useValue: clientAccountService,
+          provide: ContaService,
+          useValue: contaService,
         },
         {
           provide: ToastService,
@@ -88,7 +90,7 @@ describe('TransferPage', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
     expect(
-      clientAccountService.buscarContaOrigemTransferenciaPorCpf,
+      contaService.buscarContaOrigemTransferenciaPorCpf,
     ).toHaveBeenCalledWith('12345678900');
     expect(component.minhaContaLogada).toBe('1234');
     expect(component.availableBalance).toBe(1500);
@@ -103,10 +105,10 @@ describe('TransferPage', () => {
     component.searchAccount();
 
     expect(
-      clientAccountService.buscarContaTransferenciaPorNumero,
+      contaService.buscarContaTransferenciaPorNumero,
     ).toHaveBeenCalledWith('5678');
     expect(component.contaEncontrada).toBeTrue();
-    expect(component.transferForm.get('name')?.value).toBe('Conta identificada');
+    expect(component.transferForm.get('name')?.value).toBe('Joao Silva');
     expect(component.transferForm.get('cpf')?.value).toBe('095.063.820-00');
   });
 
@@ -119,7 +121,7 @@ describe('TransferPage', () => {
 
     component.confirmTransfer();
 
-    expect(clientAccountService.transferirEntreContas).toHaveBeenCalledWith(
+    expect(contaService.transferirEntreContas).toHaveBeenCalledWith(
       '1234',
       {
         destino: '5678',

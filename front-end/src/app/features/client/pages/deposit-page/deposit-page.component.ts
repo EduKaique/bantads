@@ -10,13 +10,13 @@ import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
+import { ContaService } from '../../../../core/services/conta.service';
 import { DepositRequest } from '../../../../shared/models/deposit-request';
 import { normalizarValorMonetario } from '../../../../shared/utils/currency.utils';
 import { formatCurrency } from '../../../../shared/utils/formatters';
 import { positiveCurrencyAmountValidator } from '../../../../shared/validators/currency.validators';
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
 import { DepositConfirmationModalComponent } from '../../components/deposit-confirmation-modal.component';
-import { ClientAccountService } from '../../services/client-account.service';
 
 @Component({
   selector: 'app-deposit-page',
@@ -33,11 +33,11 @@ import { ClientAccountService } from '../../services/client-account.service';
 })
 export class DepositPageComponent {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly clientAccountService = inject(ClientAccountService);
+  private readonly contaService = inject(ContaService);
   private readonly router = inject(Router);
 
   readonly formatCurrency = formatCurrency;
-  readonly account$ = this.clientAccountService.getCurrentAccount();
+  readonly account$ = this.contaService.getCurrentAccount();
   readonly depositForm = this.formBuilder.nonNullable.group({
     amount: ['', [Validators.required, positiveCurrencyAmountValidator]],
   });
@@ -85,7 +85,7 @@ export class DepositPageComponent {
     this.isSubmitting = true;
     this.submissionError = '';
 
-    this.clientAccountService
+    this.contaService
       .depositIntoCurrentAccount(pendingDeposit)
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({

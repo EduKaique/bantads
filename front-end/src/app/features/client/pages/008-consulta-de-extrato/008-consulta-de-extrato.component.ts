@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
 import { AuthService } from '../../../../core/auth/services/auth.service';
-import { ClientAccountService } from '../../services/client-account.service';
+import { ContaService } from '../../../../core/services/conta.service';
 import {
   buildScopedStorageKey,
   PREFIXO_FILTRO_EXTRATO,
@@ -40,7 +40,7 @@ import { ExtratoTransaction } from './extrato-transaction.model';
 export class ConsultaExtratoPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
-  private readonly clientAccountService = inject(ClientAccountService);
+  private readonly contaService = inject(ContaService);
 
   readonly saldoAtual = signal(0);
   readonly erroCarregamento = signal<string | null>(null);
@@ -121,7 +121,7 @@ export class ConsultaExtratoPageComponent implements OnInit {
       return;
     }
 
-    this.clientAccountService.getExtratoAtual().pipe(
+    this.contaService.getExtratoAtual().pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (extrato) => {
