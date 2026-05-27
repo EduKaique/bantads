@@ -107,7 +107,7 @@ public class ClienteServiceImpl implements ClienteService {
     public ClienteResponseDTO buscarPorCpf(String cpf) {
         Cliente cliente = clienteRepository.findById(cpf)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente nao encontrado"));
-        return ClienteResponseDTO.fromEntity(cliente);
+        return ClienteResponseDTO.fromEntity(cliente, true);
     }
 
     @Override
@@ -127,9 +127,14 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public List<ClienteResponseDTO> listarTodos() {
+        return listarTodos(false);
+    }
+
+    @Override
+    public List<ClienteResponseDTO> listarTodos(boolean incluirSalario) {
         return clienteRepository.findByStatus(StatusCliente.APROVADO)
                 .stream()
-                .map(ClienteResponseDTO::fromEntity)
+                .map(cliente -> ClienteResponseDTO.fromEntity(cliente, incluirSalario))
                 .collect(Collectors.toList());
     }
 

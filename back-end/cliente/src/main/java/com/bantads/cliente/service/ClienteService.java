@@ -14,6 +14,8 @@ public interface ClienteService {
 
     List<ClienteResponseDTO> listarTodos();
 
+    List<ClienteResponseDTO> listarTodos(boolean incluirSalario);
+
     void alterarPerfil(String cpf, PerfilInfoDTO dto);
 
     RespostaAprovacaoClienteDTO aprovar(String cpf, String cpfGerenteSolicitante, String tipoUsuario);

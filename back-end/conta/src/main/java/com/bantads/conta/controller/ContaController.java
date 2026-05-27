@@ -58,27 +58,6 @@ public class ContaController {
         return "ADMIN".equalsIgnoreCase(tipoUsuario) || "ADMINISTRADOR".equalsIgnoreCase(tipoUsuario);
     }
 
-    @GetMapping("/gerente/{cpfGerente}")
-    public ResponseEntity<List<ContaResumoResponse>> listarContasPorGerente(
-        @PathVariable String cpfGerente,
-        @RequestHeader(value = "X-Usuario-Cpf", required = false) String cpfUsuario,
-        @RequestHeader(value = "X-Usuario-Tipo", required = false) String tipoUsuario
-    ) {
-        if (!ehAdministrador(tipoUsuario) && !ehMesmoGerente(cpfGerente, cpfUsuario, tipoUsuario)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso restrito ao gerente responsavel.");
-        }
-
-        return ResponseEntity.ok(servicoContaLeitura.listarContasPorGerente(cpfGerente));
-    }
-
-    private boolean ehMesmoGerente(String cpfGerente, String cpfUsuario, String tipoUsuario) {
-        return "GERENTE".equalsIgnoreCase(tipoUsuario) && normalizarCpf(cpfGerente).equals(normalizarCpf(cpfUsuario));
-    }
-
-    private String normalizarCpf(String cpf) {
-        return cpf == null ? "" : cpf.replaceAll("\\D", "");
-    }
-
     @GetMapping("/{numero}/saldo")
     public ResponseEntity<SaldoResponse> consultarSaldo(@PathVariable String numero) {
         return ResponseEntity.ok(servicoContaLeitura.consultarSaldo(numero));

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { formatCpf } from '../../../../shared/utils/formatters';
 import { API_URL } from '../../../../core/configs/api.token';
@@ -65,9 +65,7 @@ export class ConsultarClientesComponent implements OnInit {
 
     forkJoin({
       clientes: this.clienteService.listarTodosClientes(),
-      contas: cpfGerenteLogado
-        ? this.http.get<any[]>(`${this.apiUrl}/contas/gerente/${cpfGerenteLogado}`)
-        : of([])
+      contas: this.http.get<any[]>(`${this.apiUrl}/contas`)
     }).subscribe({
       next: (res) => {
         const clientesDoGerente: Cliente[] = [];

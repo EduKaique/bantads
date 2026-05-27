@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping({"/clientes", "/"})
 public class ClienteController {
 
+    private static final String FILTRO_RELATORIO_ADMINISTRATIVO = "adm_relatorio_clientes";
+
     private final ClienteService clienteService;
 
     // Injeção do Service
@@ -27,7 +29,7 @@ public class ClienteController {
         if ("para_aprovar".equalsIgnoreCase(filtro)) {
             return ResponseEntity.ok(clienteService.listarParaAprovar(cpfGerenteSolicitante, tipoUsuario, cpfGerente));
         }
-        return ResponseEntity.ok(clienteService.listarTodos());
+        return ResponseEntity.ok(clienteService.listarTodos(FILTRO_RELATORIO_ADMINISTRATIVO.equalsIgnoreCase(filtro)));
     }
 
     @PostMapping({"", "/"})

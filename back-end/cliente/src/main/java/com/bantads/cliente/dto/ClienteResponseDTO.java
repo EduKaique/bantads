@@ -10,6 +10,7 @@ public class ClienteResponseDTO {
     private String nome;
     private String email;
     private String telefone;
+    private Double salario;
     private String cpfGerenteResponsavel;
     
     private String cep;
@@ -21,11 +22,18 @@ public class ClienteResponseDTO {
     private String estado;
 
     public static ClienteResponseDTO fromEntity(Cliente c) {
+        return fromEntity(c, false);
+    }
+
+    public static ClienteResponseDTO fromEntity(Cliente c, boolean incluirSalario) {
         ClienteResponseDTO dto = new ClienteResponseDTO();
         dto.setCpf(c.getCpf());
         dto.setNome(c.getNome());
         dto.setEmail(c.getEmail());
         dto.setTelefone(c.getTelefone());
+        if (incluirSalario) {
+            dto.setSalario(c.getSalario());
+        }
         dto.setCpfGerenteResponsavel(c.getCpfGerenteResponsavel());
         
         dto.setCep(c.getCep());
