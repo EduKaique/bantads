@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 @Service
 public class ClienteServiceImpl implements ClienteService {
 
+    private static final String TIPO_ADMIN = "ADMIN";
+    private static final String TIPO_ADMINISTRADOR = "ADMINISTRADOR";
     private static final String TIPO_GERENTE = "GERENTE";
     private static final List<StatusSagaAprovacaoCliente> STATUS_ATIVOS = List.of(
         StatusSagaAprovacaoCliente.INICIADA,
@@ -107,7 +109,7 @@ public class ClienteServiceImpl implements ClienteService {
     public ClienteResponseDTO buscarPorCpf(String cpf) {
         Cliente cliente = clienteRepository.findById(cpf)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente nao encontrado"));
-        return ClienteResponseDTO.fromEntity(cliente, true);
+        return ClienteResponseDTO.fromEntity(cliente);
     }
 
     @Override
@@ -131,7 +133,12 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public List<ClienteResponseDTO> listarTodos(boolean incluirSalario) {
+    public List<ClienteResponseDTO> listarRelatorioAdministrativo(String tipoUsuario) {
+        validarAdministrador(tipoUsuario);
+        return listarTodos(true);
+    }
+
+    private List<ClienteResponseDTO> listarTodos(boolean incluirSalario) {
         return clienteRepository.findByStatus(StatusCliente.APROVADO)
                 .stream()
                 .map(cliente -> ClienteResponseDTO.fromEntity(cliente, incluirSalario))
@@ -255,6 +262,15 @@ public class ClienteServiceImpl implements ClienteService {
         }
         if (!TIPO_GERENTE.equalsIgnoreCase(tipoUsuario)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuario autenticado nao e gerente");
+        }
+    }
+
+    private void validarAdministrador(String tipoUsuario) {
+        if (estaEmBranco(tipoUsuario)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Contexto de usuario autenticado ausente");
+        }
+        if (!TIPO_ADMIN.equalsIgnoreCase(tipoUsuario) && !TIPO_ADMINISTRADOR.equalsIgnoreCase(tipoUsuario)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuario autenticado nao e administrador");
         }
     }
 

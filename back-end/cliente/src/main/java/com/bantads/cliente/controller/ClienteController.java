@@ -29,7 +29,10 @@ public class ClienteController {
         if ("para_aprovar".equalsIgnoreCase(filtro)) {
             return ResponseEntity.ok(clienteService.listarParaAprovar(cpfGerenteSolicitante, tipoUsuario, cpfGerente));
         }
-        return ResponseEntity.ok(clienteService.listarTodos(FILTRO_RELATORIO_ADMINISTRATIVO.equalsIgnoreCase(filtro)));
+        if (FILTRO_RELATORIO_ADMINISTRATIVO.equalsIgnoreCase(filtro)) {
+            return ResponseEntity.ok(clienteService.listarRelatorioAdministrativo(tipoUsuario));
+        }
+        return ResponseEntity.ok(clienteService.listarTodos());
     }
 
     @PostMapping({"", "/"})

@@ -14,7 +14,7 @@ public interface ClienteService {
 
     List<ClienteResponseDTO> listarTodos();
 
-    List<ClienteResponseDTO> listarTodos(boolean incluirSalario);
+    List<ClienteResponseDTO> listarRelatorioAdministrativo(String tipoUsuario);
 
     void alterarPerfil(String cpf, PerfilInfoDTO dto);
 
