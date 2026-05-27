@@ -42,8 +42,12 @@ public class ClienteController {
     }
 
     @GetMapping("/{cpf}")
-    public ResponseEntity<ClienteResponseDTO> consultarCliente(@PathVariable String cpf) {
-        return ResponseEntity.ok(clienteService.buscarPorCpf(cpf));
+    public ResponseEntity<ClienteResponseDTO> consultarCliente(
+        @PathVariable String cpf,
+        @RequestHeader(value = "X-Usuario-Cpf", required = false) String cpfUsuario,
+        @RequestHeader(value = "X-Usuario-Tipo", required = false) String tipoUsuario
+    ) {
+        return ResponseEntity.ok(clienteService.buscarPorCpf(cpf, cpfUsuario, tipoUsuario));
     }
 
     @PutMapping("/{cpf}")

@@ -9,54 +9,39 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin } from 'rxjs';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { API_URL } from '../../../../core/configs/api.token';
-import { ClienteService } from '../../../../core/services/cliente.service';
 
-// Interface para tipar os dados da nossa tabela
-export interface RelatorioCliente {
-  cpfCliente: string;
-  nomeCliente: string;
-  emailCliente: string;
-  salario: number;
-  numeroConta: string;
-  saldo: number;
-  limite: number;
-  cpfGerente: string;
-  nomeGerente: string;
-}
+import { ConsultasGerenciaisService } from '../../../../core/services/consultas-gerenciais.service';
+import { RelatorioCliente } from '../../../../shared/models/consultas-gerenciais';
 
 @Component({
   selector: 'app-relatorio-clientes',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatSortModule,
-    MatTableModule
-  ],
+  imports: [CommonModule, MatSortModule, MatTableModule],
   templateUrl: './relatorio-clientes.html',
   styleUrl: './relatorio-clientes.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RelatorioClientesComponent implements OnInit, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly http = inject(HttpClient);
-  private readonly apiUrl = inject(API_URL);
-  private readonly clienteService = inject(ClienteService);
+  private readonly consultasGerenciaisService = inject(ConsultasGerenciaisService);
 
   @ViewChild(MatSort) private ordenador!: MatSort;
 
-  // As 9 colunas exigidas pelo protótipo
   readonly colunasExibidas = [
-    'cpfCliente', 'nomeCliente', 'emailCliente', 'salario', 
-    'numeroConta', 'saldo', 'limite', 'cpfGerente', 'nomeGerente'
+    'cpfCliente',
+    'nomeCliente',
+    'emailCliente',
+    'salario',
+    'numeroConta',
+    'saldo',
+    'limite',
+    'cpfGerente',
+    'nomeGerente',
   ];
-  
-  // Controle de estado da tela usando Signals
+
   readonly carregando = signal(true);
   readonly mensagemErro = signal('');
   readonly fonteDados = new MatTableDataSource<RelatorioCliente>([]);
@@ -69,11 +54,13 @@ export class RelatorioClientesComponent implements OnInit, AfterViewInit {
     this.fonteDados.sort = this.ordenador;
   }
 
-  // Reaproveitado a máscara de CPF
   formatarCpf(cpf: string): string {
     if (!cpf || cpf === '-') return '-';
+
     const cpfNormalizado = cpf.replace(/\D/g, '');
+
     if (cpfNormalizado.length !== 11) return cpf;
+
     return cpfNormalizado.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   }
 
@@ -81,43 +68,18 @@ export class RelatorioClientesComponent implements OnInit, AfterViewInit {
     this.carregando.set(true);
     this.mensagemErro.set('');
 
-    // Dispara as 3 requisições ao mesmo tempo
-    forkJoin({
-      clientes: this.clienteService.listarRelatorioClientes(),
-      contas: this.http.get<any[]>(`${this.apiUrl}/contas`),
-      gerentes: this.http.get<any[]>(`${this.apiUrl}/gerentes`)
-    })
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe({
-      next: (res) => {
-        // JOIN MANUAL exigido pela R16
-        const dadosMapeados = res.clientes.map(cliente => {
-          // Busca a conta que pertence a este cliente
-          const conta = res.contas.find(c => c.holderDocument === cliente.cpf);
-          
-          return {
-            cpfCliente: cliente.cpf,
-            nomeCliente: cliente.nome,
-            emailCliente: cliente.email,
-            salario: cliente.salario || 0,
-            numeroConta: conta ? conta.accountNumber : '-',
-            saldo: conta ? conta.availableBalance : 0,
-            limite: conta ? conta.limit : 0,
-            cpfGerente: conta && conta.managerDocument ? conta.managerDocument : '-',
-            nomeGerente: conta && conta.manager ? conta.manager : '-'
-          };
-        });
-
-        // Ordena a lista pelo nome do cliente em ordem alfabética
-        dadosMapeados.sort((a, b) => a.nomeCliente.localeCompare(b.nomeCliente));
-
-        this.fonteDados.data = dadosMapeados;
-        this.carregando.set(false);
-      },
-      error: () => {
-        this.mensagemErro.set('Não foi possível carregar os dados do relatório.');
-        this.carregando.set(false);
-      }
-    });
+    this.consultasGerenciaisService
+      .listarRelatorioClientes()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (dadosMapeados) => {
+          this.fonteDados.data = dadosMapeados;
+          this.carregando.set(false);
+        },
+        error: () => {
+          this.mensagemErro.set('Nao foi possivel carregar os dados do relatorio.');
+          this.carregando.set(false);
+        },
+      });
   }
 }

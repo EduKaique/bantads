@@ -10,6 +10,7 @@ import {
 
 import { ConsultaExtratoPageComponent } from './008-consulta-de-extrato.component';
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { API_URL } from '../../../../core/configs/api.token';
 
 registerLocaleData(localePt);
 
@@ -31,11 +32,12 @@ describe('ConsultaExtratoPageComponent', () => {
               nome: 'Maria Santos',
               email: 'maria@bantads.com.br',
               cpf: '88877766655',
-              tipo: 'cliente',
+              tipo: 'CLIENTE',
               access_token: 'token',
             },
           },
         },
+        { provide: API_URL, useValue: 'http://localhost:8080' },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
       ],
     }).compileComponents();
@@ -46,14 +48,25 @@ describe('ConsultaExtratoPageComponent', () => {
     fixture.detectChanges();
 
     httpTestingController
-      .expectOne('http://localhost:8084/contas/cpf/88877766655')
+      .expectOne('http://localhost:8080/contas/cpf/88877766655')
       .flush({
         numeroConta: '2222',
         saldoDisponivel: 62090.25,
       });
 
     httpTestingController
-      .expectOne('http://localhost:8084/contas/2222/extrato')
+      .expectOne('http://localhost:8080/contas/2222')
+      .flush({
+        cliente: '88877766655',
+        numero: '2222',
+        saldo: 62090.25,
+        limite: 0,
+        gerente: '11122233344',
+        criacao: '2026-04-14T00:00:00Z',
+      });
+
+    httpTestingController
+      .expectOne('http://localhost:8080/contas/2222/extrato')
       .flush({
         conta: '2222',
         saldo: 62090.25,

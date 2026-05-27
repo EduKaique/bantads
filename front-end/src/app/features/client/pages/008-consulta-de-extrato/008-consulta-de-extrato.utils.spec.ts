@@ -103,7 +103,7 @@ describe('008-consulta-de-extrato.utils', () => {
         data: '06/04/2026',
         hora: '10:30',
         operacao: 'Depósito',
-        valor: 'R$100,00',
+        valor: 100,
         operacaoColor: 'blue',
       },
     ];

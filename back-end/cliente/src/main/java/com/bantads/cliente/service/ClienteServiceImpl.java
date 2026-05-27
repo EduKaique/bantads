@@ -106,10 +106,10 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public ClienteResponseDTO buscarPorCpf(String cpf) {
+    public ClienteResponseDTO buscarPorCpf(String cpf, String cpfUsuario, String tipoUsuario) {
         Cliente cliente = clienteRepository.findById(cpf)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente nao encontrado"));
-        return ClienteResponseDTO.fromEntity(cliente);
+        return ClienteResponseDTO.fromEntity(cliente, podeConsultarSalario(cliente, cpfUsuario, tipoUsuario));
     }
 
     @Override
@@ -272,6 +272,18 @@ public class ClienteServiceImpl implements ClienteService {
         if (!TIPO_ADMIN.equalsIgnoreCase(tipoUsuario) && !TIPO_ADMINISTRADOR.equalsIgnoreCase(tipoUsuario)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuario autenticado nao e administrador");
         }
+    }
+
+    private boolean podeConsultarSalario(Cliente cliente, String cpfUsuario, String tipoUsuario) {
+        if (TIPO_ADMIN.equalsIgnoreCase(tipoUsuario) || TIPO_ADMINISTRADOR.equalsIgnoreCase(tipoUsuario)) {
+            return true;
+        }
+
+        if (estaEmBranco(cpfUsuario)) {
+            return false;
+        }
+
+        return cpfUsuario.equals(cliente.getCpf()) || cpfUsuario.equals(cliente.getCpfGerenteResponsavel());
     }
 
     private void validarAcessoSaga(SagaAprovacaoCliente saga, String cpfGerenteSolicitante) {
