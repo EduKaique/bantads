@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.bantads.conta.dto.ContaPerfilResponse;
 import com.bantads.conta.dto.ContaPorCpfResponse;
+import com.bantads.conta.dto.ContaResumoResponse;
 import com.bantads.conta.dto.ItemExtratoResponse;
 import com.bantads.conta.dto.SaldoResponse;
 import com.bantads.conta.entity.escrita.ContaEscrita;
@@ -67,6 +68,14 @@ public class ServicoContaLeitura {
     }
 
     @Transactional(readOnly = true, transactionManager = "gerenciadorTransacaoLeitura")
+    public List<ContaResumoResponse> listarContas() {
+        return repositorioContaLeitura.findAll()
+            .stream()
+            .map(this::mapearContaResumo)
+            .toList();
+    }
+
+    @Transactional(readOnly = true, transactionManager = "gerenciadorTransacaoLeitura")
     public ContaPorCpfResponse consultarContaPorCpf(String cpf) {
         ContaLeitura conta = repositorioContaLeitura.findByCliente(cpf)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conta não encontrada para o CPF informado."));
@@ -109,6 +118,16 @@ public class ServicoContaLeitura {
             movimentacao.getOrigem(),
             movimentacao.getDestino(),
             movimentacao.getValor()
+        );
+    }
+
+    private ContaResumoResponse mapearContaResumo(ContaLeitura conta) {
+        return new ContaResumoResponse(
+            conta.getNumero(),
+            conta.getCliente(),
+            conta.getSaldo(),
+            conta.getLimite(),
+            conta.getGerente()
         );
     }
 

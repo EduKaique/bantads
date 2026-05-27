@@ -2,16 +2,20 @@ package com.bantads.conta.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.bantads.conta.dto.ContaPerfilResponse;
 import com.bantads.conta.dto.ContaPorCpfResponse;
+import com.bantads.conta.dto.ContaResumoResponse;
 import com.bantads.conta.dto.ExtratoResponse;
 import com.bantads.conta.dto.ItemExtratoResponse;
 import com.bantads.conta.dto.OperacaoResponse;
@@ -37,6 +41,21 @@ public class ContaController {
     ) {
         this.servicoContaEscrita = servicoContaEscrita;
         this.servicoContaLeitura = servicoContaLeitura;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ContaResumoResponse>> listarContas(
+        @RequestHeader(value = "X-Usuario-Tipo", required = false) String tipoUsuario
+    ) {
+        if (!ehAdministrador(tipoUsuario)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso restrito a administradores.");
+        }
+
+        return ResponseEntity.ok(servicoContaLeitura.listarContas());
+    }
+
+    private boolean ehAdministrador(String tipoUsuario) {
+        return "ADMIN".equalsIgnoreCase(tipoUsuario) || "ADMINISTRADOR".equalsIgnoreCase(tipoUsuario);
     }
 
     @GetMapping("/{numero}/saldo")

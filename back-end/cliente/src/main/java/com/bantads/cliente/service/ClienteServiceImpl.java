@@ -32,8 +32,9 @@ import java.util.stream.Collectors;
 @Service
 public class ClienteServiceImpl implements ClienteService {
 
-    private static final String TIPO_GERENTE = "GERENTE";
     private static final String TIPO_ADMIN = "ADMIN";
+    private static final String TIPO_ADMINISTRADOR = "ADMINISTRADOR";
+    private static final String TIPO_GERENTE = "GERENTE";
     private static final List<StatusSagaAprovacaoCliente> STATUS_ATIVOS = List.of(
         StatusSagaAprovacaoCliente.INICIADA,
         StatusSagaAprovacaoCliente.AGUARDANDO_CONTA,
@@ -128,19 +129,19 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public List<ClienteResponseDTO> listarTodos() {
-        return clienteRepository.findByStatus(StatusCliente.APROVADO)
-                .stream()
-                .map(ClienteResponseDTO::fromEntity)
-                .collect(Collectors.toList());
+        return listarTodos(false);
     }
 
     @Override
     public List<ClienteResponseDTO> listarRelatorioAdministrativo(String tipoUsuario) {
-        validarAdmin(tipoUsuario);
+        validarAdministrador(tipoUsuario);
+        return listarTodos(true);
+    }
 
+    private List<ClienteResponseDTO> listarTodos(boolean incluirSalario) {
         return clienteRepository.findByStatus(StatusCliente.APROVADO)
                 .stream()
-                .map(cliente -> ClienteResponseDTO.fromEntity(cliente, true))
+                .map(cliente -> ClienteResponseDTO.fromEntity(cliente, incluirSalario))
                 .collect(Collectors.toList());
     }
 
@@ -264,17 +265,17 @@ public class ClienteServiceImpl implements ClienteService {
         }
     }
 
-    private void validarAdmin(String tipoUsuario) {
+    private void validarAdministrador(String tipoUsuario) {
         if (estaEmBranco(tipoUsuario)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Contexto de usuario autenticado ausente");
         }
-        if (!TIPO_ADMIN.equalsIgnoreCase(tipoUsuario)) {
+        if (!TIPO_ADMIN.equalsIgnoreCase(tipoUsuario) && !TIPO_ADMINISTRADOR.equalsIgnoreCase(tipoUsuario)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuario autenticado nao e administrador");
         }
     }
 
     private boolean podeConsultarSalario(Cliente cliente, String cpfUsuario, String tipoUsuario) {
-        if (TIPO_ADMIN.equalsIgnoreCase(tipoUsuario)) {
+        if (TIPO_ADMIN.equalsIgnoreCase(tipoUsuario) || TIPO_ADMINISTRADOR.equalsIgnoreCase(tipoUsuario)) {
             return true;
         }
 
