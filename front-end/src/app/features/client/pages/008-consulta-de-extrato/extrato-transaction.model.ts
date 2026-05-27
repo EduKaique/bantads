@@ -4,6 +4,6 @@ export interface ExtratoTransaction {
   operacao: string;
   remetenteDestinatario?: string;
   categoria?: string;
-  valor: string;
+  valor: number;
   operacaoColor?: 'red' | 'blue' | 'purple';
 }

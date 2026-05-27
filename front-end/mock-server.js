@@ -40,11 +40,13 @@ const gerarDataIsoBrasil = (data = new Date()) => {
 };
 
 //Login ------------------------------
-app.post("/login", (req, res) => {
-  const { login, senha } = req.body; 
+app.post("/auth/login", (req, res) => {
+  const { email, password } = req.body;
+
   const auths = getData("auth");
+
   const user = auths.find(
-    (u) => u.email === login && u.senha === senha 
+    (u) => u.email === email && u.senha === password
   );
 
   if (!user) {
@@ -64,8 +66,8 @@ app.post("/login", (req, res) => {
     }
   });
 
-  console.log(`Login realizado: ${login}`);
-});
+  console.log(`Login realizado: ${email}`);
+ });
 
 // Autocadastro --------------------------
 app.post("/auth/register", (req, res) => {

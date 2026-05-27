@@ -1,86 +1,18 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, map } from 'rxjs';
-import { API_URL } from '../../../core/configs/api.token';
-import { BankAccount } from '../../../shared/models/bank-account';
-import { ClienteService } from '../../../core/services/cliente.service';
-import { DadosClienteResponse } from '../../../shared/models/cliente.models';
+import { Observable } from 'rxjs';
 
-export interface ClienteDetalhado {
-  nome: string;
-  cpf: string;
-  email: string;
-  celular: string;
-  endereco: {
-    cep: string;
-    logradouro: string;
-    numero: string;
-    complemento?: string;
-    bairro: string;
-    cidade: string;
-    uf: string;
-  };
-  salario: string;
-  saldo: string;
-  limite: string;
-  managerDocument?: string;
-}
+import { ConsultasGerenciaisService } from '../../../core/services/consultas-gerenciais.service';
+import { ClienteDetalhado } from '../../../shared/models/consultas-gerenciais';
+
+export type { ClienteDetalhado } from '../../../shared/models/consultas-gerenciais';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DetalheClienteService {
-  private readonly http = inject(HttpClient);
-  private readonly apiUrl = inject(API_URL);
-  private readonly clienteService = inject(ClienteService);
+  private readonly consultasGerenciaisService = inject(ConsultasGerenciaisService);
 
   obterClienteDetalhadoPorCpf(cpf: string): Observable<ClienteDetalhado | null> {
-    const cpfLimpo = cpf.replace(/\D/g, '');
-
-    return forkJoin({
-      clientes: this.clienteService.listarTodosClientes(),
-      contas: this.http.get<BankAccount[]>(`${this.apiUrl}/contas`),
-    }).pipe(
-      map(({ clientes, contas }) => {
-        const cliente = clientes.find((clienteAtual) => clienteAtual.cpf === cpfLimpo);
-
-        if (!cliente) {
-          return null;
-        }
-
-        const conta = contas.find((contaAtual) => contaAtual.holderDocument === cpfLimpo);
-
-        return {
-          nome: cliente.nome,
-          cpf: cliente.cpf,
-          email: cliente.email,
-          celular: cliente.celular || cliente.telefone || '',
-          endereco: this.obterEndereco(cliente),
-          salario: this.formatarMoeda(cliente.salario || 0),
-          saldo: this.formatarMoeda(conta?.availableBalance || 0),
-          limite: this.formatarMoeda(conta?.limit || 0),
-          managerDocument: (conta as any)?.managerDocument || (conta as any)?.manager
-        };
-      }),
-    );
-  }
-
-  private formatarMoeda(valor: number): string {
-    return valor.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    });
-  }
-
-  private obterEndereco(cliente: DadosClienteResponse): ClienteDetalhado['endereco'] {
-    return {
-      cep: cliente.cep || cliente.endereco?.cep || '',
-      logradouro: cliente.logradouro || cliente.endereco?.logradouro || '',
-      numero: cliente.numero || cliente.endereco?.numero || '',
-      complemento: cliente.complemento || cliente.endereco?.complemento || '',
-      bairro: cliente.bairro || cliente.endereco?.bairro || '',
-      cidade: cliente.cidade || cliente.endereco?.cidade || '',
-      uf: cliente.estado || cliente.uf || cliente.endereco?.uf || '',
-    };
+    return this.consultasGerenciaisService.obterClienteDetalhadoPorCpf(cpf);
   }
 }

@@ -8,6 +8,7 @@ import { of } from 'rxjs';
 import { PaginaInicial } from './pagina-inicial';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { ClienteService } from '../../../../core/services/cliente.service';
+import { ContaService } from '../../../../core/services/conta.service';
 
 registerLocaleData(localePt);
 
@@ -39,6 +40,17 @@ describe('PaginaInicial', () => {
               of({
                 saldoDisponivel: 3450.75,
                 nome: 'Cliente Teste',
+              }),
+            ),
+          },
+        },
+        {
+          provide: ContaService,
+          useValue: {
+            buscarContaPorCpf: jasmine.createSpy('buscarContaPorCpf').and.returnValue(
+              of({
+                numeroConta: '1234',
+                saldoDisponivel: 3450.75,
               }),
             ),
           },
