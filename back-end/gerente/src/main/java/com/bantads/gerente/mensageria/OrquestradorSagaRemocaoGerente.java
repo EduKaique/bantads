@@ -28,14 +28,17 @@ public class OrquestradorSagaRemocaoGerente {
     @Transactional
     public void iniciarSaga(String sagaId, String cpfGerenteParaRemover) {
         long totalGerentes = gerenteRepository.count();
+        // A remocao do ultimo gerente quebraria a regra de haver responsavel por clientes.
         if (totalGerentes <= 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Não é permitido remover o último gerente do banco");
         }
 
+        // Antes de acionar filas, valida-se se o alvo realmente existe no banco local.
         if (!gerenteRepository.existsByCpf(cpfGerenteParaRemover)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Gerente não encontrado");
         }
 
+        // Apenas outros gerentes podem receber as contas vinculadas ao gerente removido.
         var cpfsGerentesCandidatos = gerenteRepository.findAll()
             .stream()
             .filter(gerente -> "GERENTE".equalsIgnoreCase(gerente.getTipo()))
@@ -44,9 +47,11 @@ public class OrquestradorSagaRemocaoGerente {
             .toList();
 
         if (cpfsGerentesCandidatos.isEmpty()) {
+            // Sem candidato valido, a remocao ficaria sem destino para as contas do cliente.
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nao ha outro gerente para receber as contas");
         }
 
+        // O estado fica disponivel antes da consulta ao gerente com menor carga de contas.
         EstadoSagaRemocao estado = new EstadoSagaRemocao();
         estado.setSagaId(sagaId);
         estado.setCpfGerenteParaRemover(cpfGerenteParaRemover);
@@ -63,6 +68,7 @@ public class OrquestradorSagaRemocaoGerente {
     }
 
     public void processarRespostaGerenteMenosContas(EventoRespostaGerenteMenosContas evento) {
+        // A resposta escolhe o gerente destino para manter a distribuicao mais equilibrada.
         EstadoSagaRemocao estado = estadosSagas.get(evento.sagaId());
 
         if (estado == null) {
@@ -85,6 +91,7 @@ public class OrquestradorSagaRemocaoGerente {
     @Transactional
     private void transferirContas(EstadoSagaRemocao estado) {
         try {
+            // A transferencia e delegada ao servico de contas, que conhece os vinculos reais.
             publicador.publicarTransferenciaContas(
                 estado.getSagaId(),
                 estado.getCpfGerenteParaRemover(),
@@ -99,6 +106,7 @@ public class OrquestradorSagaRemocaoGerente {
 
     @Transactional
     public void processarRespostaTransferenciaContas(EventoRespostaTransferenciaContas evento) {
+        // O gerente so e removido depois da confirmacao de que suas contas foram migradas.
         EstadoSagaRemocao estado = estadosSagas.get(evento.sagaId());
 
         if (estado == null) {
@@ -121,6 +129,7 @@ public class OrquestradorSagaRemocaoGerente {
     @Transactional
     private void removerGerente(EstadoSagaRemocao estado) {
         try {
+            // A exclusao local finaliza a saga depois que nao ha mais contas dependentes.
             var gerente = gerenteRepository.findByCpf(estado.getCpfGerenteParaRemover())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Gerente nao encontrado"));
 
@@ -138,6 +147,7 @@ public class OrquestradorSagaRemocaoGerente {
 
     public void limparSagasAntigas() {
         long tempoAtual = System.currentTimeMillis();
+        // Remove estados antigos para evitar crescimento indefinido do mapa em memoria.
         long tempoLimite = 1000 * 60 * 60;
 
         estadosSagas.entrySet().removeIf(entry -> {

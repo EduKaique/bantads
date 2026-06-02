@@ -27,6 +27,8 @@ public class OrquestradorSagaInsercaoGerente {
 
     @Transactional
     public void iniciarSaga(String sagaId, GerenteInsercaoDTO dto) {
+        // A primeira etapa registra o estado antes de publicar qualquer mensagem.
+        // Assim respostas muito rapidas dos consumidores ainda encontram a saga no mapa.
         EstadoSagaInsercao estado = new EstadoSagaInsercao();
         estado.setSagaId(sagaId);
         estado.setDto(dto);
@@ -39,6 +41,8 @@ public class OrquestradorSagaInsercaoGerente {
     }
 
     public void processarRespostaGerenteMaisContas(EventoRespostaGerenteMaisContas evento) {
+        // A resposta informa qual gerente concentra mais contas para equilibrar a carteira.
+        // Se a consulta falhar, a saga para antes de persistir o novo gerente.
         EstadoSagaInsercao estado = estadosSagas.get(evento.sagaId());
 
         if (estado == null) {
@@ -64,6 +68,7 @@ public class OrquestradorSagaInsercaoGerente {
         try {
             GerenteInsercaoDTO dto = estado.getDto();
 
+            // CPF e email sao barreiras locais antes de qualquer transferencia de carteira.
             if (gerenteRepository.existsByCpf(dto.getCpf())) {
                 estado.setStatus("ERRO");
                 estado.setMensagem("CPF já cadastrado");
@@ -87,6 +92,7 @@ public class OrquestradorSagaInsercaoGerente {
             estado.setCpfNovoGerente(gerenteSalvo.getCpf());
             estado.setStatus("GERENTE_INSERIDO");
 
+            // A atribuicao so faz sentido quando existe outro gerente com contas para dividir.
             boolean deveAtribuirConta = gerenteRepository.count() > 1
                 && estado.getCpfGerenteComMaisContas() != null
                 && !estado.getCpfGerenteComMaisContas().isBlank();
@@ -110,6 +116,7 @@ public class OrquestradorSagaInsercaoGerente {
     }
 
     public void processarRespostaAtribuicaoConta(EventoRespostaAtribuicaoConta evento) {
+        // Esta etapa encerra a saga quando o servico de contas confirma a redistribuicao.
         EstadoSagaInsercao estado = estadosSagas.get(evento.sagaId());
 
         if (estado == null) {
@@ -131,6 +138,7 @@ public class OrquestradorSagaInsercaoGerente {
 
     public void limparSagasAntigas() {
         long tempoAtual = System.currentTimeMillis();
+        // Mantem o mapa enxuto sem depender de armazenamento permanente para historico.
         long tempoLimite = 1000 * 60 * 60;
 
         estadosSagas.entrySet().removeIf(entry -> {
