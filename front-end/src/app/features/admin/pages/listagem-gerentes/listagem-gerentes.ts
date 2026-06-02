@@ -21,7 +21,6 @@ import { GerentesService } from '../../../../core/services/gerentes.service';
 import { ModalInserirGerenteComponent } from '../../components/modal-inserir-gerente/modal-inserir-gerente';
 import { ModalAtualizarGerente } from '../../components/modal-atualizar-gerente/modal-atualizar-gerente';
 import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
-//import { MatDialog } from '@angular/material/dialog';
 import { WarningDialogComponent } from '../../../../shared/components/warning-dialog/warning-dialog.component';
 import { MatIcon } from "@angular/material/icon";
 
@@ -71,6 +70,7 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
     this.escutarParametrosEdicao();
   }
 
+  // Abre a edição quando a rota chega com o CPF informado na query string.
   private escutarParametrosEdicao(): void {
     this.activatedRoute.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -99,6 +99,7 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
     return cpfNormalizado.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   }
 
+  // Normaliza o filtro para manter a comparação consistente com a tabela.
   private configurarFiltro(): void {
     this.fonteDados.filterPredicate = (gerente, cpfFiltrado) =>
       this.normalizarCpf(gerente.cpf).includes(cpfFiltrado);
@@ -113,6 +114,7 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
       });
   }
 
+  // Recarrega a listagem e limpa a mensagem anterior antes da consulta.
   private carregarGerentes(): void {
     this.carregando.set(true);
     this.mensagemErro.set('');
@@ -203,6 +205,7 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
     this.gerenteSelecionado.set(null);
   }
 
+  // Executa a remoção e mantém a mensagem de erro temporária quando falha.
   processarRemocao(): void {
     const gerente = this.gerenteSelecionado();
     if (!gerente) return;
@@ -221,8 +224,7 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
         error: (erro) => {
           this.erroAcao.set(erro.error?.message || 'Erro ao remover o gerente.');
           this.carregando.set(false);
-          
-          // Apaga o erro automaticamente após 5 segundos
+
           setTimeout(() => {
              this.erroAcao.set('');
           }, 5000);
