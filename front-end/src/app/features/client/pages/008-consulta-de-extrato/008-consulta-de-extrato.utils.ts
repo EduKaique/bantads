@@ -33,8 +33,10 @@ export function mapearMovimentacoesDoExtrato(
   movimentacoes: MovimentacaoExtratoApi[],
   numeroConta: string,
 ): ExtratoTransaction[] {
+  // Centraliza a conversao para manter o componente focado em estado e interacao.
   return movimentacoes.map((movimentacao) => {
     const tipoMovimentacao = normalizarTipoMovimentacao(movimentacao.tipo);
+    // Transferencia recebida e positiva apenas quando a conta atual aparece como destino.
     const transferenciaRecebida =
       tipoMovimentacao === 'transferencia' &&
       movimentacao.destino === numeroConta &&
@@ -66,6 +68,7 @@ export function criarGruposTransacoes(
   dataFim: Date,
   saldoAtual: number,
 ): GrupoTransacoes[] {
+  // O mapa garante um grupo por dia, mesmo quando nao ha transacoes no periodo.
   const gruposPorData = new Map<string, GrupoTransacoes>();
   const dataInicialNormalizada = normalizarInicioDoDia(dataInicio);
   const dataFinalNormalizada = normalizarFimDoDia(dataFim);
@@ -93,6 +96,7 @@ export function criarGruposTransacoes(
   return Array.from(gruposPorData.values())
     .map((grupo) => ({
       ...grupo,
+      // As transacoes do dia ficam em ordem cronologica antes da inversao dos grupos.
       transacoes: [...grupo.transacoes].sort(ordenarPorHora),
     }))
     .reverse();
@@ -126,6 +130,7 @@ export function desserializarFiltroExtrato(
   filtroPersistido: string,
 ): { dataInicio: Date; dataFim: Date } | null {
   try {
+    // O parse tolera valores antigos ou incompletos gravados no sessionStorage.
     const filtro = JSON.parse(filtroPersistido) as Partial<FiltroPersistidoExtrato>;
 
     if (!filtro.dataInicio || !filtro.dataFim) {
@@ -144,6 +149,7 @@ export function desserializarFiltroExtrato(
 export function calcularImpactoDasTransacoes(
   transacoes: ExtratoTransaction[],
 ): number {
+  // Azul representa entrada no extrato; vermelho representa saida de saldo.
   return transacoes.reduce((saldo, transacao) => {
     return transacao.operacaoColor === 'blue'
       ? saldo + transacao.valor
@@ -152,6 +158,7 @@ export function calcularImpactoDasTransacoes(
 }
 
 function normalizarTipoMovimentacao(tipo: string): TipoMovimentacao {
+  // Remove acentos para aceitar tanto valores da API quanto textos ja formatados.
   const tipoNormalizado = tipo
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -193,6 +200,7 @@ function mapearRemetenteDestinatario(
   numeroConta: string,
   tipoMovimentacao: TipoMovimentacao,
 ): string {
+  // Depositos e saques sao movimentos da propria conta, sem contraparte externa.
   if (tipoMovimentacao === 'deposito' || tipoMovimentacao === 'saque') {
     return 'Você';
   }
@@ -221,6 +229,7 @@ function mapearCategoria(tipo: TipoMovimentacao): string {
 }
 
 function gerarIntervaloDatas(dataInicio: Date, dataFim: Date): Date[] {
+  // Gera datas inclusivas para exibir dias vazios dentro do filtro selecionado.
   const datas: Date[] = [];
   const cursor = normalizarInicioDoDia(dataInicio);
 
@@ -237,6 +246,7 @@ function filtrarTransacoesPorPeriodo(
   dataInicio: Date,
   dataFim: Date,
 ): ExtratoTransaction[] {
+  // A comparacao usa datas normalizadas para nao perder transacoes por horario.
   const dataInicialNormalizada = normalizarInicioDoDia(dataInicio);
   const dataFinalNormalizada = normalizarFimDoDia(dataFim);
 
@@ -258,6 +268,7 @@ function calcularSaldoDoDia(
   transacoes: ExtratoTransaction[],
   saldoAtual: number,
 ): string {
+  // Parte do saldo atual e desfaz movimentos posteriores para chegar ao saldo do dia.
   const saldoCalculado = transacoes.reduce((saldo, transacao) => {
     const dataTransacao = parseDataBr(transacao.data);
 
@@ -277,6 +288,7 @@ function ordenarPorHora(
   transacaoA: ExtratoTransaction,
   transacaoB: ExtratoTransaction,
 ): number {
+  // Valores sem hora vao para o inicio do dia para manter ordenacao deterministica.
   return (transacaoA.hora || '00:00').localeCompare(
     transacaoB.hora || '00:00',
   );

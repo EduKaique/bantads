@@ -52,6 +52,7 @@ export class ConsultaExtratoPageComponent implements OnInit {
   private transacoes: ExtratoTransaction[] = [];
 
   ngOnInit(): void {
+    // O filtro e restaurado antes da carga para que a primeira renderizacao ja venha correta.
     this.configurarFiltroInicialDaSessao();
     this.carregarExtrato();
   }
@@ -78,6 +79,7 @@ export class ConsultaExtratoPageComponent implements OnInit {
 
   onDataInicioChange(event: { value: Date | null }): void {
     if (!event.value) {
+      // O datepicker pode emitir nulo quando o campo e limpo manualmente.
       return;
     }
 
@@ -95,6 +97,7 @@ export class ConsultaExtratoPageComponent implements OnInit {
 
   onDataFimChange(event: { value: Date | null }): void {
     if (!event.value) {
+      // Mantem o ultimo filtro valido quando o usuario apaga a data final.
       return;
     }
 
@@ -114,6 +117,7 @@ export class ConsultaExtratoPageComponent implements OnInit {
     const cpf = this.authService.currentUserValue?.cpf;
 
     if (!cpf) {
+      // Sem usuario autenticado, a tela limpa dados sensiveis e evita chamada ao backend.
       this.transacoes = [];
       this.saldoAtual.set(0);
       this.erroCarregamento.set('Usuário não autenticado');
@@ -126,6 +130,7 @@ export class ConsultaExtratoPageComponent implements OnInit {
     ).subscribe({
       next: (extrato) => {
         this.saldoAtual.set(extrato.saldoAtual);
+        // A API retorna movimentacoes cruas; o mapper adapta para o modelo visual da tela.
         const movimentacoes: MovimentacaoExtratoApi[] = extrato.transacoes.map(t => ({
           data: t.dataHora,
           tipo: t.tipo.toLowerCase(),
@@ -153,17 +158,21 @@ export class ConsultaExtratoPageComponent implements OnInit {
   private configurarFiltroInicialDaSessao(): void {
     const chavePrimeiroAcesso = this.buildSessionStorageKey();
     const chaveFiltro = this.buildSessionFilterStorageKey();
+    // O filtro fica escopado por usuario para nao reaproveitar datas de outra sessao.
     const filtroPersistido = sessionStorage.getItem(chaveFiltro);
 
     if (filtroPersistido) {
+      // Quando ha filtro salvo, ele tem prioridade sobre a regra de primeiro acesso.
       this.aplicarFiltroPersistido(filtroPersistido);
       return;
     }
 
     if (sessionStorage.getItem(chavePrimeiroAcesso)) {
+      // Apos o primeiro acesso, preserva o intervalo padrao amplo definido na propriedade.
       return;
     }
 
+    // No primeiro acesso real, o extrato inicia focado no dia corrente.
     const hoje = new Date();
     this.dataSelecionadaInicio = new Date(
       hoje.getFullYear(),
@@ -191,6 +200,7 @@ export class ConsultaExtratoPageComponent implements OnInit {
     const filtro = desserializarFiltroExtrato(filtroPersistido);
 
     if (!filtro) {
+      // Filtros corrompidos sao descartados para permitir uma nova configuracao valida.
       sessionStorage.removeItem(this.buildSessionFilterStorageKey());
       return;
     }
