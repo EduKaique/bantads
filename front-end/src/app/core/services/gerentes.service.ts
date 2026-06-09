@@ -73,10 +73,8 @@ export class GerentesService {
       .pipe(map((gerente) => this.mapearGerente(gerente)));
   }
 
-  remover(cpf: string): Observable<Gerente> {
-    return this.http
-      .delete<DadoGerente>(`${this.apiUrl}/gerentes/${cpf}`)
-      .pipe(map((gerente) => this.mapearGerente(gerente)));
+  remover(cpf: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/gerentes/${cpf}`, { responseType: 'text' });
   }
 
   private criarParametrosListagem(numero?: number): HttpParams | Error {
