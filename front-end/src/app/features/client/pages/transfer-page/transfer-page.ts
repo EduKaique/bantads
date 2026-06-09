@@ -270,6 +270,7 @@ export class TransferPage implements OnInit {
     this.isModalOpen = false;
   }
 
+  // Confirma a transferência e sincroniza o estado local após a resposta da API.
   confirmTransfer(): void {
     const transferAmount = this.parseAmount(this.amountControl.value);
 
@@ -331,7 +332,6 @@ export class TransferPage implements OnInit {
 
   private carregarSaldoOrigem(cpf: string): void {
     this.carregandoDados = true;
-
     this.contaService
       .buscarContaOrigemTransferenciaPorCpf(cpf)
       .pipe(
@@ -385,6 +385,7 @@ export class TransferPage implements OnInit {
     return normalizedValue ?? 0;
   }
 
+  // Reseta a operação sem perder o saldo carregado.
   private resetTransferForm(): void {
     this.transferForm.patchValue(
       {
