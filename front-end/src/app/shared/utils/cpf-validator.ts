@@ -1,46 +1,45 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 function validarCPF(cpf: string): boolean {
-  const cpfNormalizado = normalizarCPF(cpf);
+    let soma : number = 0;  
+    let resto : number;
+    let digitoVerificador1 : number;
+    let digitoVerificador2 : number;
 
-  if (!cpfNormalizado || possuiDigitosRepetidos(cpfNormalizado)) {
-    return false;
-  }
+    cpf = cpf.replaceAll(".", "").replace("-", "");
 
-  const digitoVerificador1 = calcularDigitoVerificador(cpfNormalizado, 9);
-  const digitoVerificador2 = calcularDigitoVerificador(cpfNormalizado, 10);
+    if(cpf.length !== 11) {
+        return false;
+    }
 
-  return (
-    cpfNormalizado.charAt(9) === digitoVerificador1.toString() &&
-    cpfNormalizado.charAt(10) === digitoVerificador2.toString()
-  );
-}
+    //Calculo dos dígito verificador 1
+    soma = 0;
+    for(let i :number = 0; i< 9; i++) {
+        const num : number = parseInt(cpf[i]);
+        const peso : number = 10 - i;
+        soma += num * peso;
+    }
 
-function normalizarCPF(cpf: string): string | null {
-  const cpfNormalizado = cpf.replace(/\D/g, '');
+    resto = soma % 11;
+    digitoVerificador1 = resto < 2 ? 0 : 11 - resto;
 
-  return cpfNormalizado.length === 11 ? cpfNormalizado : null;
-}
+    //Calculo dos dígito verificador 2
+    soma = 0;
+    for(let i :number = 0; i< 10; i++) {
+        const num : number = parseInt(cpf[i]);
+        const peso : number = 11 - i;
+        soma += num * peso;
+    }
 
-function possuiDigitosRepetidos(cpf: string): boolean {
-  return /^(\d)\1{10}$/.test(cpf);
-}
+    resto = soma % 11;
+    digitoVerificador2 = resto < 2 ? 0 : 11 - resto;
 
-function calcularDigitoVerificador(
-  cpf: string,
-  quantidadeDigitos: number,
-): number {
-  const soma = cpf
-    .slice(0, quantidadeDigitos)
-    .split('')
-    .reduce((total, digito, indice) => {
-      const peso = quantidadeDigitos + 1 - indice;
-      return total + Number(digito) * peso;
-    }, 0);
+    //Comparação com os dígitos originais
+    if(cpf.charAt(9) !== digitoVerificador1.toString() || cpf.charAt(10) !== digitoVerificador2.toString()) {
+        return false;
+    }
 
-  const resto = soma % 11;
-
-  return resto < 2 ? 0 : 11 - resto;
+return true;
 }
 
 export class CustomValidators {
@@ -49,7 +48,7 @@ export class CustomValidators {
       if (!control.value) {
         return null;
       }
-
+      
       const isValid = validarCPF(control.value);
       return isValid ? null : { cpfInvalido: true };
     };
