@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import com.bantads.auth.dto.LogoutResponseDTO;
 import com.bantads.auth.model.User;
 import com.bantads.auth.repository.UserRepository;
 import com.bantads.auth.service.LoginService;
+import com.bantads.auth.service.SeedService;
 
 import jakarta.validation.Valid;
 
@@ -23,10 +25,20 @@ import jakarta.validation.Valid;
 public class AuthController {
 
     @Autowired
-    private LoginService loginService; 
+    private LoginService loginService;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SeedService seedService;
+
+    @GetMapping("/reboot")
+    public ResponseEntity<Void> reboot() {
+        userRepository.deleteAll();
+        seedService.seed();
+        return ResponseEntity.ok().build();
+    }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {

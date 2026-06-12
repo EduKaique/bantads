@@ -74,9 +74,20 @@ function requireAdmin(req, res, next) {
 }
 
 
-// ROTAS PÚBLICAS 
-app.get('/reboot', (req, res, next) => {
-    authServiceProxy(req, res, next);
+// ROTAS PÚBLICAS
+app.get('/reboot', async (req, res) => {
+    try {
+        await Promise.all([
+            fetch('http://ms-auth:8080/reboot'),
+            fetch('http://ms-cliente:8080/reboot'),
+            fetch('http://ms-gerente:8080/reboot'),
+            fetch('http://conta:8080/reboot')
+        ]);
+        res.status(200).json({ message: 'Banco de dados criado conforme especificação' });
+    } catch (error) {
+        console.error('Erro no Reboot:', error);
+        res.status(500).json({ error: 'Erro ao reiniciar os microsserviços' });
+    }
 });
 
 app.post('/login', (req, res, next) => {
