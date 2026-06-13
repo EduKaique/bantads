@@ -122,6 +122,8 @@ public class OrquestradorAprovacaoCliente {
             registrarFalha(saga, "Cliente nao encontrado para conclusao da aprovacao.", true, true);
             return;
         }
+        
+        cliente.setConta(saga.getNumeroConta());
 
         cliente.setStatus(StatusCliente.APROVADO);
         clienteRepository.save(cliente);

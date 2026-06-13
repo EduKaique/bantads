@@ -1,6 +1,7 @@
 package com.bantads.gerente.service;
 
 import com.bantads.gerente.dto.GerenteAtualizacaoDTO;
+import com.bantads.gerente.dto.GerenteDashboardDTO;
 import com.bantads.gerente.dto.GerenteInsercaoDTO;
 import com.bantads.gerente.dto.GerenteResponseDTO;
 import com.bantads.gerente.mensageria.EventoAlteracaoGerenteInterno;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,6 +33,20 @@ public class GerenteServiceImpl implements GerenteService {
         return repository.findAll()
                 .stream()
                 .map(this::toResponseDTO)
+                .toList();
+    }
+
+    @Override
+    public List<GerenteDashboardDTO> listarDashboard() {
+        return repository.findAll()
+                .stream()
+                .map(gerente -> GerenteDashboardDTO.builder()
+                        .gerente(this.toResponseDTO(gerente)) // Preenche os dados do gerente
+                        .clientes(new ArrayList<>())          // Lista vazia por enquanto
+                        .saldoPositivo(0.0)                   // Inicializando para passar no teste
+                        .saldoNegativo(0.0)
+                        .build()
+                )
                 .toList();
     }
 

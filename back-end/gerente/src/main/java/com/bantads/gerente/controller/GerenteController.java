@@ -34,8 +34,15 @@ public class GerenteController {
     }
 
     @GetMapping
-    @Operation(summary = "Busca todos os gerentes cadastrados")
-    public ResponseEntity<List<GerenteResponseDTO>> listar() {
+    @Operation(summary = "Busca todos os gerentes cadastrados ou dashboard")
+    public ResponseEntity<?> listar(
+            @RequestParam(required = false) String filtro,
+            @RequestParam(required = false) String numero) { 
+        
+        if ("dashboard".equalsIgnoreCase(filtro) || "dashboard".equalsIgnoreCase(numero)) {
+            return ResponseEntity.ok(service.listarDashboard());
+        }
+        
         return ResponseEntity.ok(service.listarTodos());
     }
 
