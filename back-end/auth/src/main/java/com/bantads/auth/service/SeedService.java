@@ -28,7 +28,7 @@ public class SeedService {
         criarUsuario("ger1@bantads.com.br", senha, TipoUsuario.GERENTE, "Geniéve", "98574307084");
         criarUsuario("ger2@bantads.com.br", senha, TipoUsuario.GERENTE, "Godophredo", "64065268052");
         criarUsuario("ger3@bantads.com.br", senha, TipoUsuario.GERENTE, "Gyândula", "23862179060");
-        criarUsuario("adm1@bantads.com.br", senha, TipoUsuario.ADMIN, "Adamântio", "40501740066");
+        criarUsuario("adm1@bantads.com.br", senha, TipoUsuario.ADMINISTRADOR, "Adamântio", "40501740066");
     }
 
     private void criarUsuario(String email, String senhaEncoded, TipoUsuario tipo, String nome, String cpf) {

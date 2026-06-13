@@ -37,8 +37,8 @@ public class ClienteController {
 
     @PostMapping({"", "/"})
     public ResponseEntity<?> autocadastro(@RequestBody AutocadastroInfoDTO clienteDto) {
-        clienteService.autocadastrar(clienteDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        ClienteResponseDTO clienteCriado = clienteService.autocadastrar(clienteDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(clienteCriado);
     }
 
     @GetMapping("/{cpf}")
@@ -63,7 +63,7 @@ public class ClienteController {
         @RequestHeader(value = "X-Usuario-Tipo", required = false) String tipoUsuario
     ) {
         return ResponseEntity
-            .status(HttpStatus.ACCEPTED)
+            .ok()
             .body(clienteService.aprovar(cpf, cpfGerenteSolicitante, tipoUsuario));
     }
 

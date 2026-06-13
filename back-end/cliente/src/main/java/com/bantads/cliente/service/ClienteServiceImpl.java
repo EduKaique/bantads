@@ -66,7 +66,7 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     @Transactional
-    public void autocadastrar(AutocadastroInfoDTO dto) {
+    public ClienteResponseDTO autocadastrar(AutocadastroInfoDTO dto) {
         if (clienteRepository.existsById(dto.getCpf())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Cliente ja cadastrado ou aguardando aprovacao, CPF duplicado");
@@ -96,6 +96,7 @@ public class ClienteServiceImpl implements ClienteService {
 
         clienteRepository.save(cliente);
 
+
         // DISPARO DA SAGA DE AUTOCADASTRO
         EventoSolicitacaoGerenteAutocadastro evento = new EventoSolicitacaoGerenteAutocadastro(cliente.getCpf());
         rabbitTemplate.convertAndSend(
@@ -103,6 +104,15 @@ public class ClienteServiceImpl implements ClienteService {
                 RabbitMqConfiguracao.CHAVE_SOLICITACAO_GERENTE,
                 evento
         );
+
+        ClienteResponseDTO responseDTO = new ClienteResponseDTO();
+        responseDTO.setCpf(cliente.getCpf());
+        responseDTO.setNome(cliente.getNome());
+        responseDTO.setEmail(cliente.getEmail());
+        responseDTO.setTelefone(cliente.getTelefone());
+        responseDTO.setSalario(cliente.getSalario());
+
+        return responseDTO;
     }
 
     @Override
@@ -139,7 +149,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     private List<ClienteResponseDTO> listarTodos(boolean incluirSalario) {
-        return clienteRepository.findByStatus(StatusCliente.APROVADO)
+        return clienteRepository.findByStatusOrderByNomeAsc(StatusCliente.APROVADO)
                 .stream()
                 .map(cliente -> ClienteResponseDTO.fromEntity(cliente, incluirSalario))
                 .collect(Collectors.toList());

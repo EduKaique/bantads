@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ClienteService {
 
-    void autocadastrar(AutocadastroInfoDTO dto);
+    ClienteResponseDTO autocadastrar(AutocadastroInfoDTO dto);
 
     ClienteResponseDTO buscarPorCpf(String cpf, String cpfUsuario, String tipoUsuario);
 

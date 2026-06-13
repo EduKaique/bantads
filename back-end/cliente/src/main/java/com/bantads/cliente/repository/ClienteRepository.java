@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, String> {
-    List<Cliente> findByStatus(StatusCliente status);
+    List<Cliente> findByStatusOrderByNomeAsc(StatusCliente status);
 
     List<Cliente> findByStatusAndCpfGerenteResponsavel(StatusCliente status, String cpfGerenteResponsavel);
 
