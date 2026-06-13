@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface RepositorioContaEscrita extends JpaRepository<ContaEscrita, String> {
     List<ContaEscrita> findByGerente(String cpfGerente);
+    List<ContaEscrita> findByIdSagaRemocaoGerente(String idSagaRemocaoGerente);
     Optional<ContaEscrita> findByCliente(String cliente);
 
     // Consulta para listar gerentes por volume de contas

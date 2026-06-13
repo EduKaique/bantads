@@ -16,17 +16,13 @@ public class SagaRemocaoGerenteService {
         this.orquestrador = orquestrador;
     }
 
-    public void iniciarRemocaoGerente(String cpfGerenteParaRemover) {
-        // Cada remocao recebe um identificador proprio para rastrear o fluxo assincrono.
-        // O service mantem a entrada simples e deixa as validacoes de negocio no orquestrador.
-        // Isso evita duplicar regras entre controller, service e mensageria.
+    public String iniciarRemocaoGerente(String cpfGerenteParaRemover) {
         String sagaId = UUID.randomUUID().toString();
         orquestrador.iniciarSaga(sagaId, cpfGerenteParaRemover);
+        return sagaId;
     }
 
     public EstadoSagaRemocao consultarStatusSaga(String sagaId) {
-        // A consulta retorna o estado em memoria gerenciado pelo orquestrador da remocao.
-        // Quem chama pode diferenciar etapas intermediarias sem conhecer as filas RabbitMQ.
         return orquestrador.obterEstadoSaga(sagaId);
     }
 }

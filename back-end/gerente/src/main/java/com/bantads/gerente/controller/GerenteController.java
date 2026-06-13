@@ -3,6 +3,7 @@ package com.bantads.gerente.controller;
 import com.bantads.gerente.dto.GerenteAtualizacaoDTO;
 import com.bantads.gerente.dto.GerenteInsercaoDTO;
 import com.bantads.gerente.dto.GerenteResponseDTO;
+import com.bantads.gerente.mensageria.EstadoSagaRemocao;
 import com.bantads.gerente.service.GerenteService;
 import com.bantads.gerente.service.SagaGerenteService;
 import com.bantads.gerente.service.SagaRemocaoGerenteService;
@@ -62,8 +63,20 @@ public class GerenteController {
 
     @DeleteMapping("/{cpf}")
     @Operation(summary = "Remove um gerente pelo CPF usando SAGA")
-    public ResponseEntity<Void> remover(@PathVariable String cpf) {
-        sagaRemocaoService.iniciarRemocaoGerente(cpf);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    public ResponseEntity<String> remover(@PathVariable String cpf) {
+        String sagaId = sagaRemocaoService.iniciarRemocaoGerente(cpf);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(sagaId);
+    }
+
+    @GetMapping("/sagas/remocao/{sagaId}")
+    @Operation(summary = "Consulta o status da SAGA de remocao de gerente")
+    public ResponseEntity<EstadoSagaRemocao> consultarSagaRemocao(@PathVariable String sagaId) {
+        EstadoSagaRemocao estado = sagaRemocaoService.consultarStatusSaga(sagaId);
+
+        if (estado == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(estado);
     }
 }

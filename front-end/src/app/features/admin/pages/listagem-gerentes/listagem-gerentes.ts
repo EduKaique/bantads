@@ -216,13 +216,17 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
     this.gerentesService.remover(gerente.cpf)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (sagaId) => {
           this.carregarGerentes(); 
-          this.tituloModalSucesso.set('Gerente removido com sucesso!'); 
+          this.tituloModalSucesso.set(`Remoção iniciada. Saga: ${sagaId}`); 
           this.mostrarModalSucesso.set(true);
         },
         error: (erro) => {
-          this.erroAcao.set(erro.error?.message || 'Erro ao remover o gerente.');
+          const mensagemErro = typeof erro.error === 'string'
+            ? erro.error
+            : erro.error?.message;
+
+          this.erroAcao.set(mensagemErro || 'Erro ao remover o gerente.');
           this.carregando.set(false);
 
           setTimeout(() => {
