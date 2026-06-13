@@ -66,4 +66,20 @@ public class UsuarioSagaConsumer {
             System.err.println("Erro Saga (MS-Auth): Nao foi possivel atualizar gerente. " + e.getMessage());
         }
     }
+
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = "auth.gerente.removido.fila", durable = "true"),
+        exchange = @Exchange(value = "gerente.exchange", type = "direct"),
+        key = "gerente.removido"
+    ))
+    public void removerGerenteSaga(String cpf) {
+        try {
+            userRepository.findByReferenciaId(cpf).ifPresent(user -> {
+                userRepository.delete(user);
+                System.out.println("MS-Auth: Acesso do gerente removido via Saga para o CPF: " + cpf);
+            });
+        } catch (Exception e) {
+            System.err.println("Erro Saga (MS-Auth): Nao foi possivel remover o acesso do gerente. " + e.getMessage());
+        }
+    }
 }

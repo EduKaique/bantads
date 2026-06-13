@@ -75,4 +75,8 @@ public class PublicadorSagaRemocaoGerente {
             evento
         );
     }
+
+    public void publicarRemocaoAcessoGerente(String cpf) {
+        rabbitTemplate.convertAndSend("gerente.exchange", "gerente.removido", cpf);
+    }
 }

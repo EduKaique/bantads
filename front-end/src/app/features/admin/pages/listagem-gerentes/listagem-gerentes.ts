@@ -23,6 +23,7 @@ import { ModalAtualizarGerente } from '../../components/modal-atualizar-gerente/
 import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
 import { WarningDialogComponent } from '../../../../shared/components/warning-dialog/warning-dialog.component';
 import { MatIcon } from "@angular/material/icon";
+import { interval, switchMap, takeWhile, filter } from 'rxjs';
 
 @Component({
   selector: 'app-listagem-gerentes',
@@ -213,26 +214,46 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
     this.carregando.set(true);
     this.fecharModalRemover();
     
-    this.gerentesService.remover(gerente.cpf)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (sagaId) => {
-          this.carregarGerentes(); 
-          this.tituloModalSucesso.set(`Remoção iniciada. Saga: ${sagaId}`); 
-          this.mostrarModalSucesso.set(true);
-        },
-        error: (erro) => {
-          const mensagemErro = typeof erro.error === 'string'
-            ? erro.error
-            : erro.error?.message;
-
-          this.erroAcao.set(mensagemErro || 'Erro ao remover o gerente.');
-          this.carregando.set(false);
-
-          setTimeout(() => {
-             this.erroAcao.set('');
-          }, 5000);
-        }
-      });
+this.gerentesService.remover(gerente.cpf)
+  .pipe(
+    takeUntilDestroyed(this.destroyRef),
+    switchMap((sagaId) => {
+      return interval(2000).pipe(
+        switchMap(() => this.gerentesService.consultarStatusSaga(sagaId)),
+        
+        takeWhile((estado) => 
+          estado.status !== 'CONCLUIDA' && 
+          estado.status !== 'ERRO' && 
+          estado.status !== 'ERRO_COMPENSACAO' && 
+          estado.status !== 'COMPENSADA', 
+          true // Emite o último valor encontrado antes de encerrar o loop - permite seguir para o .subscribe
+        ),
+        
+        filter((estado) => 
+          estado.status === 'CONCLUIDA' || 
+          estado.status === 'ERRO' || 
+          estado.status === 'COMPENSADA' || 
+          estado.status === 'ERRO_COMPENSACAO'
+        )
+      );
+    })
+  )
+  .subscribe({
+    next: (estadoSaga) => {
+      this.carregarGerentes(); 
+      
+      if (estadoSaga.status === 'CONCLUIDA') {
+        this.tituloModalSucesso.set(`Gerente removido com sucesso!`);
+      } else {
+        this.tituloModalSucesso.set(`Aviso: Remoção cancelada (Status: ${estadoSaga.status})`);
+        console.error('Mensagem da SAGA:', estadoSaga.mensagem);
+      }
+      
+      this.mostrarModalSucesso.set(true);
+    },
+    error: (err) => {
+      console.error('Erro de comunicação com o servidor:', err);
+    }
+  });
   }
 }

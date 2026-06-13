@@ -7,6 +7,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.bantads.gerente.repository.EstadoSagaRemocaoRepository;
 import com.bantads.gerente.repository.GerenteRepository;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Component
 public class OrquestradorSagaRemocaoGerente {
 
@@ -109,6 +111,7 @@ public class OrquestradorSagaRemocaoGerente {
         }
     }
 
+    @Transactional
     public void processarRespostaTransferenciaContas(EventoRespostaTransferenciaContas evento) {
         EstadoSagaRemocao estado = obterEstadoOuAvisar(evento.sagaId());
 
@@ -151,10 +154,10 @@ public class OrquestradorSagaRemocaoGerente {
             }
 
             gerenteRepository.delete(gerente.get());
-            gerenteRepository.flush();
 
             estado.setStatus(STATUS_CONCLUIDA);
             estado.setMensagem("Gerente removido e contas transferidas");
+            publicador.publicarRemocaoAcessoGerente(estado.getCpfGerenteParaRemover());
             salvarEstado(estado);
         } catch (Exception e) {
             iniciarCompensacao(estado, "Erro ao remover gerente: " + e.getMessage());
