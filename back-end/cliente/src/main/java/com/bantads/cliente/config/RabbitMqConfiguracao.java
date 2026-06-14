@@ -39,6 +39,13 @@ public class RabbitMqConfiguracao {
 
     public static final String CHAVE_TRANSFERENCIA_CONTAS_REMOCAO = "gerente.transferencia-contas-remocao";
 
+    public static final String EXCHANGE_INSERCAO_GERENTE                     = "gerente.insercao.exchange";
+    public static final String FILA_CONSULTAR_GERENTE_MAIS_CONTAS_CLIENTE    = "gerente.consultar-mais-contas.queue";
+    public static final String CHAVE_CONSULTAR_GERENTE_MAIS_CONTAS           = "gerente.consultar-mais-contas";
+    public static final String CHAVE_RESPOSTA_GERENTE_MAIS_CONTAS            = "gerente.resposta-mais-contas";
+    public static final String CHAVE_ATRIBUIR_CONTA                          = "gerente.atribuir-conta";
+    public static final String CHAVE_RESPOSTA_ATRIBUICAO_CONTA               = "gerente.resposta-atribuicao";
+
     @Bean
     public DirectExchange exchangeCliente() {
         return new DirectExchange(EXCHANGE_CLIENTE);
@@ -78,7 +85,31 @@ public class RabbitMqConfiguracao {
     public Binding bindingTransferenciaRemocaoCliente() {
         return BindingBuilder.bind(filaTransferenciaContasRemocaoCliente())
                 .to(exchangeRemocaoGerente())
-                .with(CHAVE_TRANSFERENCIA_CONTAS_REMOCAO); 
+                .with(CHAVE_TRANSFERENCIA_CONTAS_REMOCAO);
+    }
+
+    @Bean
+    public DirectExchange exchangeInsercaoGerente() {
+        return new DirectExchange(EXCHANGE_INSERCAO_GERENTE);
+    }
+
+    @Bean
+    public Queue filaConsultarGerenteMaisContasCliente() {
+        return new Queue(FILA_CONSULTAR_GERENTE_MAIS_CONTAS_CLIENTE, true);
+    }
+
+    @Bean
+    public Binding bindingConsultarGerenteMaisContasCliente() {
+        return BindingBuilder.bind(filaConsultarGerenteMaisContasCliente())
+                .to(exchangeInsercaoGerente())
+                .with(CHAVE_CONSULTAR_GERENTE_MAIS_CONTAS);
+    }
+
+    @Bean
+    public Binding bindingAtribuirContaCliente() {
+        return BindingBuilder.bind(filaAtribuirContaCliente())
+                .to(exchangeInsercaoGerente())
+                .with(CHAVE_ATRIBUIR_CONTA);
     }
 
     @Bean
@@ -125,7 +156,9 @@ public class RabbitMqConfiguracao {
 
     @Bean
     public JacksonJsonMessageConverter conversorJsonRabbitMq() {
-        return new JacksonJsonMessageConverter();
+        JacksonJsonMessageConverter converter = new JacksonJsonMessageConverter();
+        converter.setAlwaysConvertToInferredType(true);
+        return converter;
     }
 
     @Bean

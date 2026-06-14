@@ -27,7 +27,7 @@ public class SagaGerenteService {
         this.gerenteRepository = gerenteRepository;
     }
 
-    public GerenteResponseDTO iniciarInsercaoGerente(GerenteInsercaoDTO dto) {
+    public String iniciarInsercaoGerente(GerenteInsercaoDTO dto) {
         if (gerenteRepository.existsByCpf(dto.getCpf())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "CPF já cadastrado");
         }
@@ -37,13 +37,7 @@ public class SagaGerenteService {
 
         String sagaId = UUID.randomUUID().toString();
         orquestrador.iniciarSaga(sagaId, dto);
-
-        return GerenteResponseDTO.builder()
-            .cpf(dto.getCpf())
-            .nome(dto.getNome())
-            .email(dto.getEmail())
-            .tipo("GERENTE")
-            .build();
+        return sagaId;
     }
 
     public EstadoSagaInsercao consultarStatusSaga(String sagaId) {

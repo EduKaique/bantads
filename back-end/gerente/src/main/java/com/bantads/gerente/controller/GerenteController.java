@@ -3,6 +3,7 @@ package com.bantads.gerente.controller;
 import com.bantads.gerente.dto.GerenteAtualizacaoDTO;
 import com.bantads.gerente.dto.GerenteInsercaoDTO;
 import com.bantads.gerente.dto.GerenteResponseDTO;
+import com.bantads.gerente.mensageria.EstadoSagaInsercao;
 import com.bantads.gerente.service.GerenteService;
 import com.bantads.gerente.service.SagaGerenteService;
 import com.bantads.gerente.service.SagaRemocaoGerenteService;
@@ -56,12 +57,25 @@ public class GerenteController {
     @PostMapping
     @Operation(summary = "Insere um novo gerente usando SAGA")
     public ResponseEntity<GerenteResponseDTO> inserir(@Valid @RequestBody GerenteInsercaoDTO dto) {
-        GerenteResponseDTO response = sagaService.iniciarInsercaoGerente(dto);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        String sagaId = sagaService.iniciarInsercaoGerente(dto);
+
+        long inicio = System.currentTimeMillis();
+        EstadoSagaInsercao estado;
+        do {
+            try { Thread.sleep(200); } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
+            estado = sagaService.consultarStatusSaga(sagaId);
+        } while (estado != null
+            && !"CONCLUIDA".equals(estado.getStatus())
+            && !"ERRO".equals(estado.getStatus())
+            && (System.currentTimeMillis() - inicio) < 5000);
+
+        GerenteResponseDTO response = GerenteResponseDTO.builder()
+            .cpf(dto.getCpf())
+            .nome(dto.getNome())
+            .email(dto.getEmail())
+            .tipo("GERENTE")
+            .build();
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
