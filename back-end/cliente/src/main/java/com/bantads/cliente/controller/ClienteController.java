@@ -80,7 +80,7 @@ public class ClienteController {
     }
 
     @PostMapping("/{cpf}/aprovar")
-    public ResponseEntity<ContaResponse> aprovarCliente(
+    public ResponseEntity<RespostaAprovacaoClienteDTO> aprovarCliente(
         @PathVariable String cpf,
         @RequestHeader(value = "X-Usuario-Cpf", required = false) String cpfGerenteSolicitante,
         @RequestHeader(value = "X-Usuario-Tipo", required = false) String tipoUsuario

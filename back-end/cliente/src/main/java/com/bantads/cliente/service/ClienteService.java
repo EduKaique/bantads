@@ -25,7 +25,7 @@ public interface ClienteService {
 
     ClienteResponseDTO alterarPerfil(String cpf, PerfilInfoDTO dto);
 
-    ContaResponse aprovar(String cpf, String cpfGerenteSolicitante, String tipoUsuario);
+    RespostaAprovacaoClienteDTO aprovar(String cpf, String cpfGerenteSolicitante, String tipoUsuario);
 
     RespostaAprovacaoClienteDTO consultarAprovacao(String idSaga, String cpfGerenteSolicitante, String tipoUsuario);
 

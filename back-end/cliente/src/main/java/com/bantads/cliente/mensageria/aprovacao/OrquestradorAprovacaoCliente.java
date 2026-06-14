@@ -74,7 +74,6 @@ public class OrquestradorAprovacaoCliente {
         }
 
         saga.setNumeroConta(resultado.numeroConta());
-        saga.setLimite(resultado.limite() != null ? resultado.limite().doubleValue() : 0.0);
         saga.setContaCriadaPelaSaga(resultado.contaCriada());
         saga.setStatus(StatusSagaAprovacaoCliente.AGUARDANDO_AUTH);
         saga.setEtapaAtual("CRIACAO_ACESSO");

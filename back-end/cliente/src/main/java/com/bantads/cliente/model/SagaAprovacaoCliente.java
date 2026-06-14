@@ -43,12 +43,6 @@ public class SagaAprovacaoCliente {
     @Column(length = 4)
     private String numeroConta;
 
-    @Column
-    private Double saldo = 0.0;
-
-    @Column
-    private Double limite;
-
     private Boolean contaCriadaPelaSaga = Boolean.FALSE;
 
     private Boolean acessoCriadoPelaSaga = Boolean.FALSE;

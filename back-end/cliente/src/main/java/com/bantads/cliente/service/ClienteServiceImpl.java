@@ -18,7 +18,6 @@ import com.bantads.cliente.dto.ClienteParaAprovarResponseDTO;
 import com.bantads.cliente.dto.ClienteResponseDTO;
 import com.bantads.cliente.dto.MotivoRejeicaoDTO;
 import com.bantads.cliente.dto.PerfilInfoDTO;
-import com.bantads.cliente.dto.ContaResponse;
 import com.bantads.cliente.dto.RespostaAprovacaoClienteDTO;
 import com.bantads.cliente.mensageria.ClienteAtualizadoEvent;
 import com.bantads.cliente.mensageria.EventoAlteracaoPerfilInterno;
@@ -212,7 +211,7 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     @Transactional
-    public ContaResponse aprovar(String cpf, String cpfGerenteSolicitante, String tipoUsuario) {
+    public RespostaAprovacaoClienteDTO aprovar(String cpf, String cpfGerenteSolicitante, String tipoUsuario) {
         validarGerente(cpfGerenteSolicitante, tipoUsuario);
 
         Cliente cliente = clienteRepository.findByCpfParaAtualizar(cpf)
@@ -222,7 +221,7 @@ public class ClienteServiceImpl implements ClienteService {
             repositorioSaga.findFirstByCpfClienteAndStatusInOrderByCriadaEmDesc(cpf, STATUS_ATIVOS);
         if (sagaAtiva.isPresent()) {
             validarAcessoSaga(sagaAtiva.get(), cpfGerenteSolicitante);
-            return ContaResponse.deEntidade(sagaAtiva.get());
+            return RespostaAprovacaoClienteDTO.deEntidade(sagaAtiva.get());
         }
 
         validarClienteParaAprovacao(cliente, cpfGerenteSolicitante);
@@ -232,8 +231,8 @@ public class ClienteServiceImpl implements ClienteService {
         clienteRepository.save(cliente);
 
         // <-- Restaurada a chamada ao orquestrador para a SAGA de Aprovação
-        SagaAprovacaoCliente sagaIniciada = orquestradorAprovacao.iniciar(saga, cliente);
-        return ContaResponse.deEntidade(sagaIniciada);
+        SagaAprovacaoCliente sagaIniciada = orquestradorAprovacao.iniciar(saga, cliente); 
+        return RespostaAprovacaoClienteDTO.deEntidade(sagaIniciada);
     }
 
     @Override
