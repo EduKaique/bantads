@@ -167,7 +167,7 @@ public class ServicoContaEscrita {
             dataMovimentacao
         ));
 
-        publicarEvento(criarEvento(conta, TipoMovimentacao.DEPOSITO, conta.getNumero(), conta.getNumero(), valorNormalizado, dataMovimentacao));
+        publicarEvento(criarEvento(conta, TipoMovimentacao.SAQUE, conta.getNumero(), conta.getNumero(), valorNormalizado, dataMovimentacao));
 
         return new OperacaoResponse(conta.getNumero(), dataMovimentacao, conta.getSaldo());
     }
