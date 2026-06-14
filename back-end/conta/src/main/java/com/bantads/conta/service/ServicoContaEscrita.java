@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.time.temporal.ChronoUnit;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -72,7 +73,7 @@ public class ServicoContaEscrita {
             conta.setGerente(comando.cpfGerenteResponsavel());
             conta.setSaldo(normalizarValorMonetario(valorOuZero(comando.saldoInicial())));
             conta.setLimite(calcularLimite(comando.salario()));
-            conta.setCriacao(OffsetDateTime.now());
+            conta.setCriacao(OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS));
             conta.setIdSagaAprovacao(comando.idSaga());
 
             repositorioContaEscrita.save(conta);
@@ -126,7 +127,7 @@ public class ServicoContaEscrita {
     public OperacaoResponse depositar(String numeroConta, BigDecimal valor) {
         ContaEscrita conta = buscarConta(numeroConta);
         BigDecimal valorNormalizado = normalizarValorOperacao(valor);
-        OffsetDateTime dataMovimentacao = OffsetDateTime.now();
+        OffsetDateTime dataMovimentacao = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
         conta.setSaldo(normalizarValorMonetario(conta.getSaldo().add(valorNormalizado)));
         repositorioContaEscrita.save(conta);
@@ -134,14 +135,14 @@ public class ServicoContaEscrita {
         repositorioMovimentacaoEscrita.save(criarMovimentacao(
             conta.getNumero(),
             TipoMovimentacao.DEPOSITO,
-            null,
+            conta.getNumero(),
             conta.getNumero(),
             valorNormalizado,
             conta.getSaldo(),
             dataMovimentacao
         ));
 
-        publicarEvento(criarEvento(conta, TipoMovimentacao.DEPOSITO, null, conta.getNumero(), valorNormalizado, dataMovimentacao));
+        publicarEvento(criarEvento(conta, TipoMovimentacao.DEPOSITO, conta.getNumero(), conta.getNumero(), valorNormalizado, dataMovimentacao));
 
         return new OperacaoResponse(conta.getNumero(), dataMovimentacao, conta.getSaldo());
     }
@@ -151,7 +152,7 @@ public class ServicoContaEscrita {
         ContaEscrita conta = buscarConta(numeroConta);
         BigDecimal valorNormalizado = normalizarValorOperacao(valor);
         validarSaldoDisponivel(conta, valorNormalizado);
-        OffsetDateTime dataMovimentacao = OffsetDateTime.now();
+        OffsetDateTime dataMovimentacao = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
         conta.setSaldo(normalizarValorMonetario(conta.getSaldo().subtract(valorNormalizado)));
         repositorioContaEscrita.save(conta);
@@ -160,13 +161,13 @@ public class ServicoContaEscrita {
             conta.getNumero(),
             TipoMovimentacao.SAQUE,
             conta.getNumero(),
-            null,
+            conta.getNumero(),
             valorNormalizado,
             conta.getSaldo(),
             dataMovimentacao
         ));
 
-        publicarEvento(criarEvento(conta, TipoMovimentacao.SAQUE, conta.getNumero(), null, valorNormalizado, dataMovimentacao));
+        publicarEvento(criarEvento(conta, TipoMovimentacao.DEPOSITO, conta.getNumero(), conta.getNumero(), valorNormalizado, dataMovimentacao));
 
         return new OperacaoResponse(conta.getNumero(), dataMovimentacao, conta.getSaldo());
     }
@@ -212,7 +213,7 @@ public class ServicoContaEscrita {
         ContaEscrita contaDestino = buscarConta(contaDestinoNumero);
         BigDecimal valorNormalizado = normalizarValorOperacao(valor);
         validarSaldoDisponivel(contaOrigem, valorNormalizado);
-        OffsetDateTime dataMovimentacao = OffsetDateTime.now();
+        OffsetDateTime dataMovimentacao = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
         contaOrigem.setSaldo(normalizarValorMonetario(contaOrigem.getSaldo().subtract(valorNormalizado)));
         contaDestino.setSaldo(normalizarValorMonetario(contaDestino.getSaldo().add(valorNormalizado)));

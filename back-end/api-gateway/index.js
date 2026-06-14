@@ -122,7 +122,6 @@ app.get('/clientes/:cpf', verifyJWT, async (req, res, next) => {
     try {
         const cpf = req.params.cpf;
         
-        // Passo A: Busca os dados básicos no ms-cliente
         const clienteRes = await fetch(`http://ms-cliente:8080/clientes/${cpf}`, {
             headers: getForwardHeaders(req)
         });
@@ -205,14 +204,77 @@ app.use('/clientes', verifyJWT, (req, res, next) => {
     clienteServiceProxy(req, res, next);
 });
 
-
-
 app.get("/contas", verifyJWT, requireAdmin, (req, res, next) => {
   contaServiceProxy(req, res, next);
 });
 
 app.use("/contas", verifyJWT, (req, res, next) => {
   contaServiceProxy(req, res, next);
+});
+
+app.get('/gerentes', verifyJWT, async (req, res, next) => {
+    try {
+        const queryString = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
+        
+        const gerentesRes = await fetch(`http://ms-gerente:8080/gerentes${queryString}`, {
+            headers: getForwardHeaders(req)
+        });
+
+        if (!gerentesRes.ok) {
+            return res.status(gerentesRes.status).json(await gerentesRes.json().catch(() => ({})));
+        }
+
+        let respostaGerentes = await gerentesRes.json();
+
+        if (respostaGerentes.length > 0 && respostaGerentes[0].gerente) {
+            
+            const clientesRes = await fetch(`http://ms-cliente:8080/clientes`, {
+                headers: getForwardHeaders(req)
+            });
+
+            if (clientesRes.ok) {
+                let todosClientes = await clientesRes.json();
+
+                const promessasSaldos = todosClientes.map(async (c) => {
+                    c.saldo = 0.0;
+                    if (c.conta) {
+                        try {
+                            const sRes = await fetch(`http://conta:8080/contas/${c.conta}/saldo`, { 
+                                headers: getForwardHeaders(req) 
+                            });
+                            if (sRes.ok) c.saldo = (await sRes.json()).saldo;
+                        } catch (e) {} 
+                    }
+                    return c;
+                });
+                todosClientes = await Promise.all(promessasSaldos);
+
+                respostaGerentes = respostaGerentes.map(item => {
+                    const cpfDoGerente = item.gerente.cpf;
+                    
+                    item.clientes = todosClientes.filter(c => c.gerente === cpfDoGerente);
+
+                    item.saldo_positivo = item.clientes
+                      .map(c => parseFloat(c.saldo) || 0) 
+                      .filter(saldo => saldo > 0)
+                      .reduce((soma, saldo) => soma + saldo, 0);
+
+                    item.saldo_negativo = item.clientes
+                      .map(c => parseFloat(c.saldo) || 0) 
+                      .filter(saldo => saldo < 0) 
+                      .reduce((soma, saldo) => soma + saldo, 0);
+
+                    return item;
+                });
+
+                respostaGerentes.sort((a, b) => b.saldo_positivo - a.saldo_positivo);
+            }
+        }
+
+        return res.json(respostaGerentes);
+    } catch (error) {
+        next(error);
+    }
 });
 
 app.use("/gerentes", verifyJWT, (req, res, next) => {

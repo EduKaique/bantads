@@ -37,6 +37,8 @@ public class RabbitMqConfiguracao {
     public static final String CHAVE_SOLICITACAO_GERENTE = "autocadastro.solicitar.gerente";
     public static final String CHAVE_RESPOSTA_GERENTE = "autocadastro.resposta.gerente";
 
+    public static final String CHAVE_TRANSFERENCIA_CONTAS_REMOCAO = "gerente.transferencia-contas-remocao";
+
     @Bean
     public DirectExchange exchangeCliente() {
         return new DirectExchange(EXCHANGE_CLIENTE);
@@ -55,6 +57,28 @@ public class RabbitMqConfiguracao {
     @Bean
     public Queue filaResultadoAcessoAprovacao() {
         return new Queue(FILA_RESULTADO_ACESSO_APROVACAO, true);
+    }
+
+    @Bean
+    public Queue filaAtribuirContaCliente() {
+        return new Queue("cliente.atribuir-conta.queue", true);
+    }
+
+    @Bean
+    public Queue filaTransferenciaContasRemocaoCliente() {
+        return new Queue("cliente.transferir-contas-remocao.queue", true);
+    }
+
+    @Bean
+    public DirectExchange exchangeRemocaoGerente() {
+        return new DirectExchange("gerente.remocao.exchange");
+    }
+
+    @Bean
+    public Binding bindingTransferenciaRemocaoCliente() {
+        return BindingBuilder.bind(filaTransferenciaContasRemocaoCliente())
+                .to(exchangeRemocaoGerente())
+                .with(CHAVE_TRANSFERENCIA_CONTAS_REMOCAO); 
     }
 
     @Bean

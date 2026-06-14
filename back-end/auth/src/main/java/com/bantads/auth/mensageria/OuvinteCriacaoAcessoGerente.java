@@ -4,6 +4,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.bantads.auth.model.TipoUsuario;
 import com.bantads.auth.model.User;
 import com.bantads.auth.repository.UserRepository;
 
@@ -29,7 +30,7 @@ public class OuvinteCriacaoAcessoGerente {
         novoUsuario.setReferenciaId(comando.cpf());
         novoUsuario.setNome(comando.nome());
         novoUsuario.setEmail(comando.email());
-        novoUsuario.setTipo(comando.tipo().toUpperCase());
+        novoUsuario.setTipo(TipoUsuario.valueOf(comando.tipo().toUpperCase()));
         
         novoUsuario.setSenha(passwordEncoder.encode(comando.senha()));
 

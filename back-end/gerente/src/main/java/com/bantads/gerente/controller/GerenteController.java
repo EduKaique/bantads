@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/gerentes")
@@ -56,6 +57,11 @@ public class GerenteController {
     @Operation(summary = "Insere um novo gerente usando SAGA")
     public ResponseEntity<GerenteResponseDTO> inserir(@Valid @RequestBody GerenteInsercaoDTO dto) {
         GerenteResponseDTO response = sagaService.iniciarInsercaoGerente(dto);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -69,8 +75,13 @@ public class GerenteController {
 
     @DeleteMapping("/{cpf}")
     @Operation(summary = "Remove um gerente pelo CPF usando SAGA")
-    public ResponseEntity<Void> remover(@PathVariable String cpf) {
+    public ResponseEntity<Map<String, String>> remover(@PathVariable String cpf) {
         sagaRemocaoService.iniciarRemocaoGerente(cpf);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return ResponseEntity.ok(Map.of("cpf", cpf, "mensagem", "Remoção iniciada"));
     }
 }
