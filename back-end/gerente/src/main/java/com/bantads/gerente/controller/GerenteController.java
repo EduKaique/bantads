@@ -1,22 +1,31 @@
 package com.bantads.gerente.controller;
 
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.bantads.gerente.dto.GerenteAtualizacaoDTO;
 import com.bantads.gerente.dto.GerenteInsercaoDTO;
 import com.bantads.gerente.dto.GerenteResponseDTO;
-import com.bantads.gerente.mensageria.EstadoSagaRemocao;
 import com.bantads.gerente.mensageria.EstadoSagaInsercao;
+import com.bantads.gerente.mensageria.EstadoSagaRemocao;
 import com.bantads.gerente.service.GerenteService;
 import com.bantads.gerente.service.SagaGerenteService;
 import com.bantads.gerente.service.SagaRemocaoGerenteService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/gerentes")
@@ -90,14 +99,25 @@ public class GerenteController {
 
     @DeleteMapping("/{cpf}")
     @Operation(summary = "Remove um gerente pelo CPF usando SAGA")
-    public ResponseEntity<String> remover(@PathVariable String cpf) {
+    public ResponseEntity<Map<String, String>> remover(@PathVariable String cpf) {
         String sagaId = sagaRemocaoService.iniciarRemocaoGerente(cpf);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+
+        long inicio = System.currentTimeMillis();
+        EstadoSagaRemocao estado = sagaRemocaoService.consultarStatusSaga(sagaId);
+
+        do {
+            try { Thread.sleep(200); } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
+        } while (estado != null
+            && !"CONCLUIDA".equals(estado.getStatus())
+            && !"ERRO".equals(estado.getStatus())
+            && (System.currentTimeMillis() - inicio) < 5000);
+
+        if (estado != null && "ERRO".equals(estado.getStatus())) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("sagaId", sagaId, "status", "ERRO"));
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(sagaId);
+
+        return ResponseEntity.ok(Map.of("sagaId", sagaId, "status", "CONCLUIDA"));
     }
 
     @GetMapping("/sagas/remocao/{sagaId}")
