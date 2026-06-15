@@ -36,6 +36,6 @@ public class OuvinteCriacaoAcessoGerente {
 
         userRepository.save(novoUsuario);
         
-        System.out.println("Acesso criado com sucesso para o novo gerente: " + comando.email());
+        System.out.println("✅ Acesso criado com sucesso para o novo gerente: " + comando.email());
     }
 }

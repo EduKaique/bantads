@@ -34,6 +34,12 @@ public class ContaLeitura {
     @Column(length = 36)
     private String idSagaAprovacao;
 
+    @Column(length = 36)
+    private String idSagaRemocaoGerente;
+
+    @Column(length = 14)
+    private String gerenteAnteriorRemocao;
+
     public String getNumero() {
         return numero;
     }
@@ -88,5 +94,21 @@ public class ContaLeitura {
 
     public void setIdSagaAprovacao(String idSagaAprovacao) {
         this.idSagaAprovacao = idSagaAprovacao;
+    }
+
+    public String getIdSagaRemocaoGerente() {
+        return idSagaRemocaoGerente;
+    }
+
+    public void setIdSagaRemocaoGerente(String idSagaRemocaoGerente) {
+        this.idSagaRemocaoGerente = idSagaRemocaoGerente;
+    }
+
+    public String getGerenteAnteriorRemocao() {
+        return gerenteAnteriorRemocao;
+    }
+
+    public void setGerenteAnteriorRemocao(String gerenteAnteriorRemocao) {
+        this.gerenteAnteriorRemocao = gerenteAnteriorRemocao;
     }
 }
