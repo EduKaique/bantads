@@ -10,18 +10,22 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bantads.conta.config.RabbitMqConfiguracao;
 import com.bantads.conta.entity.escrita.ContaEscrita;
 import com.bantads.conta.repository.escrita.RepositorioContaEscrita;
+import com.bantads.conta.service.ServicoContaLeitura;
 
 @Component
 public class ListenerAtribuicaoContaSaga {
 
     private final RepositorioContaEscrita repositorioContaEscrita;
+    private final ServicoContaLeitura servicoContaLeitura;
     private final RabbitTemplate rabbitTemplate;
 
     public ListenerAtribuicaoContaSaga(
         RepositorioContaEscrita repositorioContaEscrita,
+        ServicoContaLeitura servicoContaLeitura,
         RabbitTemplate rabbitTemplate
     ) {
         this.repositorioContaEscrita = repositorioContaEscrita;
+        this.servicoContaLeitura = servicoContaLeitura;
         this.rabbitTemplate = rabbitTemplate;
     }
 
@@ -45,6 +49,7 @@ public class ListenerAtribuicaoContaSaga {
             ContaEscrita contaParaTransferir = contasGerenteOrigem.get(0);
             contaParaTransferir.setGerente(evento.cpfNovoGerente());
             repositorioContaEscrita.save(contaParaTransferir);
+            servicoContaLeitura.salvarProjecaoConta(contaParaTransferir);
 
             EventoRespostaAtribuicaoConta resposta = new EventoRespostaAtribuicaoConta(
                 evento.sagaId(),
