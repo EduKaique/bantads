@@ -41,9 +41,9 @@ public class GerenteServiceImpl implements GerenteService {
         return repository.findAll()
                 .stream()
                 .map(gerente -> GerenteDashboardDTO.builder()
-                        .gerente(this.toResponseDTO(gerente)) // Preenche os dados do gerente
-                        .clientes(new ArrayList<>())          // Lista vazia por enquanto
-                        .saldoPositivo(0.0)                   // Inicializando para passar no teste
+                        .gerente(this.toResponseDTO(gerente))
+                        .clientes(new ArrayList<>())          
+                        .saldoPositivo(0.0)                   
                         .saldoNegativo(0.0)
                         .build()
                 )
