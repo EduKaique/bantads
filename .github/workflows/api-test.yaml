@@ -16,6 +16,9 @@ jobs:
       - name: Subir infraestrutura
         run: docker compose up -d --build
 
+      - name: Debug variáveis ms-auth
+        run: docker compose exec ms-auth env | grep SPRING_MAIL
+
       - name: Aguardar serviços ficarem prontos
         run: |
           echo "Aguardando RabbitMQ..."
@@ -38,6 +41,10 @@ jobs:
       - name: Redirecionar porta 8000 → 8080
         run: |
           sudo iptables -t nat -A OUTPUT -p tcp --dport 8000 -j REDIRECT --to-port 8080
+
+      - name: Debug emails configurados
+        run: |
+          grep "EMAIL_AUTOCADASTRO" tests-externos/test_dac_bantads.py
 
       - name: Clonar repositório de testes
         run: git clone https://github.com/razeranthom/test_bantads.git tests-externos
