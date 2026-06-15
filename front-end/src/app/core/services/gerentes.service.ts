@@ -35,7 +35,7 @@ export class GerentesService {
           map((itens) =>
             itens.map((item) => ({
               ...item,
-              telefone: item.telefone ?? '',
+              celular: item.celular ?? item.telefone ?? '',
             })),
           ),
         );
@@ -59,8 +59,13 @@ export class GerentesService {
   }
 
   inserir(dadosGerente: DadoGerenteInsercao): Observable<Gerente> {
+    const dadosRequisicao = {
+      ...dadosGerente,
+      telefone: dadosGerente.celular,
+    };
+
     return this.http
-      .post<DadoGerente>(`${this.apiUrl}/gerentes`, dadosGerente)
+      .post<DadoGerente>(`${this.apiUrl}/gerentes`, dadosRequisicao)
       .pipe(map((gerente) => this.mapearGerente(gerente)));
   }
 
@@ -94,7 +99,7 @@ export class GerentesService {
       cpf: gerente.cpf,
       nome: gerente.nome,
       email: gerente.email,
-      telefone: gerente.telefone ?? '',
+      celular: gerente.celular ?? gerente.telefone ?? '',
     };
 
     if (gerente.tipo) {

@@ -58,6 +58,7 @@ public class SagaGerenteService {
             .nome(gerente.getNome())
             .email(gerente.getEmail())
             .tipo(gerente.getTipo())
+            .telefone(gerente.getTelefone())
             .build();
     }
 }

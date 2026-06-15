@@ -1,5 +1,6 @@
 package com.bantads.gerente.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -24,5 +25,6 @@ public class GerenteInsercaoDTO {
 
     private String senha;
 
+    @JsonAlias("celular")
     private String telefone;
 }

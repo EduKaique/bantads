@@ -3,10 +3,13 @@ export interface DadoGerente {
   nome: string;
   email: string;
   tipo?: string;
+  celular?: string;
   telefone?: string;
 }
 
-export interface Gerente extends DadoGerente { }
+export interface Gerente extends DadoGerente {
+  celular: string;
+}
 
 export interface DadoGerenteInsercao {
   cpf: string;
@@ -14,7 +17,7 @@ export interface DadoGerenteInsercao {
   email: string;
   tipo?: string;
   senha?: string;
-  telefone?: string;
+  celular?: string;
 }
 
 export interface DadoGerenteAtualizacao {
