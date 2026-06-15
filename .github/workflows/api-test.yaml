@@ -66,6 +66,11 @@ jobs:
           cd tests-externos
           pytest test_dac_bantads.py -v --tb=short -s
 
+      - name: Debug Mailpit emails
+        if: failure()
+        run: |
+          curl -s http://localhost:8025/api/v1/messages | python3 -m json.tool
+
       - name: Logs dos serviços em caso de falha
         if: failure()
         run: |
