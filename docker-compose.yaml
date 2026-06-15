@@ -14,12 +14,19 @@ services:
       - NODE_OPTIONS=--max_old_space_size=4096
     restart: unless-stopped
 
-  # =========== INFRAESTRUTURA BASE =========== 
+  # =========== INFRAESTRUTURA BASE ===========
   rabbitmq:
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"   
+      - "5672:5672"
       - "15672:15672"
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # API/UI
     restart: unless-stopped
 
   api-gateway:
@@ -28,13 +35,13 @@ services:
       dockerfile: Dockerfile
       target: dev
     ports:
-      - "8080:8080" 
+      - "8080:8080"
     volumes:
       - ./back-end/api-gateway:/app
       - /app/node_modules
     environment:
-    - SECRET=secret        
-    - PORT=8080
+      - SECRET=secret
+      - PORT=8080
     restart: unless-stopped
 
   # =========== BANCOS DE DADOS ===========
@@ -45,7 +52,6 @@ services:
     volumes:
       - mongo-auth-data:/data/db
     restart: unless-stopped
-
 
   postgres-db:
     image: postgres:15
@@ -71,17 +77,18 @@ services:
     depends_on:
       - mongodb-auth
       - rabbitmq
+      - mailpit
     environment:
       - MONGO_URI=mongodb://mongodb-auth:27017/bantads_auth
       - SPRING_RABBITMQ_HOST=rabbitmq
       - BANTADS_EMAIL_REMETENTE=sistema@bantads.com.br
       - BANTADS_EMAIL_ENVIO_HABILITADO=true
-      - SPRING_MAIL_HOST=smtp.gmail.com
-      - SPRING_MAIL_PORT=587
-      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
-      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
-      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
-      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+      - SPRING_MAIL_HOST=${SPRING_MAIL_HOST:-mailpit}
+      - SPRING_MAIL_PORT=${SPRING_MAIL_PORT:-1025}
+      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME:-}
+      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD:-}
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=${SPRING_MAIL_SMTP_AUTH:-false}
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=${SPRING_MAIL_STARTTLS:-false}
     volumes:
       - ./back-end/auth:/app
       - maven-repo:/root/.m2
@@ -150,7 +157,7 @@ services:
       - maven-repo:/root/.m2
     restart: unless-stopped
 
-# VOLUMES 
+# VOLUMES
 volumes:
   maven-repo:
   mongo-auth-data:
