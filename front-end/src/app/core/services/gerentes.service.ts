@@ -108,4 +108,8 @@ export class GerentesService {
 
     return gerenteMapeado;
   }
+
+  consultarStatusSaga(sagaId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/gerentes/sagas/remocao/${sagaId}`);
+  }
 }

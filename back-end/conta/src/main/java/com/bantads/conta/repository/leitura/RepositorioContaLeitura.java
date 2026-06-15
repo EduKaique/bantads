@@ -11,5 +11,7 @@ public interface RepositorioContaLeitura extends JpaRepository<ContaLeitura, Str
 
     List<ContaLeitura> findByGerente(String gerente);
 
+    List<ContaLeitura> findByIdSagaRemocaoGerente(String idSagaRemocaoGerente);
+
     Optional<ContaLeitura> findByCliente(String cliente);
 }
