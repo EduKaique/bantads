@@ -163,6 +163,8 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
         this.fecharModalInserir();
         this.fecharModalAtualizar();
         this.carregarGerentes();
+        this.tituloModalSucesso.set('Gerente cadastrado com sucesso!');
+        this.mostrarModalSucesso.set(true);
       },
       error: () => {
         this.mensagemErro.set('Erro ao cadastrar gerente.');
