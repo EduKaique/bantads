@@ -57,9 +57,8 @@ jobs:
 
       - name: Configurar emails de teste
         run: |
-          cd tests-externos
-          sed -i 's/EMAIL_AUTOCADASTRO1 = ""/EMAIL_AUTOCADASTRO1 = "${{ secrets.EMAIL_AUTOCADASTRO1 }}"/' test_dac_bantads.py
-          sed -i 's/EMAIL_AUTOCADASTRO2 = ""/EMAIL_AUTOCADASTRO2 = "${{ secrets.EMAIL_AUTOCADASTRO2 }}"/' test_dac_bantads.py
+          sed -i 's/EMAIL_AUTOCADASTRO1 = ""/EMAIL_AUTOCADASTRO1 = "${{ secrets.EMAIL_AUTOCADASTRO1 }}"/' tests-externos/.env
+          sed -i 's/EMAIL_AUTOCADASTRO2 = ""/EMAIL_AUTOCADASTRO2 = "${{ secrets.EMAIL_AUTOCADASTRO2 }}"/' tests-externos/.env
 
       - name: Debug emails configurados
         run: |
