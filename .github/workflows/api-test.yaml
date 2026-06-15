@@ -40,7 +40,7 @@ jobs:
           sudo iptables -t nat -A OUTPUT -p tcp --dport 8000 -j REDIRECT --to-port 8080
 
       - name: Clonar repositório de testes
-        run: git clone https://github.com/USUARIO_PROFESSOR/REPO_TESTES.git tests-externos
+        run: git clone https://github.com/razeranthom/test_bantads.git tests-externos
 
       - name: Instalar Python
         uses: actions/setup-python@v5
