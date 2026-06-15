@@ -171,6 +171,7 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     public List<ClienteResponseDTO> listarMelhoresClientes(String tipoUsuario) {
         if ("GERENTE".equalsIgnoreCase(tipoUsuario) || "ADMINISTRADOR".equalsIgnoreCase(tipoUsuario)) {
+            // Volta a trazer todos os aprovados para o Angular poder consultar as contas e saldos
             return clienteRepository.findByStatusOrderByNomeAsc(StatusCliente.APROVADO)
                     .stream()
                     .map(cliente -> ClienteResponseDTO.fromEntity(cliente, true)) 
@@ -178,6 +179,7 @@ public class ClienteServiceImpl implements ClienteService {
         }
         return List.of(); 
     }
+    
 
     @Override
     @Transactional
