@@ -42,10 +42,6 @@ jobs:
         run: |
           sudo iptables -t nat -A OUTPUT -p tcp --dport 8000 -j REDIRECT --to-port 8080
 
-      - name: Debug emails configurados
-        run: |
-          grep "EMAIL_AUTOCADASTRO" tests-externos/test_dac_bantads.py
-
       - name: Clonar repositório de testes
         run: git clone https://github.com/razeranthom/test_bantads.git tests-externos
 
@@ -64,6 +60,10 @@ jobs:
           cd tests-externos
           sed -i 's/EMAIL_AUTOCADASTRO1 = ""/EMAIL_AUTOCADASTRO1 = "${{ secrets.EMAIL_AUTOCADASTRO1 }}"/' test_dac_bantads.py
           sed -i 's/EMAIL_AUTOCADASTRO2 = ""/EMAIL_AUTOCADASTRO2 = "${{ secrets.EMAIL_AUTOCADASTRO2 }}"/' test_dac_bantads.py
+
+      - name: Debug emails configurados
+        run: |
+          grep "EMAIL_AUTOCADASTRO" tests-externos/test_dac_bantads.py
 
       - name: Copiar conftest para interceptar input de senha
         run: cp conftest.py tests-externos/conftest.py
