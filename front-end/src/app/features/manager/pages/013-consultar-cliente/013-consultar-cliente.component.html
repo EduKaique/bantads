@@ -14,7 +14,7 @@
             (keyup.enter)="pesquisarCliente()"
             placeholder="Digite o CPF (11 dígitos)..."
             class="search-input"
-            maxlength="11"
+            maxlength="14"
             aria-label="Campo de entrada para CPF do cliente"
           />
           <button class="search-btn" (click)="pesquisarCliente()" [disabled]="carregando || !validarCpf(cpfPesquisa)" [attr.aria-busy]="carregando">

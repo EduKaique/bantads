@@ -74,6 +74,14 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb-auth:27017/bantads_auth
       - SPRING_RABBITMQ_HOST=rabbitmq
+      - BANTADS_EMAIL_REMETENTE=sistema@bantads.com.br
+      - BANTADS_EMAIL_ENVIO_HABILITADO=true
+      - SPRING_MAIL_HOST=smtp.gmail.com
+      - SPRING_MAIL_PORT=587
+      - SPRING_MAIL_USERNAME=eduardoalberico18@gmail.com
+      - SPRING_MAIL_PASSWORD=dzfq bzkf vily babe
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
     volumes:
       - ./back-end/auth:/app
       - maven-repo:/root/.m2

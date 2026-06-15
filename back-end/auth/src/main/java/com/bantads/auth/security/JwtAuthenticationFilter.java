@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.bantads.auth.repository.TokenBlacklistRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,12 +26,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private TokenService tokenService;
 
+    @Autowired
+    private TokenBlacklistRepository blacklistRepository;
+
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+        if (path.contains("/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         final String authHeader = request.getHeader("Authorization");
 
@@ -40,6 +50,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String token = authHeader.substring(7);
+
+        if (blacklistRepository.existsByToken(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
 
         try {
             DecodedJWT jwt = tokenService.validateToken(token);
