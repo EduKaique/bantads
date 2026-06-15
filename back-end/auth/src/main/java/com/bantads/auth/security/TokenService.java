@@ -36,6 +36,7 @@ public class TokenService {
                     .withClaim("cpf", user.getReferenciaId()) 
                     .withClaim("tipo", user.getTipo().name())
                     .withClaim("nome", user.getNome())
+                    .withClaim("jti", java.util.UUID.randomUUID().toString())
                     .withIssuedAt(now)
                     .withExpiresAt(expirationTime)
                     .sign(algorithm);
