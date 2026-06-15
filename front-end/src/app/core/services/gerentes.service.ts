@@ -78,8 +78,8 @@ export class GerentesService {
       .pipe(map((gerente) => this.mapearGerente(gerente)));
   }
 
-  remover(cpf: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/gerentes/${cpf}`, { responseType: 'text' });
+  remover(cpf: string): Observable<RespostaRemocaoGerente> {
+    return this.http.delete<RespostaRemocaoGerente>(`${this.apiUrl}/gerentes/${cpf}`);
   }
 
   private criarParametrosListagem(numero?: number): HttpParams | Error {
@@ -109,7 +109,13 @@ export class GerentesService {
     return gerenteMapeado;
   }
 
-  consultarStatusSaga(sagaId: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/gerentes/sagas/remocao/${sagaId}`);
+  consultarStatusSaga(sagaId: string): Observable<RespostaRemocaoGerente> {
+    return this.http.get<RespostaRemocaoGerente>(`${this.apiUrl}/gerentes/sagas/remocao/${sagaId}`);
   }
+}
+
+export interface RespostaRemocaoGerente {
+  sagaId: string;
+  status: string;
+  mensagem?: string;
 }

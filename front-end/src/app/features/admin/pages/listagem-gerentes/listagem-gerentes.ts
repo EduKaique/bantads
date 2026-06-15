@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { startWith } from 'rxjs';
+import { filter, interval, of, startWith, switchMap, takeWhile } from 'rxjs';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
@@ -23,7 +23,6 @@ import { ModalAtualizarGerente } from '../../components/modal-atualizar-gerente/
 import { AppSuccessModalComponent } from '../../../../shared/components/modal-mensagem/app-success-modal';
 import { WarningDialogComponent } from '../../../../shared/components/warning-dialog/warning-dialog.component';
 import { MatIcon } from "@angular/material/icon";
-import { interval, switchMap, takeWhile, filter } from 'rxjs';
 
 @Component({
   selector: 'app-listagem-gerentes',
@@ -219,9 +218,13 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
 this.gerentesService.remover(gerente.cpf)
   .pipe(
     takeUntilDestroyed(this.destroyRef),
-    switchMap((sagaId) => {
+    switchMap((respostaRemocao) => {
+      if (!respostaRemocao.sagaId || this.sagaFinalizada(respostaRemocao.status)) {
+        return of(respostaRemocao);
+      }
+
       return interval(2000).pipe(
-        switchMap(() => this.gerentesService.consultarStatusSaga(sagaId)),
+        switchMap(() => this.gerentesService.consultarStatusSaga(respostaRemocao.sagaId)),
         
         takeWhile((estado) => 
           estado.status !== 'CONCLUIDA' && 
@@ -254,8 +257,14 @@ this.gerentesService.remover(gerente.cpf)
       this.mostrarModalSucesso.set(true);
     },
     error: (err) => {
+      this.carregando.set(false);
+      this.erroAcao.set('Erro ao remover gerente.');
       console.error('Erro de comunicação com o servidor:', err);
     }
   });
+  }
+
+  private sagaFinalizada(status: string): boolean {
+    return ['CONCLUIDA', 'ERRO', 'ERRO_COMPENSACAO', 'COMPENSADA'].includes(status);
   }
 }
