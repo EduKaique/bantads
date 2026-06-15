@@ -22,9 +22,7 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    /**
-     * Define quais rotas são protegidas e como a autenticação é gerenciada.
-     */
+    //Defindo quais rotas são protegidas
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
