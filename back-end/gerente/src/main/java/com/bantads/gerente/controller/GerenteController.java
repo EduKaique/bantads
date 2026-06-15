@@ -92,11 +92,11 @@ public class GerenteController {
     @Operation(summary = "Remove um gerente pelo CPF usando SAGA")
     public ResponseEntity<String> remover(@PathVariable String cpf) {
         String sagaId = sagaRemocaoService.iniciarRemocaoGerente(cpf);
-        /*try {
+        try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        }*/
+        }
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(sagaId);
     }
 
