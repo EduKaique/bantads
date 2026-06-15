@@ -23,6 +23,7 @@ public class RabbitMqConfiguracao {
     public static final String FILA_AUTOCADASTRO_AUTH = "saga.autocadastro.auth";
     public static final String FILA_AUTOCADASTRO_AUTH_ROLLBACK = "saga.autocadastro.auth.rollback";
 
+
     public static final String CHAVE_CRIAR_ACESSO_APROVACAO = "aprovacao.auth.criar";
     public static final String CHAVE_COMPENSAR_ACESSO_APROVACAO = "aprovacao.auth.compensar";
     public static final String CHAVE_ACESSO_CRIADO_APROVACAO = "aprovacao.auth.criado";
@@ -49,6 +50,11 @@ public class RabbitMqConfiguracao {
     @Bean
     public Queue filaCompensarAcessoAprovacao() {
         return new Queue(FILA_COMPENSAR_ACESSO_APROVACAO, true);
+    }
+
+    @Bean
+    public Queue filaCriacaoAcessoGerente() {
+        return new Queue("fila-criacao-acesso-gerente", true); 
     }
 
     @Bean

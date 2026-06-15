@@ -2,7 +2,6 @@ package com.bantads.gerente.mensageria;
 
 import java.math.BigDecimal;
 
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +23,6 @@ public class ListenerConsultaGerenteMaisContas {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    @RabbitListener(queues = RabbitMqConfiguracao.FILA_CONSULTAR_GERENTE_MAIS_CONTAS)
     public void consumirConsultaGerenteMaisContas(EventoConsultaGerenteMaisContas evento) {
         System.out.println("Consulta gerente com mais contas recebida: " + evento.sagaId());
 

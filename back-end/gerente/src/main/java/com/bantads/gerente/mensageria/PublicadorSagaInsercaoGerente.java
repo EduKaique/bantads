@@ -41,4 +41,8 @@ public class PublicadorSagaInsercaoGerente {
             evento
         );
     }
+
+    public void publicarCriacaoAcessoGerente(ComandoCriacaoAcessoGerente comando) {
+        rabbitTemplate.convertAndSend("fila-criacao-acesso-gerente", comando);
+    }
 }

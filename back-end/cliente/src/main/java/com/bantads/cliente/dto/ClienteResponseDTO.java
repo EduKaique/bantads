@@ -11,7 +11,10 @@ public class ClienteResponseDTO {
     private String email;
     private String telefone;
     private Double salario;
-    private String cpfGerenteResponsavel;
+    private Double limite;
+    private String gerente;
+    private String conta;
+    private Double saldo;
     
     private String cep;
     private String logradouro;
@@ -22,7 +25,7 @@ public class ClienteResponseDTO {
     private String estado;
 
     public static ClienteResponseDTO fromEntity(Cliente c) {
-        return fromEntity(c, false);
+        return fromEntity(c, true); 
     }
 
     public static ClienteResponseDTO fromEntity(Cliente c, boolean incluirSalario) {
@@ -31,10 +34,21 @@ public class ClienteResponseDTO {
         dto.setNome(c.getNome());
         dto.setEmail(c.getEmail());
         dto.setTelefone(c.getTelefone());
-        if (incluirSalario) {
-            dto.setSalario(c.getSalario());
+        
+        if (c.getSalario() != null) {
+            if (incluirSalario) {
+                dto.setSalario(c.getSalario());
+            }
+            
+            if (c.getSalario() >= 2000.0) {
+                dto.setLimite(c.getSalario() / 2.0);
+            } else {
+                dto.setLimite(0.0);
+            }
         }
-        dto.setCpfGerenteResponsavel(c.getCpfGerenteResponsavel());
+        dto.setGerente(c.getCpfGerenteResponsavel());
+        dto.setConta(c.getConta());
+        dto.setSaldo(0.0);
         
         dto.setCep(c.getCep());
         dto.setLogradouro(c.getLogradouro());

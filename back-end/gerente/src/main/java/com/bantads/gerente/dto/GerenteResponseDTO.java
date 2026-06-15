@@ -12,4 +12,8 @@ public class GerenteResponseDTO {
     private String nome;
     private String email;
     private String tipo;
+
+    public String getTipo() {
+        return this.tipo != null ? this.tipo.toUpperCase() : null;
+    }
 }

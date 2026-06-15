@@ -35,6 +35,7 @@ public class TokenService {
                     .withClaim("id", user.getId())  
                     .withClaim("cpf", user.getReferenciaId()) // O cpf no token vem do referenciaId
                     .withClaim("tipo", user.getTipo().name())
+                    .withClaim("nome", user.getNome())
                     .withIssuedAt(now)
                     .withExpiresAt(expirationTime)
                     .sign(algorithm);

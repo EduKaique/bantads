@@ -2,7 +2,9 @@ package com.bantads.gerente.service;
 
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.bantads.gerente.dto.GerenteInsercaoDTO;
 import com.bantads.gerente.dto.GerenteResponseDTO;
@@ -25,19 +27,17 @@ public class SagaGerenteService {
         this.gerenteRepository = gerenteRepository;
     }
 
-    public GerenteResponseDTO iniciarInsercaoGerente(GerenteInsercaoDTO dto) {
-        // A insercao usa uma saga porque depende da distribuicao de contas em outro servico.
-        // O UUID e devolvido apenas ao orquestrador, que acompanha as respostas dos listeners.
-        // A resposta inicial espelha os dados recebidos enquanto a conclusao ocorre depois.
+    public String iniciarInsercaoGerente(GerenteInsercaoDTO dto) {
+        if (gerenteRepository.existsByCpf(dto.getCpf())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "CPF já cadastrado");
+        }
+        if (gerenteRepository.existsByEmail(dto.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email já cadastrado");
+        }
+
         String sagaId = UUID.randomUUID().toString();
         orquestrador.iniciarSaga(sagaId, dto);
-
-        return GerenteResponseDTO.builder()
-            .cpf(dto.getCpf())
-            .nome(dto.getNome())
-            .email(dto.getEmail())
-            .tipo("gerente")
-            .build();
+        return sagaId;
     }
 
     public EstadoSagaInsercao consultarStatusSaga(String sagaId) {

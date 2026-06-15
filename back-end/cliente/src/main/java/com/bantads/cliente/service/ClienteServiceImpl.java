@@ -1,5 +1,17 @@
 package com.bantads.cliente.service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.bantads.cliente.config.RabbitMqConfiguracao;
 import com.bantads.cliente.dto.AutocadastroInfoDTO;
 import com.bantads.cliente.dto.ClienteParaAprovarResponseDTO;
@@ -17,17 +29,6 @@ import com.bantads.cliente.model.StatusCliente;
 import com.bantads.cliente.model.StatusSagaAprovacaoCliente;
 import com.bantads.cliente.repository.ClienteRepository;
 import com.bantads.cliente.repository.RepositorioSagaAprovacaoCliente;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ClienteServiceImpl implements ClienteService {
@@ -66,7 +67,7 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     @Transactional
-    public void autocadastrar(AutocadastroInfoDTO dto) {
+    public ClienteResponseDTO autocadastrar(AutocadastroInfoDTO dto) {
         if (clienteRepository.existsById(dto.getCpf())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Cliente ja cadastrado ou aguardando aprovacao, CPF duplicado");
@@ -96,6 +97,7 @@ public class ClienteServiceImpl implements ClienteService {
 
         clienteRepository.save(cliente);
 
+
         // DISPARO DA SAGA DE AUTOCADASTRO
         EventoSolicitacaoGerenteAutocadastro evento = new EventoSolicitacaoGerenteAutocadastro(cliente.getCpf());
         rabbitTemplate.convertAndSend(
@@ -103,12 +105,26 @@ public class ClienteServiceImpl implements ClienteService {
                 RabbitMqConfiguracao.CHAVE_SOLICITACAO_GERENTE,
                 evento
         );
+
+        ClienteResponseDTO responseDTO = new ClienteResponseDTO();
+        responseDTO.setCpf(cliente.getCpf());
+        responseDTO.setNome(cliente.getNome());
+        responseDTO.setEmail(cliente.getEmail());
+        responseDTO.setTelefone(cliente.getTelefone());
+        responseDTO.setSalario(cliente.getSalario());
+
+        return responseDTO;
     }
 
     @Override
     public ClienteResponseDTO buscarPorCpf(String cpf, String cpfUsuario, String tipoUsuario) {
         Cliente cliente = clienteRepository.findById(cpf)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente nao encontrado"));
+
+        if (cliente.getStatus() == StatusCliente.REJEITADO) {
+             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+ 
         return ClienteResponseDTO.fromEntity(cliente, podeConsultarSalario(cliente, cpfUsuario, tipoUsuario));
     }
 
@@ -128,26 +144,44 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public List<ClienteResponseDTO> listarTodos() {
+    public List<ClienteResponseDTO> listarTodos(String cpfGerenteSolicitante, String tipoUsuario) {
+        if ("GERENTE".equalsIgnoreCase(tipoUsuario) && cpfGerenteSolicitante != null) {
+            return clienteRepository.findByStatusAndCpfGerenteResponsavelOrderByNomeAsc(StatusCliente.APROVADO, cpfGerenteSolicitante)
+                    .stream()
+                    .map(cliente -> ClienteResponseDTO.fromEntity(cliente, false))
+                    .collect(Collectors.toList());
+        }
+        
         return listarTodos(false);
     }
 
     @Override
     public List<ClienteResponseDTO> listarRelatorioAdministrativo(String tipoUsuario) {
         validarAdministrador(tipoUsuario);
-        return listarTodos(true);
+        return listarTodos(true); 
     }
 
     private List<ClienteResponseDTO> listarTodos(boolean incluirSalario) {
-        return clienteRepository.findByStatus(StatusCliente.APROVADO)
+        return clienteRepository.findByStatusOrderByNomeAsc(StatusCliente.APROVADO)
                 .stream()
                 .map(cliente -> ClienteResponseDTO.fromEntity(cliente, incluirSalario))
                 .collect(Collectors.toList());
     }
 
     @Override
+    public List<ClienteResponseDTO> listarMelhoresClientes(String tipoUsuario) {
+        if ("GERENTE".equalsIgnoreCase(tipoUsuario) || "ADMINISTRADOR".equalsIgnoreCase(tipoUsuario)) {
+            return clienteRepository.findByStatusOrderByNomeAsc(StatusCliente.APROVADO)
+                    .stream()
+                    .map(cliente -> ClienteResponseDTO.fromEntity(cliente, true)) 
+                    .collect(Collectors.toList());
+        }
+        return List.of(); 
+    }
+
+    @Override
     @Transactional
-    public void alterarPerfil(String cpf, PerfilInfoDTO dto) {
+    public ClienteResponseDTO alterarPerfil(String cpf, PerfilInfoDTO dto) {
         Cliente cliente = clienteRepository.findById(cpf)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente nao encontrado"));
 
@@ -171,6 +205,8 @@ public class ClienteServiceImpl implements ClienteService {
                 cliente.getSalario()
         );
         eventPublisher.publishEvent(new EventoAlteracaoPerfilInterno(payload));
+        
+        return ClienteResponseDTO.fromEntity(cliente);
     }
 
     @Override
@@ -212,7 +248,9 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     @Transactional
-    public void rejeitar(String cpf, MotivoRejeicaoDTO motivo) {
+    public void rejeitar(String cpf, MotivoRejeicaoDTO motivo, String cpfGerenteSolicitante, String tipoUsuario) {
+        validarGerente(cpfGerenteSolicitante, tipoUsuario); 
+
         Cliente cliente = clienteRepository.findById(cpf)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente nao encontrado"));
         cliente.setStatus(StatusCliente.REJEITADO);

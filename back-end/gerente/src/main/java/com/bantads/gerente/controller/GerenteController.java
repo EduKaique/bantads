@@ -4,6 +4,7 @@ import com.bantads.gerente.dto.GerenteAtualizacaoDTO;
 import com.bantads.gerente.dto.GerenteInsercaoDTO;
 import com.bantads.gerente.dto.GerenteResponseDTO;
 import com.bantads.gerente.mensageria.EstadoSagaRemocao;
+import com.bantads.gerente.mensageria.EstadoSagaInsercao;
 import com.bantads.gerente.service.GerenteService;
 import com.bantads.gerente.service.SagaGerenteService;
 import com.bantads.gerente.service.SagaRemocaoGerenteService;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/gerentes")
@@ -35,8 +37,15 @@ public class GerenteController {
     }
 
     @GetMapping
-    @Operation(summary = "Busca todos os gerentes cadastrados")
-    public ResponseEntity<List<GerenteResponseDTO>> listar() {
+    @Operation(summary = "Busca todos os gerentes cadastrados ou dashboard")
+    public ResponseEntity<?> listar(
+            @RequestParam(required = false) String filtro,
+            @RequestParam(required = false) String numero) { 
+        
+        if ("dashboard".equalsIgnoreCase(filtro) || "dashboard".equalsIgnoreCase(numero)) {
+            return ResponseEntity.ok(service.listarDashboard());
+        }
+        
         return ResponseEntity.ok(service.listarTodos());
     }
 
@@ -49,7 +58,25 @@ public class GerenteController {
     @PostMapping
     @Operation(summary = "Insere um novo gerente usando SAGA")
     public ResponseEntity<GerenteResponseDTO> inserir(@Valid @RequestBody GerenteInsercaoDTO dto) {
-        GerenteResponseDTO response = sagaService.iniciarInsercaoGerente(dto);
+        String sagaId = sagaService.iniciarInsercaoGerente(dto);
+
+        long inicio = System.currentTimeMillis();
+        EstadoSagaInsercao estado;
+        do {
+            try { Thread.sleep(200); } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
+            estado = sagaService.consultarStatusSaga(sagaId);
+        } while (estado != null
+            && !"CONCLUIDA".equals(estado.getStatus())
+            && !"ERRO".equals(estado.getStatus())
+            && (System.currentTimeMillis() - inicio) < 5000);
+
+        GerenteResponseDTO response = GerenteResponseDTO.builder()
+            .cpf(dto.getCpf())
+            .nome(dto.getNome())
+            .email(dto.getEmail())
+            .tipo("GERENTE")
+            .build();
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -65,6 +92,11 @@ public class GerenteController {
     @Operation(summary = "Remove um gerente pelo CPF usando SAGA")
     public ResponseEntity<String> remover(@PathVariable String cpf) {
         String sagaId = sagaRemocaoService.iniciarRemocaoGerente(cpf);
+        /*try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }*/
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(sagaId);
     }
 

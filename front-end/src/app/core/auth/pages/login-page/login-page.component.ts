@@ -84,7 +84,7 @@ export class LoginPageComponent implements OnInit {
           const routes = {
             'CLIENTE': '/cliente/home',
             'GERENTE': '/gerente/dashboard',
-            'ADMIN': '/admin/dashboard'
+            'ADMINISTRADOR': '/admin/dashboard'
           };
           this.router.navigate([routes[user.tipo] || '/']);
         }
