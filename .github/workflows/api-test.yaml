@@ -16,9 +16,6 @@ jobs:
       - name: Subir infraestrutura
         run: docker compose up -d --build
 
-      - name: Debug variáveis ms-auth
-        run: docker compose exec ms-auth env | grep SPRING_MAIL
-
       - name: Aguardar serviços ficarem prontos
         run: |
           echo "Aguardando RabbitMQ..."
@@ -72,10 +69,6 @@ jobs:
           sed -i 's/EMAIL_AUTOCADASTRO1 = ""/EMAIL_AUTOCADASTRO1 = "${{ secrets.EMAIL_AUTOCADASTRO1 }}"/' tests-externos/.env
           sed -i 's/EMAIL_AUTOCADASTRO2 = ""/EMAIL_AUTOCADASTRO2 = "${{ secrets.EMAIL_AUTOCADASTRO2 }}"/' tests-externos/.env
 
-      - name: Debug emails configurados
-        run: |
-          grep "EMAIL_AUTOCADASTRO" tests-externos/test_dac_bantads.py
-
       - name: Copiar conftest para interceptar input de senha
         run: cp conftest.py tests-externos/conftest.py
 
@@ -83,21 +76,6 @@ jobs:
         run: |
           cd tests-externos
           pytest test_dac_bantads.py -v --tb=short -s
-
-      - name: Debug Mailpit emails
-        if: failure()
-        run: |
-          curl -s http://localhost:8025/api/v1/messages | python3 -m json.tool
-
-      - name: Logs dos serviços em caso de falha
-        if: failure()
-        run: |
-          echo "=== API Gateway ===" && docker compose logs api-gateway --tail=50
-          echo "=== ms-auth ===" && docker compose logs ms-auth --tail=50
-          echo "=== ms-gerente ===" && docker compose logs ms-gerente --tail=50
-          echo "=== ms-cliente ===" && docker compose logs ms-cliente --tail=50
-          echo "=== conta ===" && docker compose logs conta --tail=50
-          echo "=== Mailpit ===" && docker compose logs mailpit --tail=20
 
       - name: Derrubar serviços
         if: always()
