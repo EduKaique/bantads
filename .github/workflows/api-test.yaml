@@ -24,6 +24,9 @@ jobs:
           echo "Aguardando RabbitMQ..."
           timeout 60 bash -c 'until curl -s http://localhost:15672 > /dev/null; do sleep 2; done'
 
+          echo "Aguardando RabbitMQ AMQP..."
+          timeout 60 bash -c 'until curl -s -u guest:guest http://localhost:15672/api/healthchecks/node | grep -q "ok"; do sleep 2; done'
+
           echo "Aguardando Mailpit..."
           timeout 30 bash -c 'until curl -s http://localhost:8025/api/v1/messages > /dev/null; do sleep 1; done'
 
@@ -33,8 +36,14 @@ jobs:
           echo "Aguardando ms-auth..."
           timeout 120 bash -c 'until curl -s http://localhost:8081/actuator/health > /dev/null 2>&1; do sleep 3; done'
 
+          echo "Aguardando ms-cliente..."
+          timeout 120 bash -c 'until curl -s http://localhost:8082/actuator/health > /dev/null 2>&1; do sleep 3; done'
+
           echo "Aguardando ms-gerente..."
           timeout 120 bash -c 'until curl -s http://localhost:8083/actuator/health > /dev/null 2>&1; do sleep 3; done'
+
+          echo "Aguardando ms-conta..."
+          timeout 120 bash -c 'until curl -s http://localhost:8084/actuator/health > /dev/null 2>&1; do sleep 3; done'
 
           echo "Todos os serviços prontos!"
 
