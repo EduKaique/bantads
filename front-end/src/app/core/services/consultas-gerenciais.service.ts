@@ -108,42 +108,27 @@ export class ConsultasGerenciaisService {
   }
 
   listarMelhoresClientes(cpfGerente?: string): Observable<InformacoesMelhorCliente[]> {
-    const cpfGerenteNormalizado =
-      cpfGerente === undefined ? '' : this.normalizarDocumento(cpfGerente);
-
-    if (cpfGerente !== undefined && !cpfGerenteNormalizado) {
-      return of([]);
-    }
-
-    return this.clienteService.listarMelhoresClientes().pipe(
-      switchMap((clientes) =>
-        this.criarMapaContasPorCliente(clientes).pipe(
-          map((contasPorCliente) =>
-            clientes
-              .map((cliente) => ({
-                cliente,
-                conta: contasPorCliente.get(this.normalizarDocumento(cliente.cpf)),
-              }))
-              .filter(
-                ({ cliente, conta }) =>
-                  (!!conta || this.temValorNumerico(cliente.saldo)) &&
-                  (!cpfGerenteNormalizado ||
-                    this.resolverCpfGerente(
-                      conta,
-                      cliente.cpfGerente,
-                      cliente.cpfGerenteResponsavel,
-                    ) === cpfGerenteNormalizado),
-              )
-              .map(({ cliente, conta }) =>
-                this.mapearMelhorCliente(cliente, conta),
-              )
-              .sort((atual, proximo) => proximo.saldo - atual.saldo)
-              .slice(0, 3),
+      return this.clienteService.listarMelhoresClientes().pipe(
+        switchMap((clientes) =>
+          this.criarMapaContasPorCliente(clientes).pipe(
+            map((contasPorCliente) =>
+              clientes
+                .map((cliente) => ({
+                  cliente,
+                  conta: contasPorCliente.get(this.normalizarDocumento(cliente.cpf)),
+                }))
+                
+                .filter(({ cliente, conta }) => !!conta || this.temValorNumerico(cliente.saldo))
+                .map(({ cliente, conta }) =>
+                  this.mapearMelhorCliente(cliente, conta),
+                )
+                .sort((atual, proximo) => proximo.saldo - atual.saldo)
+                .slice(0, 3),
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
+    }
 
   private criarMapaContasPorCliente(
     clientes: ClienteConsulta[],
