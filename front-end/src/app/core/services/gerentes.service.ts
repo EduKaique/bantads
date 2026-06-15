@@ -35,7 +35,7 @@ export class GerentesService {
           map((itens) =>
             itens.map((item) => ({
               ...item,
-              celular: item.celular ?? '',
+              telefone: item.telefone ?? '',
             })),
           ),
         );
@@ -94,7 +94,7 @@ export class GerentesService {
       cpf: gerente.cpf,
       nome: gerente.nome,
       email: gerente.email,
-      celular: gerente.celular ?? '',
+      telefone: gerente.telefone ?? '',
     };
 
     if (gerente.tipo) {

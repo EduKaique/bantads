@@ -23,4 +23,6 @@ public class GerenteInsercaoDTO {
     private String tipo;
 
     private String senha;
+
+    private String telefone;
 }
