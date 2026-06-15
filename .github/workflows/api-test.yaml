@@ -46,7 +46,7 @@ jobs:
           timeout 120 bash -c 'until curl -s http://localhost:8084/actuator/health > /dev/null 2>&1; do sleep 3; done'
 
           echo "Todos os serviços prontos! Aguardando estabilização..."
-          sleep 60
+          sleep 120
 
           echo "Pronto para rodar os testes!"
 
