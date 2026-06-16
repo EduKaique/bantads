@@ -33,7 +33,6 @@ services:
     build:
       context: ./back-end/api-gateway
       dockerfile: Dockerfile
-      target: dev
     ports:
       - "8080:8080"
     volumes:

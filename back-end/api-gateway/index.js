@@ -13,7 +13,7 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: ["http://localhost:4200", "https://curly-bassoon-9rqgpjjwrgrcpwj9-4200.app.github.dev"],
+    origin: ["http://localhost:4200", "https://curly-bassoon-9rqgpjjwrgrcpwj9-4200.app.github.dev", "http://localhost:80", "http://localhost:81"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
   }),
