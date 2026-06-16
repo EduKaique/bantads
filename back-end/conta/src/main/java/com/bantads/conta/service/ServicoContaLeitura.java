@@ -49,7 +49,7 @@ public class ServicoContaLeitura {
 
         return repositorioMovimentacaoLeitura.findByContaOrderByDataDesc(numeroConta)
             .stream()
-            .sorted(Comparator.comparing(MovimentacaoLeitura::getData).reversed())
+            .sorted(Comparator.comparing(MovimentacaoLeitura::getData))
             .map(this::mapearItemExtrato)
             .toList();
     }

@@ -33,8 +33,10 @@ public class TokenService {
                     .withIssuer(ISSUER)
                     .withSubject(user.getEmail())
                     .withClaim("id", user.getId())  
-                    .withClaim("cpf", user.getReferenciaId()) // O cpf no token vem do referenciaId
+                    .withClaim("cpf", user.getReferenciaId()) 
                     .withClaim("tipo", user.getTipo().name())
+                    .withClaim("nome", user.getNome())
+                    .withClaim("jti", java.util.UUID.randomUUID().toString())
                     .withIssuedAt(now)
                     .withExpiresAt(expirationTime)
                     .sign(algorithm);

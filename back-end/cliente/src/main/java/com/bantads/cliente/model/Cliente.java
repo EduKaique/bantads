@@ -35,6 +35,9 @@ public class Cliente {
     @Column(length = 11)
     private String cpfGerenteResponsavel;
 
+    @Column(length = 20)
+    private String conta;
+
     private OffsetDateTime dataSolicitacao;
 
     private String endereco;

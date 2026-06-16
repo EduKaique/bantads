@@ -176,7 +176,10 @@ describe('GerentesService', () => {
     );
 
     expect(requisicao.request.method).toBe('POST');
-    expect(requisicao.request.body).toEqual(gerente);
+    expect(requisicao.request.body).toEqual({
+      ...gerente,
+      telefone: gerente.celular,
+    });
     requisicao.flush(gerente);
   });
 

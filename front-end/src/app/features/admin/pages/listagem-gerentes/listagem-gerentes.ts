@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { startWith } from 'rxjs';
+import { filter, interval, of, startWith, switchMap, takeWhile } from 'rxjs';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { InputPrimaryComponent } from '../../../../shared/components/input-primary/input-primary.component';
@@ -162,6 +162,8 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
         this.fecharModalInserir();
         this.fecharModalAtualizar();
         this.carregarGerentes();
+        this.tituloModalSucesso.set('Gerente cadastrado com sucesso!');
+        this.mostrarModalSucesso.set(true);
       },
       error: () => {
         this.mensagemErro.set('Erro ao cadastrar gerente.');
@@ -213,22 +215,56 @@ export class ListagemGerentesComponent implements OnInit, AfterViewInit {
     this.carregando.set(true);
     this.fecharModalRemover();
     
-    this.gerentesService.remover(gerente.cpf)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.carregarGerentes(); 
-          this.tituloModalSucesso.set('Gerente removido com sucesso!'); 
-          this.mostrarModalSucesso.set(true);
-        },
-        error: (erro) => {
-          this.erroAcao.set(erro.error?.message || 'Erro ao remover o gerente.');
-          this.carregando.set(false);
+this.gerentesService.remover(gerente.cpf)
+  .pipe(
+    takeUntilDestroyed(this.destroyRef),
+    switchMap((respostaRemocao) => {
+      if (!respostaRemocao.sagaId || this.sagaFinalizada(respostaRemocao.status)) {
+        return of(respostaRemocao);
+      }
 
-          setTimeout(() => {
-             this.erroAcao.set('');
-          }, 5000);
-        }
-      });
+      return interval(2000).pipe(
+        switchMap(() => this.gerentesService.consultarStatusSaga(respostaRemocao.sagaId)),
+        
+        takeWhile((estado) => 
+          estado.status !== 'CONCLUIDA' && 
+          estado.status !== 'ERRO' && 
+          estado.status !== 'ERRO_COMPENSACAO' && 
+          estado.status !== 'COMPENSADA', 
+          true // Emite o último valor encontrado antes de encerrar o loop - permite seguir para o .subscribe
+        ),
+        
+        filter((estado) => 
+          estado.status === 'CONCLUIDA' || 
+          estado.status === 'ERRO' || 
+          estado.status === 'COMPENSADA' || 
+          estado.status === 'ERRO_COMPENSACAO'
+        )
+      );
+    })
+  )
+  .subscribe({
+    next: (estadoSaga) => {
+      this.carregarGerentes(); 
+      
+      if (estadoSaga.status === 'CONCLUIDA') {
+        this.tituloModalSucesso.set(`Gerente removido com sucesso!`);
+      } else {
+        this.tituloModalSucesso.set(`Aviso: Remoção cancelada (Status: ${estadoSaga.status})`);
+        console.error('Mensagem da SAGA:', estadoSaga.mensagem);
+      }
+      
+      this.mostrarModalSucesso.set(true);
+    },
+    error: (err) => {
+      this.carregando.set(false);
+      this.erroAcao.set('Erro ao remover gerente.');
+      console.error('Erro de comunicação com o servidor:', err);
+    }
+  });
+  }
+
+  private sagaFinalizada(status: string): boolean {
+    return ['CONCLUIDA', 'ERRO', 'ERRO_COMPENSACAO', 'COMPENSADA'].includes(status);
   }
 }

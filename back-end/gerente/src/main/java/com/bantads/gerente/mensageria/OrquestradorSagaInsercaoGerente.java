@@ -81,11 +81,21 @@ public class OrquestradorSagaInsercaoGerente {
                 .nome(dto.getNome())
                 .email(dto.getEmail())
                 .tipo("gerente")
+                .telefone(dto.getTelefone())
                 .build();
 
             Gerente gerenteSalvo = gerenteRepository.save(novoGerente);
             estado.setCpfNovoGerente(gerenteSalvo.getCpf());
             estado.setStatus("GERENTE_INSERIDO");
+
+            ComandoCriacaoAcessoGerente comandoAcesso = new ComandoCriacaoAcessoGerente(
+                dto.getCpf(),
+                dto.getNome(),
+                dto.getEmail(),
+                dto.getSenha(),
+                "GERENTE"
+            );
+            publicador.publicarCriacaoAcessoGerente(comandoAcesso);
 
             String cpfGerenteComMaisContas = estado.getCpfGerenteComMaisContas();
             boolean deveAtribuirConta = gerenteRepository.count() > 1

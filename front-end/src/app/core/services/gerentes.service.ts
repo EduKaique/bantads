@@ -35,7 +35,7 @@ export class GerentesService {
           map((itens) =>
             itens.map((item) => ({
               ...item,
-              celular: item.celular ?? '',
+              celular: item.celular ?? item.telefone ?? '',
             })),
           ),
         );
@@ -59,8 +59,13 @@ export class GerentesService {
   }
 
   inserir(dadosGerente: DadoGerenteInsercao): Observable<Gerente> {
+    const dadosRequisicao = {
+      ...dadosGerente,
+      telefone: dadosGerente.celular,
+    };
+
     return this.http
-      .post<DadoGerente>(`${this.apiUrl}/gerentes`, dadosGerente)
+      .post<DadoGerente>(`${this.apiUrl}/gerentes`, dadosRequisicao)
       .pipe(map((gerente) => this.mapearGerente(gerente)));
   }
 
@@ -73,8 +78,8 @@ export class GerentesService {
       .pipe(map((gerente) => this.mapearGerente(gerente)));
   }
 
-  remover(cpf: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/gerentes/${cpf}`, { responseType: 'text' });
+  remover(cpf: string): Observable<RespostaRemocaoGerente> {
+    return this.http.delete<RespostaRemocaoGerente>(`${this.apiUrl}/gerentes/${cpf}`);
   }
 
   private criarParametrosListagem(numero?: number): HttpParams | Error {
@@ -94,7 +99,7 @@ export class GerentesService {
       cpf: gerente.cpf,
       nome: gerente.nome,
       email: gerente.email,
-      celular: gerente.celular ?? '',
+      celular: gerente.celular ?? gerente.telefone ?? '',
     };
 
     if (gerente.tipo) {
@@ -103,4 +108,14 @@ export class GerentesService {
 
     return gerenteMapeado;
   }
+
+  consultarStatusSaga(sagaId: string): Observable<RespostaRemocaoGerente> {
+    return this.http.get<RespostaRemocaoGerente>(`${this.apiUrl}/gerentes/sagas/remocao/${sagaId}`);
+  }
+}
+
+export interface RespostaRemocaoGerente {
+  sagaId: string;
+  status: string;
+  mensagem?: string;
 }

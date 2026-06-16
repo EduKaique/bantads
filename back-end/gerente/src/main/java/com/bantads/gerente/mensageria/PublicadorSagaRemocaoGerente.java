@@ -10,6 +10,9 @@ import com.bantads.gerente.config.RabbitMqConfiguracao;
 @Component
 public class PublicadorSagaRemocaoGerente {
 
+    public static final String OPERACAO_TRANSFERIR = "TRANSFERIR";
+    public static final String OPERACAO_COMPENSAR = "COMPENSAR";
+
     private final RabbitTemplate rabbitTemplate;
 
     public PublicadorSagaRemocaoGerente(RabbitTemplate rabbitTemplate) {
@@ -42,13 +45,38 @@ public class PublicadorSagaRemocaoGerente {
             sagaId,
             cpfGerenteParaRemover,
             cpfGerenteMenosContas,
+            OPERACAO_TRANSFERIR,
             false,
-            "Transferência de contas iniciada"
+            "Transferencia de contas iniciada"
         );
         rabbitTemplate.convertAndSend(
             RabbitMqConfiguracao.EXCHANGE_REMOCAO_GERENTE,
             RabbitMqConfiguracao.CHAVE_TRANSFERENCIA_CONTAS_REMOCAO,
             evento
         );
+    }
+
+    public void publicarCompensacaoTransferenciaContas(
+        String sagaId,
+        String cpfGerenteParaRemover,
+        String cpfGerenteDestino
+    ) {
+        var evento = new EventoTransferenciaContasRemocao(
+            sagaId,
+            cpfGerenteParaRemover,
+            cpfGerenteDestino,
+            OPERACAO_COMPENSAR,
+            false,
+            "Compensacao da transferencia de contas iniciada"
+        );
+        rabbitTemplate.convertAndSend(
+            RabbitMqConfiguracao.EXCHANGE_REMOCAO_GERENTE,
+            RabbitMqConfiguracao.CHAVE_TRANSFERENCIA_CONTAS_REMOCAO,
+            evento
+        );
+    }
+
+    public void publicarRemocaoAcessoGerente(String cpf) {
+        rabbitTemplate.convertAndSend("gerente.exchange", "gerente.removido", cpf);
     }
 }
