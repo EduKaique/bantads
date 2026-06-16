@@ -68,6 +68,7 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional
     public ClienteResponseDTO autocadastrar(AutocadastroInfoDTO dto) {
+        
         if (clienteRepository.existsById(dto.getCpf())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Cliente ja cadastrado ou aguardando aprovacao, CPF duplicado");
@@ -91,7 +92,7 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setCidade(dto.getCidade());
         cliente.setEstado(dto.getEstado());
 
-        // O gerente é nulo na criação! A SAGA vai preencher depois.
+        // Gerente será atribuído assincronamente pelo conta
         cliente.setCpfGerenteResponsavel(null); 
         cliente.setStatus(StatusCliente.PENDENTE);
 
@@ -212,11 +213,13 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional
     public RespostaAprovacaoClienteDTO aprovar(String cpf, String cpfGerenteSolicitante, String tipoUsuario) {
+        // Inicia Saga Orquestrada
         validarGerente(cpfGerenteSolicitante, tipoUsuario);
 
         Cliente cliente = clienteRepository.findByCpfParaAtualizar(cpf)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente nao encontrado"));
 
+        // Verificação
         Optional<SagaAprovacaoCliente> sagaAtiva =
             repositorioSaga.findFirstByCpfClienteAndStatusInOrderByCriadaEmDesc(cpf, STATUS_ATIVOS);
         if (sagaAtiva.isPresent()) {
@@ -230,7 +233,7 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setStatus(StatusCliente.EM_APROVACAO);
         clienteRepository.save(cliente);
 
-        // <-- Restaurada a chamada ao orquestrador para a SAGA de Aprovação
+        // restaura saga
         SagaAprovacaoCliente sagaIniciada = orquestradorAprovacao.iniciar(saga, cliente); 
         return RespostaAprovacaoClienteDTO.deEntidade(sagaIniciada);
     }

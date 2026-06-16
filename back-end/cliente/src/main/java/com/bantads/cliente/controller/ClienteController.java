@@ -85,6 +85,7 @@ public class ClienteController {
         @RequestHeader(value = "X-Usuario-Cpf", required = false) String cpfGerenteSolicitante,
         @RequestHeader(value = "X-Usuario-Tipo", required = false) String tipoUsuario
     ) { 
+        // Inicia saga assincronamente
         RespostaAprovacaoClienteDTO clienteAprovado = clienteService.aprovar(cpf, cpfGerenteSolicitante, tipoUsuario);
 
         for (int i = 0; i < 10; i++) {
