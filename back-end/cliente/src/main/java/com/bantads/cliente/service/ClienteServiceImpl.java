@@ -233,7 +233,7 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setStatus(StatusCliente.EM_APROVACAO);
         clienteRepository.save(cliente);
 
-        // restaura saga
+        // gatilho
         SagaAprovacaoCliente sagaIniciada = orquestradorAprovacao.iniciar(saga, cliente); 
         return RespostaAprovacaoClienteDTO.deEntidade(sagaIniciada);
     }
