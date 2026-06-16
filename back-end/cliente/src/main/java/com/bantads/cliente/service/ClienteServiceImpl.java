@@ -47,9 +47,9 @@ public class ClienteServiceImpl implements ClienteService {
 
     private final ClienteRepository clienteRepository;
     private final RepositorioSagaAprovacaoCliente repositorioSaga;
-    private final OrquestradorAprovacaoCliente orquestradorAprovacao; // <-- Restaurado
+    private final OrquestradorAprovacaoCliente orquestradorAprovacao;
     private final ApplicationEventPublisher eventPublisher;
-    private final RabbitTemplate rabbitTemplate; // <-- Mantido para o Autocadastro
+    private final RabbitTemplate rabbitTemplate; 
 
     public ClienteServiceImpl(
         ClienteRepository clienteRepository,
