@@ -50,6 +50,6 @@ public class ListenerSolicitacaoGerenteAutocadastro {
             return gerentes.get(0); // Pega o primeiro (menor count)
         }
         
-       return "00000000000"; // Substitua pelo CPF do Gerente Default inserido no Data.sql, se necessário.
+       return "00000000000"; 
     }
 }
