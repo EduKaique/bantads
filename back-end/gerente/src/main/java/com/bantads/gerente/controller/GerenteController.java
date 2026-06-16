@@ -69,6 +69,7 @@ public class GerenteController {
     public ResponseEntity<GerenteResponseDTO> inserir(@Valid @RequestBody GerenteInsercaoDTO dto) {
         String sagaId = sagaService.iniciarInsercaoGerente(dto);
 
+        // Aguarda brevemente a saga para devolver uma resposta mais proxima do estado final.
         long inicio = System.currentTimeMillis();
         EstadoSagaInsercao estado;
         do {
@@ -103,6 +104,7 @@ public class GerenteController {
     public ResponseEntity<Map<String, String>> remover(@PathVariable String cpf) {
         String sagaId = sagaRemocaoService.iniciarRemocaoGerente(cpf);
 
+        // A remocao depende da transferencia de contas antes de excluir o gerente.
         long inicio = System.currentTimeMillis();
         EstadoSagaRemocao estado = sagaRemocaoService.consultarStatusSaga(sagaId);
 
