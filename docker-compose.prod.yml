@@ -1,0 +1,147 @@
+services:
+  # =========== FRONTEND ===========
+  frontend:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+      target: prod
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+  # =========== INFRAESTRUTURA BASE ===========
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    restart: unless-stopped
+  api-gateway:
+    build:
+      context: ./back-end/api-gateway
+      dockerfile: Dockerfile
+      target: prod
+    ports:
+      - "8080:8080"
+    environment:
+      - SECRET=${JWT_SECRET}
+      - PORT=8080
+    restart: unless-stopped
+
+  # =========== BANCOS DE DADOS ===========
+  mongodb-auth:
+    image: mongo:latest
+    volumes:
+      - mongo-auth-data:/data/db
+    restart: unless-stopped
+
+  postgres-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-springuser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=bantads_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+  # =========== MICROSSERVIÇOS ===========
+  ms-auth:
+    build:
+      context: ./back-end/auth
+      dockerfile: Dockerfile
+      target: prod
+    ports:
+      - "8081:8080"
+    depends_on:
+      - mongodb-auth
+      - rabbitmq
+      - mailpit
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - MONGO_URI=${MONGODB_URI}
+      - APP_JWT_SECRET=${JWT_SECRET}
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USERNAME:-guest}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
+      - BANTADS_EMAIL_REMETENTE=${MAIL_FROM:-sistema@bantads.com.br}
+      - BANTADS_EMAIL_ENVIO_HABILITADO=true
+      - SPRING_MAIL_HOST=${SPRING_MAIL_HOST}
+      - SPRING_MAIL_PORT=${SPRING_MAIL_PORT}
+      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME:-}
+      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD:-}
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=${SPRING_MAIL_SMTP_AUTH:-true}
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=${SPRING_MAIL_STARTTLS:-true}
+    restart: unless-stopped
+
+  ms-cliente:
+    build:
+      context: ./back-end/cliente
+      dockerfile: Dockerfile
+      target: prod
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres-db
+      - rabbitmq
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bantads_db?currentSchema=ms_cliente
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-springuser}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USERNAME:-guest}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
+    restart: unless-stopped
+
+  ms-gerente:
+    build:
+      context: ./back-end/gerente
+      dockerfile: Dockerfile
+      target: prod
+    ports:
+      - "8083:8080"
+    depends_on:
+      - postgres-db
+      - rabbitmq
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/bantads_db?currentSchema=ms_gerente
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-springuser}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USERNAME:-guest}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
+    restart: unless-stopped
+
+  conta:
+    build:
+      context: ./back-end/conta
+      dockerfile: Dockerfile
+      target: prod
+    ports:
+      - "8084:8080"
+    depends_on:
+      - postgres-db
+      - rabbitmq
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_CUD_URL=jdbc:postgresql://postgres-db:5432/bantads_db
+      - DB_READ_URL=jdbc:postgresql://postgres-db:5432/bantads_db
+      - DB_USERNAME=${POSTGRES_USER:-springuser}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USERNAME:-guest}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
+    restart: unless-stopped
+
+# VOLUMES
+volumes:
+  rabbitmq-data:
+  mongo-auth-data:
+  postgres-data:
