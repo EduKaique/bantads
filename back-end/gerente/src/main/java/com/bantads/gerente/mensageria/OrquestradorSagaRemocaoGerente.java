@@ -1,11 +1,15 @@
 package com.bantads.gerente.mensageria;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.bantads.gerente.repository.EstadoSagaRemocaoRepository;
 import com.bantads.gerente.repository.GerenteRepository;
+import com.bantads.gerente.service.SagaDeferredResultManager;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,15 +29,27 @@ public class OrquestradorSagaRemocaoGerente {
     private final PublicadorSagaRemocaoGerente publicador;
     private final GerenteRepository gerenteRepository;
     private final EstadoSagaRemocaoRepository estadoSagaRepository;
+    private final SagaDeferredResultManager sagaManager;
 
     public OrquestradorSagaRemocaoGerente(
         PublicadorSagaRemocaoGerente publicador,
         GerenteRepository gerenteRepository,
-        EstadoSagaRemocaoRepository estadoSagaRepository
+        EstadoSagaRemocaoRepository estadoSagaRepository,
+        SagaDeferredResultManager sagaManager
     ) {
         this.publicador = publicador;
         this.gerenteRepository = gerenteRepository;
         this.estadoSagaRepository = estadoSagaRepository;
+        this.sagaManager = sagaManager;
+    }
+
+    private void resolverRemocao(EstadoSagaRemocao estado) {
+        boolean sucesso = STATUS_CONCLUIDA.equals(estado.getStatus());
+        ResponseEntity<Map<String, String>> resposta = sucesso
+            ? ResponseEntity.ok(Map.of("sagaId", estado.getSagaId(), "status", "CONCLUIDA"))
+            : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                  .body(Map.of("sagaId", estado.getSagaId(), "status", "ERRO"));
+        sagaManager.concluir(estado.getSagaId(), resposta);
     }
 
     public void iniciarSaga(String sagaId, String cpfGerenteParaRemover) {
@@ -150,6 +166,7 @@ public class OrquestradorSagaRemocaoGerente {
                 estado.setStatus(STATUS_CONCLUIDA);
                 estado.setMensagem("Gerente ja removido anteriormente");
                 salvarEstado(estado);
+                resolverRemocao(estado);
                 return;
             }
 
@@ -159,6 +176,7 @@ public class OrquestradorSagaRemocaoGerente {
             estado.setMensagem("Gerente removido e contas transferidas");
             publicador.publicarRemocaoAcessoGerente(estado.getCpfGerenteParaRemover());
             salvarEstado(estado);
+            resolverRemocao(estado);
         } catch (Exception e) {
             iniciarCompensacao(estado, "Erro ao remover gerente: " + e.getMessage());
         }
@@ -179,6 +197,7 @@ public class OrquestradorSagaRemocaoGerente {
             estado.setStatus(STATUS_ERRO_COMPENSACAO);
             estado.setMensagem(motivo + ". Erro ao publicar compensacao: " + e.getMessage());
             salvarEstado(estado);
+            resolverRemocao(estado);
         }
     }
 
@@ -201,6 +220,7 @@ public class OrquestradorSagaRemocaoGerente {
         }
 
             salvarEstado(estado);
+            resolverRemocao(estado);
     }
 
     public EstadoSagaRemocao obterEstadoSaga(String sagaId) {
@@ -233,6 +253,7 @@ public class OrquestradorSagaRemocaoGerente {
         estado.setStatus(STATUS_ERRO);
         estado.setMensagem(mensagem);
         salvarEstado(estado);
+        resolverRemocao(estado);
     }
 
     private void salvarEstado(EstadoSagaRemocao estado) {

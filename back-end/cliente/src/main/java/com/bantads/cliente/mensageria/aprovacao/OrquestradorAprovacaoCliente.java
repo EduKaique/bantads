@@ -1,11 +1,14 @@
 package com.bantads.cliente.mensageria.aprovacao;
 
+import com.bantads.cliente.dto.RespostaAprovacaoClienteDTO;
 import com.bantads.cliente.model.Cliente;
 import com.bantads.cliente.model.SagaAprovacaoCliente;
 import com.bantads.cliente.model.StatusCliente;
 import com.bantads.cliente.model.StatusSagaAprovacaoCliente;
 import com.bantads.cliente.repository.ClienteRepository;
 import com.bantads.cliente.repository.RepositorioSagaAprovacaoCliente;
+import com.bantads.cliente.service.SagaDeferredResultManager;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,15 +27,18 @@ public class OrquestradorAprovacaoCliente {
     private final RepositorioSagaAprovacaoCliente repositorioSaga;
     private final ClienteRepository clienteRepository;
     private final PublicadorAprovacaoCliente publicador;
+    private final SagaDeferredResultManager sagaManager;
 
     public OrquestradorAprovacaoCliente(
         RepositorioSagaAprovacaoCliente repositorioSaga,
         ClienteRepository clienteRepository,
-        PublicadorAprovacaoCliente publicador
+        PublicadorAprovacaoCliente publicador,
+        SagaDeferredResultManager sagaManager
     ) {
         this.repositorioSaga = repositorioSaga;
         this.clienteRepository = clienteRepository;
         this.publicador = publicador;
+        this.sagaManager = sagaManager;
     }
 
     @Transactional
@@ -132,6 +138,12 @@ public class OrquestradorAprovacaoCliente {
         saga.setMensagemErro(null);
         saga.setFinalizadaEm(OffsetDateTime.now());
         repositorioSaga.save(saga);
+
+        SagaAprovacaoCliente sagaFinal = saga;
+        executarAposCommit(() -> sagaManager.concluir(
+            sagaFinal.getCpfCliente(),
+            ResponseEntity.ok(RespostaAprovacaoClienteDTO.deEntidade(sagaFinal))
+        ));
     }
 
     @Scheduled(fixedDelay = 15000)
@@ -167,6 +179,12 @@ public class OrquestradorAprovacaoCliente {
         saga.setMensagemErro(mensagem);
         saga.setFinalizadaEm(OffsetDateTime.now());
         repositorioSaga.save(saga);
+
+        SagaAprovacaoCliente sagaFinal = saga;
+        executarAposCommit(() -> sagaManager.concluir(
+            sagaFinal.getCpfCliente(),
+            ResponseEntity.ok(RespostaAprovacaoClienteDTO.deEntidade(sagaFinal))
+        ));
 
         if (compensarConta && saga.getNumeroConta() != null && !saga.getNumeroConta().isBlank()) {
             ComandoCompensacaoContaAprovacao comando = new ComandoCompensacaoContaAprovacao(
