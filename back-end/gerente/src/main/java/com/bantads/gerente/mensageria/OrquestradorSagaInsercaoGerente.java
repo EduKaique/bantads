@@ -81,6 +81,7 @@ public class OrquestradorSagaInsercaoGerente {
                 .nome(dto.getNome())
                 .email(dto.getEmail())
                 .tipo("gerente")
+                .telefone(dto.getTelefone())
                 .build();
 
             Gerente gerenteSalvo = gerenteRepository.save(novoGerente);

@@ -72,6 +72,7 @@ public class GerenteServiceImpl implements GerenteService {
                 .nome(dto.getNome())
                 .email(dto.getEmail())
                 .tipo(dto.getTipo())
+                .telefone(dto.getTelefone())
                 .build();
 
         return toResponseDTO(repository.save(gerente));
@@ -120,6 +121,7 @@ public class GerenteServiceImpl implements GerenteService {
                 .nome(gerente.getNome())
                 .email(gerente.getEmail())
                 .tipo(gerente.getTipo())
+                .telefone(gerente.getTelefone())
                 .build();
     }
 }

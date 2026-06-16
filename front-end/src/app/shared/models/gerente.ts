@@ -4,6 +4,7 @@ export interface DadoGerente {
   email: string;
   tipo?: string;
   celular?: string;
+  telefone?: string;
 }
 
 export interface Gerente extends DadoGerente {
@@ -23,7 +24,6 @@ export interface DadoGerenteAtualizacao {
   nome?: string;
   email?: string;
   senha?: string;
-  celular?: string;
 }
 
 export interface ItemDashboardResponse extends Gerente {

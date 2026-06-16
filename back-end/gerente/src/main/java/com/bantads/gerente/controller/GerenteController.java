@@ -84,6 +84,7 @@ public class GerenteController {
             .nome(dto.getNome())
             .email(dto.getEmail())
             .tipo("GERENTE")
+            .telefone(dto.getTelefone())
             .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

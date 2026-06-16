@@ -29,4 +29,7 @@ public class Gerente {
 
     @Column
     private String tipo;
+
+    @Column(length = 20)
+    private String telefone;
 }
