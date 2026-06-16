@@ -1,6 +1,9 @@
 package com.bantads.cliente.dto;
 
+import jakarta.validation.constraints.Pattern;
+
 public class AutocadastroInfoDTO {
+    @Pattern(regexp = "^[0-9]{11}$", message = "CPF deve conter apenas 11 dígitos numéricos")
     private String cpf;
     private String email;
     private String nome;

@@ -13,13 +13,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import com.bantads.gerente.dto.GerenteAtualizacaoDTO;
 import com.bantads.gerente.dto.GerenteInsercaoDTO;
 import com.bantads.gerente.dto.GerenteResponseDTO;
-import com.bantads.gerente.mensageria.EstadoSagaInsercao;
 import com.bantads.gerente.mensageria.EstadoSagaRemocao;
 import com.bantads.gerente.service.GerenteService;
+import com.bantads.gerente.service.SagaDeferredResultManager;
 import com.bantads.gerente.service.SagaGerenteService;
 import com.bantads.gerente.service.SagaRemocaoGerenteService;
 
@@ -35,14 +36,17 @@ public class GerenteController {
     private final GerenteService service;
     private final SagaGerenteService sagaService;
     private final SagaRemocaoGerenteService sagaRemocaoService;
+    private final SagaDeferredResultManager sagaManager;
 
     public GerenteController(
             GerenteService service,
             SagaGerenteService sagaService,
-            SagaRemocaoGerenteService sagaRemocaoService) {
+            SagaRemocaoGerenteService sagaRemocaoService,
+            SagaDeferredResultManager sagaManager) {
         this.service = service;
         this.sagaService = sagaService;
         this.sagaRemocaoService = sagaRemocaoService;
+        this.sagaManager = sagaManager;
     }
 
     @GetMapping
@@ -66,28 +70,16 @@ public class GerenteController {
 
     @PostMapping
     @Operation(summary = "Insere um novo gerente usando SAGA")
-    public ResponseEntity<GerenteResponseDTO> inserir(@Valid @RequestBody GerenteInsercaoDTO dto) {
+    public DeferredResult<ResponseEntity<GerenteResponseDTO>> inserir(@Valid @RequestBody GerenteInsercaoDTO dto) {
         String sagaId = sagaService.iniciarInsercaoGerente(dto);
 
-        long inicio = System.currentTimeMillis();
-        EstadoSagaInsercao estado;
-        do {
-            try { Thread.sleep(200); } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
-            estado = sagaService.consultarStatusSaga(sagaId);
-        } while (estado != null
-            && !"CONCLUIDA".equals(estado.getStatus())
-            && !"ERRO".equals(estado.getStatus())
-            && (System.currentTimeMillis() - inicio) < 5000);
-
-        GerenteResponseDTO response = GerenteResponseDTO.builder()
-            .cpf(dto.getCpf())
-            .nome(dto.getNome())
-            .email(dto.getEmail())
-            .tipo("GERENTE")
-            .telefone(dto.getTelefone())
-            .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        DeferredResult<ResponseEntity<GerenteResponseDTO>> dr = new DeferredResult<>(6000L);
+        dr.onTimeout(() -> {
+            sagaManager.remover(sagaId);
+            dr.setResult(ResponseEntity.<GerenteResponseDTO>status(HttpStatus.REQUEST_TIMEOUT).build());
+        });
+        sagaManager.registrar(sagaId, dr);
+        return dr;
     }
 
     @PutMapping("/{cpf}")
@@ -100,25 +92,17 @@ public class GerenteController {
 
     @DeleteMapping("/{cpf}")
     @Operation(summary = "Remove um gerente pelo CPF usando SAGA")
-    public ResponseEntity<Map<String, String>> remover(@PathVariable String cpf) {
+    public DeferredResult<ResponseEntity<Map<String, String>>> remover(@PathVariable String cpf) {
         String sagaId = sagaRemocaoService.iniciarRemocaoGerente(cpf);
 
-        long inicio = System.currentTimeMillis();
-        EstadoSagaRemocao estado = sagaRemocaoService.consultarStatusSaga(sagaId);
-
-        do {
-            try { Thread.sleep(200); } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
-        } while (estado != null
-            && !"CONCLUIDA".equals(estado.getStatus())
-            && !"ERRO".equals(estado.getStatus())
-            && (System.currentTimeMillis() - inicio) < 5000);
-
-        if (estado != null && "ERRO".equals(estado.getStatus())) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("sagaId", sagaId, "status", "ERRO"));
-        }
-
-        return ResponseEntity.ok(Map.of("sagaId", sagaId, "status", "CONCLUIDA"));
+        DeferredResult<ResponseEntity<Map<String, String>>> dr = new DeferredResult<>(6000L);
+        dr.onTimeout(() -> {
+            sagaManager.remover(sagaId);
+            dr.setResult(ResponseEntity.<Map<String, String>>status(HttpStatus.REQUEST_TIMEOUT)
+                .body(Map.of("status", "TIMEOUT", "mensagem", "SAGA demorou demais")));
+        });
+        sagaManager.registrar(sagaId, dr);
+        return dr;
     }
 
     @GetMapping("/sagas/remocao/{sagaId}")

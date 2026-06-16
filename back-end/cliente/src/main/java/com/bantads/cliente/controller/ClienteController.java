@@ -6,20 +6,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import com.bantads.cliente.dto.AutocadastroInfoDTO;
 import com.bantads.cliente.dto.ClienteResponseDTO;
 import com.bantads.cliente.dto.MotivoRejeicaoDTO;
 import com.bantads.cliente.dto.PerfilInfoDTO;
 import com.bantads.cliente.dto.RespostaAprovacaoClienteDTO;
-import com.bantads.cliente.model.Cliente;
-import com.bantads.cliente.repository.ClienteRepository;
 import com.bantads.cliente.service.ClienteService;
+import com.bantads.cliente.service.SagaDeferredResultManager;
 
 @RestController
 @RequestMapping({"/clientes", "/"})
@@ -29,12 +30,11 @@ public class ClienteController {
 
     private final ClienteService clienteService;
 
-    private final ClienteRepository clienteRepository;
+    private final SagaDeferredResultManager sagaManager;
 
-    // Injeção do Service
-    public ClienteController(ClienteService clienteService, ClienteRepository clienteRepository) {
+    public ClienteController(ClienteService clienteService, SagaDeferredResultManager sagaManager) {
         this.clienteService = clienteService;
-        this.clienteRepository = clienteRepository;
+        this.sagaManager = sagaManager;
     }
 
     @GetMapping({"", "/", "/manager/pedidos-autocadastro"})
@@ -60,7 +60,7 @@ public class ClienteController {
     }
 
     @PostMapping({"", "/"})
-    public ResponseEntity<?> autocadastro(@RequestBody AutocadastroInfoDTO clienteDto) {
+    public ResponseEntity<?> autocadastro(@Valid @RequestBody AutocadastroInfoDTO clienteDto) {
         ClienteResponseDTO clienteCriado = clienteService.autocadastrar(clienteDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteCriado);
     }
@@ -80,30 +80,20 @@ public class ClienteController {
     }
 
     @PostMapping("/{cpf}/aprovar")
-    public ResponseEntity<RespostaAprovacaoClienteDTO> aprovarCliente(
+    public DeferredResult<ResponseEntity<RespostaAprovacaoClienteDTO>> aprovarCliente(
         @PathVariable String cpf,
         @RequestHeader(value = "X-Usuario-Cpf", required = false) String cpfGerenteSolicitante,
         @RequestHeader(value = "X-Usuario-Tipo", required = false) String tipoUsuario
-    ) { 
+    ) {
         RespostaAprovacaoClienteDTO clienteAprovado = clienteService.aprovar(cpf, cpfGerenteSolicitante, tipoUsuario);
 
-        for (int i = 0; i < 10; i++) {
-            Cliente cliente = clienteRepository.findById(cpf).orElse(null);
-            
-            if (cliente != null && cliente.getConta() != null && !cliente.getConta().isBlank()) {
-                break; 
-            }
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-        }
-
-        return ResponseEntity
-            .ok()
-            .body(clienteAprovado);
+        DeferredResult<ResponseEntity<RespostaAprovacaoClienteDTO>> dr = new DeferredResult<>(6000L);
+        dr.onTimeout(() -> {
+            sagaManager.remover(cpf);
+            dr.setResult(ResponseEntity.ok().body(clienteAprovado));
+        });
+        sagaManager.registrar(cpf, dr);
+        return dr;
     }
 
     @GetMapping("/aprovacoes/{idSaga}")

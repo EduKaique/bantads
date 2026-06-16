@@ -1,5 +1,7 @@
-##### Front-end specific ignores #####
 *.env
+.env.prod
+
+##### Front-end specific ignores #####
 
 # Compiled output
 front-end/dist

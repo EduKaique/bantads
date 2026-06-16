@@ -32,4 +32,10 @@ public class Gerente {
 
     @Column(length = 20)
     private String telefone;
+
+    @PrePersist
+    @PreUpdate
+    private void normalizarTipo() {
+        if (this.tipo != null) this.tipo = this.tipo.toUpperCase();
+    }
 }
