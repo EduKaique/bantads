@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+//Responsável por gerar e validar os tokens JWT
 @Service
 public class TokenService {
 

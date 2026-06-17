@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+//carrega os detalhes do usuário a partir do banco de dados
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 

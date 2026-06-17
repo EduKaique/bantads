@@ -1,6 +1,7 @@
 package com.bantads.auth.dto;
 import jakarta.validation.constraints.NotBlank;
 
+//encapsula os dados de login do usuário
 public class LoginRequestDTO {
     @NotBlank(message = "O login é obrigatório")
     private String login; 

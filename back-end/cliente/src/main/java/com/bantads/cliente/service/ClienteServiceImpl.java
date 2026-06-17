@@ -30,6 +30,7 @@ import com.bantads.cliente.model.StatusSagaAprovacaoCliente;
 import com.bantads.cliente.repository.ClienteRepository;
 import com.bantads.cliente.repository.RepositorioSagaAprovacaoCliente;
 
+// implementação do serviço de cliente com lógica para gerenciamento de clientes e integração com SAGA de aprovação.
 @Service
 public class ClienteServiceImpl implements ClienteService {
 
@@ -47,9 +48,9 @@ public class ClienteServiceImpl implements ClienteService {
 
     private final ClienteRepository clienteRepository;
     private final RepositorioSagaAprovacaoCliente repositorioSaga;
-    private final OrquestradorAprovacaoCliente orquestradorAprovacao; // <-- Restaurado
+    private final OrquestradorAprovacaoCliente orquestradorAprovacao; 
     private final ApplicationEventPublisher eventPublisher;
-    private final RabbitTemplate rabbitTemplate; // <-- Mantido para o Autocadastro
+    private final RabbitTemplate rabbitTemplate; 
 
     public ClienteServiceImpl(
         ClienteRepository clienteRepository,
@@ -65,7 +66,10 @@ public class ClienteServiceImpl implements ClienteService {
         this.rabbitTemplate = rabbitTemplate;
     }
 
+    //método de autocadastro de cliente
     @Override
+
+    //valida os dados
     @Transactional
     public ClienteResponseDTO autocadastrar(AutocadastroInfoDTO dto) {
         if (clienteRepository.existsById(dto.getCpf())) {
@@ -75,7 +79,7 @@ public class ClienteServiceImpl implements ClienteService {
         if (clienteRepository.existsByEmail(dto.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail ja cadastrado");
         }
-
+        //salva o cliente com status PENDENTE
         Cliente cliente = new Cliente();
         cliente.setCpf(dto.getCpf());
         cliente.setNome(dto.getNome());
@@ -91,14 +95,12 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setCidade(dto.getCidade());
         cliente.setEstado(dto.getEstado());
 
-        // O gerente é nulo na criação! A SAGA vai preencher depois.
         cliente.setCpfGerenteResponsavel(null); 
         cliente.setStatus(StatusCliente.PENDENTE);
 
         clienteRepository.save(cliente);
 
-
-        // DISPARO DA SAGA DE AUTOCADASTRO
+        //evento para o RabbitMQ para notificar os gerentes responsáveis.
         EventoSolicitacaoGerenteAutocadastro evento = new EventoSolicitacaoGerenteAutocadastro(cliente.getCpf());
         rabbitTemplate.convertAndSend(
                 RabbitMqConfiguracao.EXCHANGE_AUTOCADASTRO,
@@ -230,7 +232,6 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setStatus(StatusCliente.EM_APROVACAO);
         clienteRepository.save(cliente);
 
-        // <-- Restaurada a chamada ao orquestrador para a SAGA de Aprovação
         SagaAprovacaoCliente sagaIniciada = orquestradorAprovacao.iniciar(saga, cliente); 
         return RespostaAprovacaoClienteDTO.deEntidade(sagaIniciada);
     }

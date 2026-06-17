@@ -15,6 +15,7 @@ import com.bantads.auth.model.User;
 import com.bantads.auth.repository.UserRepository;
 import com.bantads.auth.security.TokenService;
 
+//Pega as informações do usuário, gera o token e retorna a resposta para o controller
 @Service
 public class LoginServiceImpl implements LoginService {
 

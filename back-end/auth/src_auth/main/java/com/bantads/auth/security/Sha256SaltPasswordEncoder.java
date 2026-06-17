@@ -1,12 +1,12 @@
 package com.bantads.auth.security;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Objects;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class Sha256SaltPasswordEncoder implements PasswordEncoder {
 
@@ -16,7 +16,7 @@ public class Sha256SaltPasswordEncoder implements PasswordEncoder {
 
     private final SecureRandom secureRandom = new SecureRandom();
 
-
+    
     @Override
     public String encode(CharSequence rawPassword) {
         Objects.requireNonNull(rawPassword, "A senha não pode ser nula");
@@ -37,6 +37,7 @@ public class Sha256SaltPasswordEncoder implements PasswordEncoder {
         }
     }
 
+    //compara a senha digitada com o hash criptografado salvo no banco.
     @Override
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
         if (rawPassword == null || encodedPassword == null || encodedPassword.isEmpty()) {
@@ -61,10 +62,8 @@ public class Sha256SaltPasswordEncoder implements PasswordEncoder {
         }
     }
 
-    /**
-     * Função utilitária para gerar o hash SHA-256.
-     * Ela hasheia o salt primeiro, depois a senha.
-     */
+
+    //gera o hash da senha 
     private byte[] hashPassword(String rawPassword, byte[] salt) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance(HASH_ALGORITHM); 
         
