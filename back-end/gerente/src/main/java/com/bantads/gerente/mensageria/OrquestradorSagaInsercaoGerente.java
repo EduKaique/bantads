@@ -53,6 +53,7 @@ public class OrquestradorSagaInsercaoGerente {
 
         estadosSagas.put(sagaId, estado);
 
+        // Primeiro passo: descobrir de qual gerente uma conta pode ser redistribuida.
         publicador.publicarConsultaGerenteMaisContas(sagaId);
     }
 
@@ -109,6 +110,7 @@ public class OrquestradorSagaInsercaoGerente {
             estado.setCpfNovoGerente(gerenteSalvo.getCpf());
             estado.setStatus("GERENTE_INSERIDO");
 
+            // O acesso fica no MS de autenticacao, por isso e criado por mensagem.
             ComandoCriacaoAcessoGerente comandoAcesso = new ComandoCriacaoAcessoGerente(
                 dto.getCpf(),
                 dto.getNome(),
@@ -126,6 +128,7 @@ public class OrquestradorSagaInsercaoGerente {
             estado.setDeveAtribuirConta(deveAtribuirConta);
 
             if (deveAtribuirConta) {
+                // Balanceia uma conta do gerente mais carregado para o novo gerente.
                 publicador.publicarSolicitacaoAtribuicaoConta(
                     estado.getSagaId(),
                     estado.getCpfNovoGerente(),

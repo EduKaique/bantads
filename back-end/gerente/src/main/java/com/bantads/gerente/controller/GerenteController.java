@@ -95,6 +95,23 @@ public class GerenteController {
     public DeferredResult<ResponseEntity<Map<String, String>>> remover(@PathVariable String cpf) {
         String sagaId = sagaRemocaoService.iniciarRemocaoGerente(cpf);
 
+        // A remocao depende da transferencia de contas antes de excluir o gerente.
+        long inicio = System.currentTimeMillis();
+        EstadoSagaRemocao estado = sagaRemocaoService.consultarStatusSaga(sagaId);
+
+        do {
+            try { Thread.sleep(200); } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
+        } while (estado != null
+            && !"CONCLUIDA".equals(estado.getStatus())
+            && !"ERRO".equals(estado.getStatus())
+            && (System.currentTimeMillis() - inicio) < 5000);
+
+        if (estado != null && "ERRO".equals(estado.getStatus())) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("sagaId", sagaId, "status", "ERRO"));
+        }
+
+        return ResponseEntity.ok(Map.of("sagaId", sagaId, "status", "CONCLUIDA"));
         DeferredResult<ResponseEntity<Map<String, String>>> dr = new DeferredResult<>(6000L);
         dr.onTimeout(() -> {
             sagaManager.remover(sagaId);

@@ -18,11 +18,13 @@ public class SagaRemocaoGerenteService {
 
     public String iniciarRemocaoGerente(String cpfGerenteParaRemover) {
         String sagaId = UUID.randomUUID().toString();
+        // O orquestrador valida o gerente e inicia os eventos da remocao.
         orquestrador.iniciarSaga(sagaId, cpfGerenteParaRemover);
         return sagaId;
     }
 
     public EstadoSagaRemocao consultarStatusSaga(String sagaId) {
+        // Consulta usada pela API para acompanhar o andamento da remocao.
         return orquestrador.obterEstadoSaga(sagaId);
     }
 }
