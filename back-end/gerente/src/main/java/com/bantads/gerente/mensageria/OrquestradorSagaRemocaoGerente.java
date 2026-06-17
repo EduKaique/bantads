@@ -73,6 +73,7 @@ public class OrquestradorSagaRemocaoGerente {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nao ha outro gerente para receber as contas");
         }
 
+        // A saga guarda o gerente removido e busca um destino para suas contas.
         EstadoSagaRemocao estado = new EstadoSagaRemocao();
         estado.setSagaId(sagaId);
         estado.setCpfGerenteParaRemover(cpfGerenteParaRemover);
@@ -117,6 +118,7 @@ public class OrquestradorSagaRemocaoGerente {
             estado.setStatus(STATUS_AGUARDANDO_TRANSFERENCIA);
         salvarEstado(estado);
 
+            // As contas sao transferidas antes da exclusao para nao ficarem sem gerente.
             publicador.publicarTransferenciaContas(
                 estado.getSagaId(),
                 estado.getCpfGerenteParaRemover(),
@@ -174,6 +176,7 @@ public class OrquestradorSagaRemocaoGerente {
 
             estado.setStatus(STATUS_CONCLUIDA);
             estado.setMensagem("Gerente removido e contas transferidas");
+            // Remove tambem o acesso do gerente no MS de autenticacao.
             publicador.publicarRemocaoAcessoGerente(estado.getCpfGerenteParaRemover());
             salvarEstado(estado);
             resolverRemocao(estado);
@@ -188,6 +191,7 @@ public class OrquestradorSagaRemocaoGerente {
             estado.setMensagem(motivo + ". Compensacao solicitada.");
             salvarEstado(estado);
 
+            // Se a exclusao falhar, pede para desfazer a transferencia de contas.
             publicador.publicarCompensacaoTransferenciaContas(
                 estado.getSagaId(),
                 estado.getCpfGerenteParaRemover(),
