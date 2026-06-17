@@ -43,6 +43,7 @@ public class OrquestradorAprovacaoCliente {
 
     @Transactional
     public SagaAprovacaoCliente iniciar(SagaAprovacaoCliente saga, Cliente cliente) {
+        // publica commando para criar conta
         saga.setStatus(StatusSagaAprovacaoCliente.AGUARDANDO_CONTA);
         saga.setEtapaAtual("CRIACAO_CONTA");
         SagaAprovacaoCliente sagaSalva = repositorioSaga.save(saga);
@@ -62,6 +63,7 @@ public class OrquestradorAprovacaoCliente {
 
     @Transactional
     public void processarResultadoConta(ResultadoContaAprovacao resultado) {
+        // Recebe resultado do conta e dispara auth
         SagaAprovacaoCliente saga = repositorioSaga.findById(resultado.idSaga()).orElse(null);
         if (saga == null || saga.getStatus() == StatusSagaAprovacaoCliente.CONCLUIDA) {
             return;
@@ -103,6 +105,7 @@ public class OrquestradorAprovacaoCliente {
 
     @Transactional
     public void processarResultadoAcesso(ResultadoAcessoAprovacao resultado) {
+        // Recebe resultado do auth
         SagaAprovacaoCliente saga = repositorioSaga.findById(resultado.idSaga()).orElse(null);
         if (saga == null || saga.getStatus() == StatusSagaAprovacaoCliente.CONCLUIDA) {
             return;
@@ -130,6 +133,7 @@ public class OrquestradorAprovacaoCliente {
         
         cliente.setConta(saga.getNumeroConta());
 
+        // Fluxo termina com sucesso
         cliente.setStatus(StatusCliente.APROVADO);
         clienteRepository.save(cliente);
 
@@ -168,6 +172,7 @@ public class OrquestradorAprovacaoCliente {
         boolean compensarConta,
         boolean compensarAcesso
     ) {
+        // Compensação automática: desfaz conta e/ou acesso se algo falhou
         Cliente cliente = clienteRepository.findById(saga.getCpfCliente()).orElse(null);
         if (cliente != null && cliente.getStatus() != StatusCliente.APROVADO) {
             cliente.setStatus(StatusCliente.FALHA_APROVACAO);
