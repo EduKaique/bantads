@@ -2,27 +2,45 @@ package com.bantads.gerente.mensageria;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bantads.gerente.dto.GerenteInsercaoDTO;
+import com.bantads.gerente.dto.GerenteResponseDTO;
 import com.bantads.gerente.model.Gerente;
 import com.bantads.gerente.repository.GerenteRepository;
+import com.bantads.gerente.service.SagaDeferredResultManager;
 
 @Component
 public class OrquestradorSagaInsercaoGerente {
 
     private final PublicadorSagaInsercaoGerente publicador;
     private final GerenteRepository gerenteRepository;
+    private final SagaDeferredResultManager sagaManager;
 
     private final ConcurrentHashMap<String, EstadoSagaInsercao> estadosSagas = new ConcurrentHashMap<>();
 
     public OrquestradorSagaInsercaoGerente(
         PublicadorSagaInsercaoGerente publicador,
-        GerenteRepository gerenteRepository
+        GerenteRepository gerenteRepository,
+        SagaDeferredResultManager sagaManager
     ) {
         this.publicador = publicador;
         this.gerenteRepository = gerenteRepository;
+        this.sagaManager = sagaManager;
+    }
+
+    private void resolverInsercao(EstadoSagaInsercao estado) {
+        GerenteResponseDTO dto = GerenteResponseDTO.builder()
+            .cpf(estado.getDto().getCpf())
+            .nome(estado.getDto().getNome())
+            .email(estado.getDto().getEmail())
+            .tipo("GERENTE")
+            .telefone(estado.getDto().getTelefone())
+            .build();
+        sagaManager.concluir(estado.getSagaId(), ResponseEntity.status(HttpStatus.CREATED).body(dto));
     }
 
     @Transactional
@@ -50,6 +68,7 @@ public class OrquestradorSagaInsercaoGerente {
         if (!evento.sucesso()) {
             estado.setStatus("ERRO");
             estado.setMensagem(evento.mensagem());
+            resolverInsercao(estado);
             return;
         }
 
@@ -68,12 +87,14 @@ public class OrquestradorSagaInsercaoGerente {
             if (gerenteRepository.existsByCpf(dto.getCpf())) {
                 estado.setStatus("ERRO");
                 estado.setMensagem("CPF já cadastrado");
+                resolverInsercao(estado);
                 return;
             }
 
             if (gerenteRepository.existsByEmail(dto.getEmail())) {
                 estado.setStatus("ERRO");
                 estado.setMensagem("Email já cadastrado");
+                resolverInsercao(estado);
                 return;
             }
 
@@ -116,10 +137,12 @@ public class OrquestradorSagaInsercaoGerente {
                 estado.setStatus("AGUARDANDO_ATRIBUICAO_CONTA");
             } else {
                 estado.setStatus("CONCLUIDA");
+                resolverInsercao(estado);
             }
         } catch (Exception e) {
             estado.setStatus("ERRO");
             estado.setMensagem("Erro ao inserir gerente: " + e.getMessage());
+            resolverInsercao(estado);
         }
     }
 
@@ -137,6 +160,7 @@ public class OrquestradorSagaInsercaoGerente {
         } else {
             estado.setStatus("CONCLUIDA");
         }
+        resolverInsercao(estado);
     }
 
     public EstadoSagaInsercao obterEstadoSaga(String sagaId) {

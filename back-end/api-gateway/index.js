@@ -13,7 +13,7 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: ["http://localhost:4200", "https://curly-bassoon-9rqgpjjwrgrcpwj9-4200.app.github.dev"], // Libera especificamente o seu Angular
+    origin: ["http://localhost:4200", "https://curly-bassoon-9rqgpjjwrgrcpwj9-4200.app.github.dev", "http://localhost:80", "http://localhost:81"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
   }),
@@ -87,6 +87,13 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+const getForwardHeaders = (req) => ({
+    'Authorization': req.headers['authorization'],
+    'x-usuario-cpf': req.headers['x-usuario-cpf'],
+    'x-usuario-tipo': req.headers['x-usuario-tipo']
+});
+
+
 // ROTAS PÚBLICAS
 app.get("/reboot", async (req, res) => {
   try {
@@ -112,12 +119,9 @@ app.post("/logout", verifyJWT, (req, res, next) => {
 });
 
 // API COMPOSITION
-const getForwardHeaders = (req) => ({
-    'Authorization': req.headers['authorization'],
-    'x-usuario-cpf': req.headers['x-usuario-cpf'],
-    'x-usuario-tipo': req.headers['x-usuario-tipo']
-});
-
+/**
+ * Consulta o cliente, se o cliente tiver conta consulta o saldo dela e devolve na response
+ */
 app.get('/clientes/:cpf', verifyJWT, async (req, res, next) => {
     try {
         const cpf = req.params.cpf;
@@ -154,6 +158,11 @@ app.get('/clientes/:cpf', verifyJWT, async (req, res, next) => {
     }
 });
 
+/** 
+ * Recebe a requisição e extrai o query params e faz um GET para o ms-cliente
+ * Busca o saldo de varios clientes e devolve na reponse
+ * R14 - Top 3 clientes
+ */
 app.get('/clientes', verifyJWT, async (req, res, next) => {
     try {
         const filtro = req.query.filtro;
@@ -212,6 +221,10 @@ app.use("/contas", verifyJWT, (req, res, next) => {
   contaServiceProxy(req, res, next);
 });
 
+/**
+ * Busca os gerentes, filtra os clientes do gerente, calcula saldo positivo, calcula saldo negativo e ranqueia os gerentes
+ * Listagem do gerente para R15 dashboard do adm e R19 listagem de gerentes
+ */
 app.get('/gerentes', verifyJWT, async (req, res, next) => {
     try {
         const queryString = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';

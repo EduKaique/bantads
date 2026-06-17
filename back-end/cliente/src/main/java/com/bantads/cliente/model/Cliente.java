@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.hibernate.annotations.Check;
 
 import java.time.OffsetDateTime;
 
@@ -12,6 +13,7 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "clientes")
+@Check(constraints = "cpf ~ '^[0-9]{11}$'")
 public class Cliente {
 
     @Id
