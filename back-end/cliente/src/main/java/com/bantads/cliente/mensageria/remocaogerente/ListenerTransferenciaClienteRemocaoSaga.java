@@ -21,6 +21,8 @@ public class ListenerTransferenciaClienteRemocaoSaga {
     @RabbitListener(queues = "cliente.transferir-contas-remocao.queue")
     @Transactional
     public void consumirTransferenciaRemocao(EventoTransferenciaContasRemocao evento) {
+        if (!"TRANSFERIR".equals(evento.operacao())) return;
+
         System.out.println("SAGA Cliente (Remoção) - Migrando clientes do gerente " + evento.cpfGerenteParaRemover());
 
         try {
@@ -28,12 +30,12 @@ public class ListenerTransferenciaClienteRemocaoSaga {
 
             if (!clientesOrfaos.isEmpty()) {
                 for (Cliente cliente : clientesOrfaos) {
-                    cliente.setCpfGerenteResponsavel(evento.cpfGerenteMenosContas());
+                    cliente.setCpfGerenteResponsavel(evento.cpfGerenteDestino());
                 }
-                
+
                 clienteRepository.saveAll(clientesOrfaos);
-                
-                System.out.println("✅ SAGA Cliente - " + clientesOrfaos.size() + " cliente(s) migrado(s) para " + evento.cpfGerenteMenosContas());
+
+                System.out.println("✅ SAGA Cliente - " + clientesOrfaos.size() + " cliente(s) migrado(s) para " + evento.cpfGerenteDestino());
             }
 
         } catch (Exception e) {
